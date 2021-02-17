@@ -1,0 +1,314 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Java内存区域 | bxxiao</title><meta name="keywords" content="JVM"><meta name="author" content="bxxiao"><meta name="copyright" content="bxxiao"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="类的生命周期类的生命周期：  类的加载、连接和初始化都是在**程序运行期间**完成的。这为Java程序提供更大的灵活性。 以下几种情况，生命周期将结束：  执行了System.exit()或Runtime.getRuntime().exit()方法 程序正常执行结束 程序在执行过程中遇到了异常或错误而异常终止 由于操作系统出现错误而导致Java虚拟机进程终止 JVM进程被终止。  类加载过程Cla">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java内存区域">
+<meta property="og:url" content="http://example.com/2021/02/17/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E8%BF%87%E7%A8%8B/index.html">
+<meta property="og:site_name" content="bxxiao">
+<meta property="og:description" content="类的生命周期类的生命周期：  类的加载、连接和初始化都是在**程序运行期间**完成的。这为Java程序提供更大的灵活性。 以下几种情况，生命周期将结束：  执行了System.exit()或Runtime.getRuntime().exit()方法 程序正常执行结束 程序在执行过程中遇到了异常或错误而异常终止 由于操作系统出现错误而导致Java虚拟机进程终止 JVM进程被终止。  类加载过程Cla">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://gitee.com/bxgitee/noteImage/raw/master/image/wallhaven-9mxz8k.jpg">
+<meta property="article:published_time" content="2021-02-17T09:57:24.583Z">
+<meta property="article:modified_time" content="2021-02-17T09:58:52.579Z">
+<meta property="article:author" content="bxxiao">
+<meta property="article:tag" content="JVM">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gitee.com/bxgitee/noteImage/raw/master/image/wallhaven-9mxz8k.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2021/02/17/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E8%BF%87%E7%A8%8B/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2021-02-17 17:58:52'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    })(window)</script><meta name="referrer" content="no-referrer-when-downgrade" /><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Zfour/zfe-2.0@1.15/css/cardlistpost.css"/><meta name="generator" content="Hexo 5.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="author-avatar"><img class="avatar-img" src="https://gitee.com/bxgitee/noteImage/raw/master/image/567.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">14</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/Tag/"><div class="headline">标签</div><div class="length-num">7</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/Tag/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://gitee.com/bxgitee/noteImage/raw/master/image/wallhaven-9mxz8k.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">bxxiao</a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/Tag/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Java内存区域</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-02-17T09:57:24.583Z" title="发表于 2021-02-17 17:57:24">2021-02-17</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2021-02-17T09:58:52.579Z" title="更新于 2021-02-17 17:58:52">2021-02-17</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/JVM/">JVM</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="类的生命周期"><a href="#类的生命周期" class="headerlink" title="类的生命周期"></a>类的生命周期</h2><p><strong>类的生命周期</strong>：</p>
+<p><img src="https://gitee.com/bxgitee/noteImage/raw/master/image/image-20210123141452535.png" alt="image-20210123141452535"></p>
+<p>类的加载、连接和初始化都是在**<font color="red">程序运行期间</font>**完成的。这为Java程序提供更大的灵活性。</p>
+<p>以下<strong>几种情况</strong>，生命周期将结束：</p>
+<ul>
+<li>执行了<code>System.exit()</code>或<code>Runtime.getRuntime().exit()</code>方法</li>
+<li>程序正常执行结束</li>
+<li>程序在执行过程中遇到了异常或错误而异常终止</li>
+<li>由于操作系统出现错误而导致Java虚拟机进程终止</li>
+<li>JVM进程被终止。</li>
+</ul>
+<h2 id="类加载过程"><a href="#类加载过程" class="headerlink" title="类加载过程"></a>类加载过程</h2><p>Class文件需要加载到虚拟机中之后才能运行和使用，当程序<strong>主动使用</strong>某个类时，若该类未被加载到内存中（<strong>即首次主动使用</strong>），则系统<strong>通过加载、连接、初始化3个步骤来对该类进行初始化</strong>。连接过程又可分为三步:<strong>验证-&gt;准备-&gt;解析</strong>。</p>
+<p>类加载过程图示：</p>
+<img src="https://gitee.com/bxgitee/noteImage/raw/master/image/image-20210118171003597.png" alt="image-20210118171003597" style="zoom:80%;" />
+
+<h3 id="加载"><a href="#加载" class="headerlink" title="加载"></a>加载</h3><p>加载指<strong>将类的class文件读入内存</strong>，将其<strong>放在运行时数据区的方法区内</strong>，并<strong>为之创建一个<code>java.lang.Class</code>对象</strong>，<strong>用来封装类在方法区内的数据结构，并提供了方法区内的数据结构的接口</strong>。（JVM规范并未说明Cass对象位于哪里， HotSpot虚拟机将其放在了方法区中）</p>
+<p>加载阶段主要完成下面3件事情：</p>
+<ol>
+<li>通过全类名获取定义此类的二进制字节流</li>
+<li>将字节流所代表的静态存储结构转换为方法区的运行时数据结构</li>
+<li><strong>在内存中生成一个代表该类的 Class 对象，作为方法区这些数据的访问入口</strong></li>
+</ol>
+<p>加载class文件的方式：</p>
+<ul>
+<li>从本地系统中直接加载</li>
+<li>通过网络下载cass文件</li>
+<li>从zjp，jar等归档文件中加载class文件</li>
+<li>将Java源文件<strong>动态编译</strong>为class文件（如动态代理）</li>
+</ul>
+<h3 id="连接"><a href="#连接" class="headerlink" title="连接"></a>连接</h3><p><strong>连接阶段负责把类的二进制数据合并到JRE中</strong>。</p>
+<ul>
+<li><p>验证：检验被加载的类是否有正确的内部结构并和其他类协调一致。</p>
+<ul>
+<li><strong>Class文件不一定由Java文件编译而来，需要对其进行验证，防止加载错误或恶意的字节码流。</strong> </li>
+<li>类的验证的部分内容：类文件的结构检查；语义检查；字节码验证；二进制兼容性的验证等。</li>
+<li><img src="https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-6/%E9%AA%8C%E8%AF%81%E9%98%B6%E6%AE%B5.png"></li>
+</ul>
+</li>
+<li><p><strong>准备</strong>：为<strong>类的类变量</strong>分配内存，<strong>并设置默认初始值</strong>。**<font color="red">通常情况下，不管有无为静态变量指定初始值，在准备阶段都会先将其初始化为零值</font>**。而若是类字段的字段属性表中存在ConstantValue属性，则会初始化为该属性指定的初始值，如使用了final static的情况。</p>
+</li>
+<li><p><strong>解析</strong>：将类的二进制数据中的<strong>符号引用替换为直接引用</strong>。</p>
+<ul>
+<li><p><strong>解析阶段是虚拟机将常量池内的符号引用替换为直接引用的过程</strong>。解析动作主要针对<strong>类或接口、字段、类方法、接口方法、方法类型、方法句柄和调用限定符</strong>7类符号引用进行。</p>
+<p>符号引用就是一组符号来描述目标，可以是任何字面量。<strong>直接引用</strong>就是<strong>直接指向目标的指针、相对偏移量或一个间接定位到目标的句柄</strong>。在程序实际运行时，只有符号引用是不够的，举个例子：在程序执行方法时，系统需要明确知道这个方法所在的位置。Java 虚拟机为每个类都准备了一张方法表来存放类中所有的方法。当需要调用一个类的方法的时候，只要知道这个方法在方发表中的偏移量就可以直接调用该方法了。通过解析操作符号引用就可以直接转变为目标方法在类中方法表的位置，从而使得方法可以被调用。</p>
+<p>综上，解析阶段是虚拟机将常量池内的符号引用替换为直接引用的过程，也就是得到类或者字段、方法在内存中的指针或者偏移量。(<a href="https://snailclimb.gitee.io/javaguide/#/docs/java/jvm/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E8%BF%87%E7%A8%8B" target="_blank">JavaGuide-类的加载过程</a> )</p>
+</li>
+<li><p>加载、验证、准备、初始化和卸载这五个阶段的顺序是确定的，它们必须按顺序的开始（**<font color="red">注意开始的意思是，这些阶段通常都是互相交叉的混合进行，会在一个阶段执行的过程中调用、激活另一个阶段</font>**），而解析阶段不一定，<strong><font color="red">它可以在初始化阶段之后再开始</font></strong>。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h3><p>初始化阶段，虚拟机对类进行初始化，<strong>主要是对类变量进行初始化（赋指定的值）</strong>。JVM会<strong>按顺序</strong>执行类文件中的初始化语句（static）。</p>
+<p>初始化一个类包含以下步骤：</p>
+<ul>
+<li>若该类还没被加载和连接，则对该类进行加载和连接。</li>
+<li><strong>若该类的直接父类没有被初始化，对该父类执行初始化</strong>。</li>
+<li>若类中有初始化语句，则依次执行这些语句。</li>
+</ul>
+<p><strong>执行第2个步骤时，对父类的初始化步骤同样遵循这3个步骤</strong>。若父类有直接父类，则进行同样操作，以此类推。<strong>所以JVM最先初始化的总是<code>java.lang.Object</code>类</strong>。</p>
+<p><strong>只有<font color="red">主动使用类时</font>才会对类执行初始化操作</strong>。</p>
+<h2 id="类的卸载"><a href="#类的卸载" class="headerlink" title="类的卸载"></a>类的卸载</h2><p>当 Mysample类被加载、连接和初始化后，它的生命周期就开始了。<strong>当代表MySample类的Class对象不再被引用，即不可触及时该Class对象就会被JVM垃圾回收机制回收，结束生命周期</strong>， Mysample类在方法区内的数据也会被卸载，从而结束 Mysample类的生命周期。</p>
+<p>**<font color="red">类何时结束生命周期，取决于代表它的Class对象何时结束生命周期</font>**。</p>
+<blockquote>
+<ul>
+<li>每一个类加载器包含被它所加载的Class对象的引用。</li>
+<li>程序中的每一个对象包含一个其所属类对应的Class对象的引用。（<code>obj.class</code>）</li>
+</ul>
+<p>这两种引用不存在时类才会被卸载。即不存在指向相关类加载器的引用，和不存在Class对应的对象的情况。</p>
+</blockquote>
+<p><strong>由Java虚拟机自带的类加载器所加载的类，在虚拟机的生命周期中，始终不会被卸载</strong>。Java虚拟机本身会始终引用这些类加载器，而这些类加载器则会始终引用它们所加载的类的Class对象，因此这些Class对象始终是可触及的。<strong>而由用户自定义的类加载器所加载的类是存在被卸载的可能的</strong>。</p>
+<p>验证示例：</p>
+<p>使用<code>类加载器</code>中的MyClassLoader，编写测试代码，运行时添加JVM参数<code>-XX:+TraceClassUnloading</code>（跟踪卸载）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">test2</span><span class="params">()</span> <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">    String path = <span class="string">&quot;E:\\AAAFrequently-used\\temp\\&quot;</span>;</span><br><span class="line">    MyClassLoader loader = <span class="keyword">new</span> MyClassLoader(<span class="string">&quot;loader1&quot;</span>);</span><br><span class="line">    loader.setPath(path);</span><br><span class="line">    Class&lt;?&gt; clazz = loader.loadClass(<span class="string">&quot;classloader.MyTest1&quot;</span>);</span><br><span class="line"></span><br><span class="line">    Object obj = clazz.newInstance();</span><br><span class="line"></span><br><span class="line">    loader = <span class="keyword">null</span>;</span><br><span class="line">    clazz =<span class="keyword">null</span>;</span><br><span class="line">    obj = <span class="keyword">null</span>;</span><br><span class="line">    <span class="comment">//没有任何引用指向MyTest1的Class对象，执行垃圾回收，MyTest1的Class对象将被卸载</span></span><br><span class="line">    System.gc();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>把loader、clazz、obj都置为null，调用<code>System.gc()</code>执行垃圾回收，</p>
+<p>会导致MyTest1的Class对象被卸载，输出：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[Unloading class classloader.MyTest1 0x0000000100061028]</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="主动使用和被动使用类"><a href="#主动使用和被动使用类" class="headerlink" title="主动使用和被动使用类"></a>主动使用和被动使用类</h2><h3 id="主动使用（引用）"><a href="#主动使用（引用）" class="headerlink" title="主动使用（引用）"></a>主动使用（引用）</h3><p><strong>《JVM规范》严格规定<font color="red">有且只有</font>以下6种情况需要立即对类进行初始化</strong>：</p>
+<ul>
+<li><strong>当遇到 new 、 getstatic、putstatic或invokestatic 这4条直接码指令时</strong>，对应以下情况：<ul>
+<li>创建类的示例。（JVM执行<strong>new指令</strong>）。</li>
+<li>访问某个类的静态变量（JVM执行<strong>getstatic指令</strong>），或为其静态变量赋值（jvm执行<strong>putstatic指令</strong>）（静态常量除外）。</li>
+<li>调用类的静态方法（jvm执行<strong>invokestatic指令</strong>）。</li>
+</ul>
+</li>
+<li>使用 <code>java.lang.reflect</code> 包的方法对类进行<strong>反射调用</strong>时。如<code>Class.forname(&quot;...&quot;)</code>，<code>newInstance()</code>等等。</li>
+<li>初始化一个子类时，<strong>若父类未初始化，先触发该父类的初始化</strong>。</li>
+<li>当虚拟机启动时，用户需要定义一个要执行的主类 (<strong>包含 main 方法的类</strong>)，<strong>虚拟机会先初始化这个类</strong>。</li>
+<li>当使用JDK 7新加人的动态语言支持时， 如果一个java.lang.invoke.MethodHandle实例最后的解析结果为REF_get Static、REF_putStatic、REF_invokeStatic、REF_newInvokeSpecial四种类型的方法句柄，并且这个方法句柄对应的类没有进行过初始化，则需要先触发其初始化。</li>
+<li>当一个<strong>接口</strong>中定义了JDK8新加入的<strong>默认方法</strong>（被default关键字修饰的接口方法）时，<strong>如果有这个接口的实现类发生了初始化，那该接口要在其之前被初始化</strong>。</li>
+</ul>
+<p><strong>这六种场景的行为称为对一个类型进行主动引用，其他情况的引用都称为被动引用，不会引起初始化</strong>。</p>
+<h3 id="被动使用（引用）"><a href="#被动使用（引用）" class="headerlink" title="被动使用（引用）"></a>被动使用（引用）</h3><p><strong>除了以上情况，其他情况视为对类的被动使用，不会触发对类的初始化</strong>。一些被动使用的情况：</p>
+<ul>
+<li><p>通过子类访问父类的静态变量，不会导致子类的初始化。<strong>访问静态变量，只有定义了该变量的类才会被初始化</strong>。</p>
+<p>示例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Parent1</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> String str = <span class="string">&quot;hello，world&quot;</span>;</span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Parent1&#x27;s static block&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Child</span> <span class="keyword">extends</span> <span class="title">Parent1</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> String str1 = <span class="string">&quot;shit&quot;</span>;</span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Child&#x27;s static block&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyTest1</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//Child的static块没有执行</span></span><br><span class="line">        <span class="comment">//访问静态字段，只有定义了该字段的类才会吧被初始化</span></span><br><span class="line">        <span class="comment">// System.out.println(Child.str);</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">//Parent1和Child1的static都执行了</span></span><br><span class="line">        <span class="comment">//访问一个类的静态变量属于主动使用该类，所以初始化了Child</span></span><br><span class="line">        <span class="comment">//初始化一个类的子类时相当于主动访问了其所有父类，所以Parent1被初始化（一个类初始化时，要求其所有父类都要初始化完成）</span></span><br><span class="line">        System.out.println(Child.str1);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>但此时Child可能会被加载</strong>。在运行程序时添加jvm参数<code>-XX:+TraceClassLoading</code>可查看类加载信息。其中可看到</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[Loaded classloader.Child from file:/E:.....]</span><br></pre></td></tr></table></figure>
+
+
+</li>
+</ul>
+<ul>
+<li><p><strong>创建数组实例时</strong>不会造成数组元素类型的初始化，如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> classloader;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyTest3</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        Parent3[] parent3s = <span class="keyword">new</span> Parent3[<span class="number">3</span>];</span><br><span class="line">        System.out.println(parent3s.getClass());</span><br><span class="line">        Parent3[][] parent3s1 = <span class="keyword">new</span> Parent3[<span class="number">2</span>][<span class="number">2</span>];</span><br><span class="line">        System.out.println(parent3s1.getClass());</span><br><span class="line"></span><br><span class="line">        System.out.println(parent3s.getClass().getSuperclass());</span><br><span class="line">        System.out.println(parent3s1.getClass().getSuperclass());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Parent3</span></span>&#123;</span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Parent3.static initializer&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>输出：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">class [Lclassloader.Parent3;</span><br><span class="line">class [[Lclassloader.Parent3;</span><br><span class="line">class java.lang.Object</span><br><span class="line">class java.lang.Object</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，数组的类型并不是Parent3。</p>
+<p>对于数组实例来说，**<font color="red">其类型是由JVM在运行期动态生成的</font><strong>，表示为<code>[L + 数组元素全限定名 + ;</code>，二维数组则是<code>[[...</code>，且其父类就是<code>java.lang.Object</code>类。</strong>即并没有访问数组元素对应的类，因此不会造成其初始化**。</p>
+</li>
+<li><p>调用ClassLoader的<code>loadClass()</code>方法。</p>
+</li>
+</ul>
+<p>还有一种final static的情况，如下。</p>
+<h3 id="关于final-static"><a href="#关于final-static" class="headerlink" title="关于final static"></a>关于final static</h3><p>对于一个<strong>final修饰的静态变量</strong>，**<font color="red">若该变量的值在编译时就可以确定</font><strong>，那么该变量相当于“宏变量”。Java编译器会在编译时直接把这个类变量出现的地方替换为它的值。</strong>该常量在编译阶段会存入到<font color="red">调用这个常量的方法所在的类的常量池中</font>，本质上，调用类并没有直接引用到定义常量的类，而是在调用常量池中的常量，因此并不会触发定义常量的类的初始化**，且在把常量放入常量池之后，访问常量的类与定义该常量的类已经没有关系，此时将常量所在类的class文件删除仍然能运行。</p>
+<p>示例：（MyTest2）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FinalStaticTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        System.out.println(FinalStatic.a);<span class="comment">//不会导致类的初始化，static块不执行</span></span><br><span class="line">        System.out.println(FinalStatic.b);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//。。。。。。</span></span><br><span class="line"><span class="comment">//输出：</span></span><br><span class="line"><span class="comment">//ojbk</span></span><br><span class="line"><span class="comment">//FinalStatic&#x27;s static block</span></span><br><span class="line"><span class="comment">//obbk</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">FinalStatic</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String a = <span class="string">&quot;ojbk&quot;</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> String b = <span class="string">&quot;obbk&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;FinalStatic&#x27;s static block&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>从字节码方面看</strong>：</p>
+<p>访问非final的静态变量或变量的值编译时不能确定的final static变量，jvm执行的是getstatic指令（在字节码文件中使用getstatic助记符），而对于宏变量则不是。</p>
+<p>使用javap命令反编译FinalStaticTest：<code>javap -c FinalStaticTest.class</code> ，在输出的字节码中可看到</p>
+<p><code>System.out.println(FinalStatic.b);</code>对应的是</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">11: getstatic     #6                  // Field classloader/FinalStatic.b:Ljava/lang/String;</span><br></pre></td></tr></table></figure>
+
+<p>而<code>System.out.println(FinalStatic.a);</code>对应的是 <code> 3: ldc           #4                  // String ojbk</code></p>
+<p>即String类型的宏变量对应助记符<code>ldc</code>。<strong>即并没用调用getstatic指令，因此不会触发类的初始化</strong>。</p>
+<p>而若是**<font color="red">final static变量的值在编译时不能确定</font>**，访问该值依旧会使用getstatic指令，所以会造成类的初始化。</p>
+<p>示例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">FinalStatic2</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String str = UUID.randomUUID().toString();</span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;FinalStatic2&#x27;s static block&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FinalStaticTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        System.out.println(FinalStatic2.str);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用javap命令可看到：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">3: getstatic     #3                  &#x2F;&#x2F; Field classloader&#x2F;FinalStatic2.str:Ljava&#x2F;lang&#x2F;String;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="关于准备、初始化阶段的示例"><a href="#关于准备、初始化阶段的示例" class="headerlink" title="关于准备、初始化阶段的示例"></a>关于准备、初始化阶段的示例</h2><p>定义类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Singleton</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> count1 = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Singleton singleton = <span class="keyword">new</span> Singleton();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span></span>&#123;</span><br><span class="line">        count1++;</span><br><span class="line">        count2++;</span><br><span class="line">        System.out.println(count1);</span><br><span class="line">        System.out.println(count2);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> count2 = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> singleton;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>测试代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyTest5</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        Singleton singleton = Singleton.getInstance();</span><br><span class="line">        System.out.println(<span class="string">&quot;count1 = &quot;</span> + singleton.count1);</span><br><span class="line">        System.out.println(<span class="string">&quot;count2 = &quot;</span> + singleton.count2);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//output</span></span><br><span class="line"><span class="number">2</span></span><br><span class="line"><span class="number">1</span></span><br><span class="line">count1 = <span class="number">2</span></span><br><span class="line">count2 = <span class="number">0</span></span><br></pre></td></tr></table></figure>
+
+<p>解析：在使用了Singleton的静态方法<code>getInstance()</code>时，引起了对Singleton的初始化，而初始化之前需要进行加载和连接，其中，**<font color="red">在连接阶段的准备阶段，为count1和count2分配了内存，并赋默认值（0）</font><strong>，在</strong>随后的初始化阶段<strong>，</strong>按顺序执行初始化语句，<strong>count被赋值为1，随后执行<code>new Singleton()</code>，将count1、2++，此时的值为2、1，</strong>最后执行<code>count2 = 0</code>，所以最后两个变量的值是2，0**。</p>
+<h2 id="关于接口的初始化"><a href="#关于接口的初始化" class="headerlink" title="关于接口的初始化"></a>关于接口的初始化</h2><p><strong>类的初始化规则不全部适用于接口</strong>，对于接口：</p>
+<ul>
+<li><strong>当一个接口在初始化时，不会触发其父接口的初始化</strong>，只有在真正使用到父接口的时候（如引用接口中所定义的常量时），才会执行父接口的初始化。<strong>即使调用实现类的实现方法也不会触发接口的初始化</strong>。</li>
+<li>**<font color="red">若是一个接口包含default方法，则当其实现类被初始化时，会先初始化接口</font>**。（若还没初始化）</li>
+<li><strong>在初始化一个类时并不会初始化该类的实现接口（<font color="red">除非该接口包含default方法</font>）</strong>。</li>
+<li><strong>接口中的成员变量默认被<code>public static final</code>修饰，所以对于接口变量同样适用上述宏变量的情况</strong>。</li>
+</ul>
+<p>示例：（若是接口被初始化，则接口中的new Thread()会执行，输出语句）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">IParent</span></span>&#123;</span><br><span class="line">    String a = UUID.randomUUID().toString();</span><br><span class="line">    Thread thread = <span class="keyword">new</span> Thread()&#123;</span><br><span class="line">        &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;IParent.instance initializer&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">IChild</span> <span class="keyword">extends</span> <span class="title">IParent</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> b = <span class="number">6</span>;</span><br><span class="line">    String str = UUID.randomUUID().toString();</span><br><span class="line">    Thread thread = <span class="keyword">new</span> Thread()&#123;</span><br><span class="line">        &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;IChild.instance initializer&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Imp</span> <span class="keyword">implements</span> <span class="title">IParent</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> c = <span class="number">6</span>;</span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Imp.static initializer&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyTest4</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//1.访问宏变量，没有引起两个接口的初始化，output：</span></span><br><span class="line">        <span class="comment">//6</span></span><br><span class="line">        <span class="comment">// System.out.println(IChild.b);</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">//2.IChild被初始化，但其父接口并没有被初始化，output：</span></span><br><span class="line">        <span class="comment">//IChild.instance initializer</span></span><br><span class="line">		<span class="comment">//caac858a-e095-4152-abf4-b75f41a24873</span></span><br><span class="line">        <span class="comment">// System.out.println(IChild.str);</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">//3.类的初始化并不会触发其实现接口的初始化，output：</span></span><br><span class="line">        <span class="comment">//Imp.static initializer</span></span><br><span class="line">		<span class="comment">//6</span></span><br><span class="line">        System.out.println(Imp.c);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><blockquote>
+<p><a href="https://www.bilibili.com/video/BV187411B7iv" target="_blank"> 深入理解JVM虚拟机视频</a> </p>
+<p><a href="https://snailclimb.gitee.io/javaguide/#/docs/java/jvm/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E8%BF%87%E7%A8%8B" target="_blank">Guide-类的加载过程</a> </p>
+<p><a href="https://gu_chun_bo.gitee.io/java-construct/#/jvm%E5%AD%A6%E4%B9%A0/jvm-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E8%BF%87%E7%A8%8B" target="_blank">jvm-类加载过程</a> </p>
+<p>《疯狂Java讲义》</p>
+<p>《深入理解JVM》</p>
+</blockquote>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">bxxiao</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2021/02/17/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E8%BF%87%E7%A8%8B/">http://example.com/2021/02/17/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E8%BF%87%E7%A8%8B/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">bxxiao</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/Tag/JVM/">JVM</a></div><div class="post_share"><div class="social-share" data-image="https://gitee.com/bxgitee/noteImage/raw/master/image/wallhaven-9mxz8k.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2021/02/17/JVM%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F/"><img class="next-cover" src="https://gitee.com/bxgitee/noteImage/raw/master/image/ball_glass_sunset_133830_1920x1080.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Java内存区域</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2021/02/17/JVM内存区域/" title="Java内存区域"><img class="cover" src="https://gitee.com/bxgitee/noteImage/raw/master/image/ball_glass_sunset_133830_1920x1080.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-02-17</div><div class="title">Java内存区域</div></div></a></div><div><a href="/2021/02/17/类加载器/" title="Java内存区域"><img class="cover" src="https://gitee.com/bxgitee/noteImage/raw/master/image/ball_glass_sunset_133830_1920x1080.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-02-17</div><div class="title">Java内存区域</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-info-avatar is-center"><img class="avatar-img" src="https://gitee.com/bxgitee/noteImage/raw/master/image/567.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/><div class="author-info__name">bxxiao</div><div class="author-info__description">弹指间、数据库灰飞烟灭</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">14</div></a></div><div class="card-info-data-item is-center"><a href="/Tag/"><div class="headline">标签</div><div class="length-num">7</div></a></div><div class="card-info-data-item is-center"><a href="/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/bxxiao"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%B1%BB%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="toc-number">1.</span> <span class="toc-text">类的生命周期</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%B1%BB%E5%8A%A0%E8%BD%BD%E8%BF%87%E7%A8%8B"><span class="toc-number">2.</span> <span class="toc-text">类加载过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%A0%E8%BD%BD"><span class="toc-number">2.1.</span> <span class="toc-text">加载</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9E%E6%8E%A5"><span class="toc-number">2.2.</span> <span class="toc-text">连接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-number">2.3.</span> <span class="toc-text">初始化</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%B1%BB%E7%9A%84%E5%8D%B8%E8%BD%BD"><span class="toc-number">3.</span> <span class="toc-text">类的卸载</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%BB%E5%8A%A8%E4%BD%BF%E7%94%A8%E5%92%8C%E8%A2%AB%E5%8A%A8%E4%BD%BF%E7%94%A8%E7%B1%BB"><span class="toc-number">4.</span> <span class="toc-text">主动使用和被动使用类</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BB%E5%8A%A8%E4%BD%BF%E7%94%A8%EF%BC%88%E5%BC%95%E7%94%A8%EF%BC%89"><span class="toc-number">4.1.</span> <span class="toc-text">主动使用（引用）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A2%AB%E5%8A%A8%E4%BD%BF%E7%94%A8%EF%BC%88%E5%BC%95%E7%94%A8%EF%BC%89"><span class="toc-number">4.2.</span> <span class="toc-text">被动使用（引用）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E4%BA%8Efinal-static"><span class="toc-number">4.3.</span> <span class="toc-text">关于final static</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E4%BA%8E%E5%87%86%E5%A4%87%E3%80%81%E5%88%9D%E5%A7%8B%E5%8C%96%E9%98%B6%E6%AE%B5%E7%9A%84%E7%A4%BA%E4%BE%8B"><span class="toc-number">5.</span> <span class="toc-text">关于准备、初始化阶段的示例</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E4%BA%8E%E6%8E%A5%E5%8F%A3%E7%9A%84%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-number">6.</span> <span class="toc-text">关于接口的初始化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-number">7.</span> <span class="toc-text">参考</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2021/02/17/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E8%BF%87%E7%A8%8B/" title="Java内存区域"><img src="https://gitee.com/bxgitee/noteImage/raw/master/image/wallhaven-9mxz8k.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Java内存区域"/></a><div class="content"><a class="title" href="/2021/02/17/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E8%BF%87%E7%A8%8B/" title="Java内存区域">Java内存区域</a><time datetime="2021-02-17T09:57:24.583Z" title="发表于 2021-02-17 17:57:24">2021-02-17</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/02/17/JVM%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F/" title="Java内存区域"><img src="https://gitee.com/bxgitee/noteImage/raw/master/image/ball_glass_sunset_133830_1920x1080.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Java内存区域"/></a><div class="content"><a class="title" href="/2021/02/17/JVM%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F/" title="Java内存区域">Java内存区域</a><time datetime="2021-02-17T09:57:24.582Z" title="发表于 2021-02-17 17:57:24">2021-02-17</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/02/17/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/" title="Java内存区域"><img src="https://gitee.com/bxgitee/noteImage/raw/master/image/ball_glass_sunset_133830_1920x1080.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Java内存区域"/></a><div class="content"><a class="title" href="/2021/02/17/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/" title="Java内存区域">Java内存区域</a><time datetime="2021-02-17T09:57:24.580Z" title="发表于 2021-02-17 17:57:24">2021-02-17</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2020/12/02/%E6%B7%B1%E6%8B%B7%E8%B4%9D%E3%80%81%E6%B5%85%E6%8B%B7%E8%B4%9D/" title="深拷贝、浅拷贝"><img src="https://gitee.com/bxgitee/noteImage/raw/master/image/preview1.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="深拷贝、浅拷贝"/></a><div class="content"><a class="title" href="/2020/12/02/%E6%B7%B1%E6%8B%B7%E8%B4%9D%E3%80%81%E6%B5%85%E6%8B%B7%E8%B4%9D/" title="深拷贝、浅拷贝">深拷贝、浅拷贝</a><time datetime="2020-12-02T14:25:18.129Z" title="发表于 2020-12-02 22:25:18">2020-12-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2020/11/13/Spring%E4%B8%AD%E5%A4%84%E7%90%86json%E6%95%B0%E6%8D%AE/" title="Spring中处理json数据的总结"><img src="https://gitee.com/bxgitee/noteImage/raw/master/image/ball_glass_sunset_133830_1920x1080.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Spring中处理json数据的总结"/></a><div class="content"><a class="title" href="/2020/11/13/Spring%E4%B8%AD%E5%A4%84%E7%90%86json%E6%95%B0%E6%8D%AE/" title="Spring中处理json数据的总结">Spring中处理json数据的总结</a><time datetime="2020-11-12T16:45:26.199Z" title="发表于 2020-11-13 00:45:26">2020-11-13</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://gitee.com/bxgitee/noteImage/raw/master/image/wallhaven-9mxz8k.jpg')"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2021 By bxxiao</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
