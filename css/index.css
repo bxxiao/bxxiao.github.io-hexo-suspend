@@ -3347,7 +3347,7 @@ li.categoryBar-list-item:nth-child(2) {
   background: url('/images/wallhaven-8o77d1.jpg');
 }
 li.categoryBar-list-item:nth-child(3) {
-  background: url('/images/wallhaven-28g2d6.jpg');
+  background: url('/images/微信图片_20210301201225.jpg');
 }
 li.categoryBar-list-item:nth-child(4) {
   background: url('/images/wallhaven-137lo1.jpg');
@@ -3363,6 +3363,9 @@ li.categoryBar-list-item:nth-child(7) {
 }
 li.categoryBar-list-item:nth-child(8) {
   background: url('/images/wallhaven-xlgxoo.jpg');
+}
+li.categoryBar-list-item:nth-child(9) {
+  background: url('/images/微信图片_202103012012251.jpg');
 }
 li.categoryBar-list-item:nth-child(1)>span::after {
   content: '' !important;
