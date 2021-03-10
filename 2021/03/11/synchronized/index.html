@@ -1,0 +1,400 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>synchronized | bxxiao</title><meta name="keywords" content="Java并发"><meta name="author" content="bxxiao"><meta name="copyright" content="bxxiao"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="&amp;emsp; i++,i–同步问题代码： 12345678910111213static int counter;public static void main(String[] args) throws InterruptedException &amp;#123;    Thread t1 &#x3D; new Thread(() -&gt; &amp;#123; for (int i &#x3D; 0; i &lt; 5000">
+<meta property="og:type" content="article">
+<meta property="og:title" content="synchronized">
+<meta property="og:url" content="http://example.com/2021/03/11/synchronized/index.html">
+<meta property="og:site_name" content="bxxiao">
+<meta property="og:description" content="&amp;emsp; i++,i–同步问题代码： 12345678910111213static int counter;public static void main(String[] args) throws InterruptedException &amp;#123;    Thread t1 &#x3D; new Thread(() -&gt; &amp;#123; for (int i &#x3D; 0; i &lt; 5000">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/images/wallhaven-137lo1.jpg">
+<meta property="article:published_time" content="2021-03-10T16:35:28.790Z">
+<meta property="article:modified_time" content="2021-03-10T16:35:20.283Z">
+<meta property="article:author" content="bxxiao">
+<meta property="article:tag" content="Java并发">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/wallhaven-137lo1.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2021/03/11/synchronized/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2021-03-11 00:35:20'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    })(window)</script><meta name="referrer" content="no-referrer-when-downgrade" /><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Zfour/zfe-2.0@1.15/css/cardlistpost.css"/><meta name="generator" content="Hexo 5.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="author-avatar"><img class="avatar-img" src="https://gitee.com/bxgitee/noteImage/raw/master/image/maomao.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">28</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/Tag/"><div class="headline">标签</div><div class="length-num">13</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">11</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/Tag/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/images/wallhaven-137lo1.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">bxxiao</a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/Tag/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">synchronized</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-03-10T16:35:28.790Z" title="发表于 2021-03-11 00:35:28">2021-03-11</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2021-03-10T16:35:20.283Z" title="更新于 2021-03-11 00:35:20">2021-03-11</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Java%E5%B9%B6%E5%8F%91/">Java并发</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>&emsp;</p>
+<h2 id="i-i–同步问题"><a href="#i-i–同步问题" class="headerlink" title="i++,i–同步问题"></a>i++,i–同步问题</h2><p>代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">int</span> counter;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">    Thread t1 = <span class="keyword">new</span> Thread(() -&gt; &#123; <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5000</span>; i++) &#123; counter++;</span><br><span class="line">    &#125; &#125;, <span class="string">&quot;t1&quot;</span>);</span><br><span class="line">    Thread t2 = <span class="keyword">new</span> Thread(() -&gt; &#123; <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5000</span>; i++) &#123; counter--;</span><br><span class="line">    &#125; &#125;, <span class="string">&quot;t2&quot;</span>);</span><br><span class="line">    t1.start();</span><br><span class="line">    t2.start();</span><br><span class="line">    t1.join();</span><br><span class="line">    t2.join();</span><br><span class="line">    log.debug(<span class="string">&quot;&#123;&#125;&quot;</span>,counter);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>两个线程执行完后，结果是不确定的</strong>。</p>
+<p><strong><font color="red">因为 Java 中对静态变量的自增，自减并不是原子操作</font></strong>，假设i为静态变量，i++，i–的字节码如下：</p>
+<p>i++：</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">getstatic	<span class="regexp">//</span>获取静态变量</span><br><span class="line">iconst_1	<span class="regexp">//</span>准备常量<span class="number">1</span></span><br><span class="line">iadd		<span class="regexp">//</span>减操作</span><br><span class="line">putstatic 	<span class="regexp">//</span>将修改后的值存入静态变量</span><br></pre></td></tr></table></figure>
+
+<p>i–：</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">getstatic	<span class="regexp">//</span>获取静态变量</span><br><span class="line">iconst_1	<span class="regexp">//</span>准备常量<span class="number">1</span></span><br><span class="line">isub		<span class="regexp">//</span>减操作</span><br><span class="line">putstatic 	<span class="regexp">//</span>将修改后的值存入静态变量</span><br></pre></td></tr></table></figure>
+
+<p><strong>若这8条指令不能按顺序执行，则不能保证结果为0，会造成丢失修改，即一个putstatic会覆盖掉另一个putstatic的结果</strong>。</p>
+<p>&emsp;&emsp;</p>
+<h2 id="synchronized关键字"><a href="#synchronized关键字" class="headerlink" title="synchronized关键字"></a>synchronized关键字</h2><h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><blockquote>
+<p><strong>临界区</strong>指的是一个访问共用资源的程序片段，而这些共用资源又无法同时被多个线程线程访问的特性。当有线程进入临界区段时，其他线程或是进程必须等待。</p>
+<p>竞态条件（Race Condition）：多个线程在临界区内执行，由于代码的执行序列不同而导致结果无法预测，称之为发生了竞态条件。</p>
+</blockquote>
+<p>&emsp;&emsp;</p>
+<p>Java中可以使用synchronized关键字解决共享变量的同步问题。</p>
+<p>synchronized块是Java提供的一种原子性内置锁， Java中的每个对象都可以把它当作一个同步锁来使用， 这些Java内置的使用者看不到的锁被称为内部锁，也叫作监视器锁。<strong>线程的执行代码在进入synchronized代码块前会自动获取内部锁， 这时候其他线程访问该同步代码块时会被阻塞挂起</strong>。内置锁是排它锁，也就是当一个线程获取这个锁后，其他线程必须等待该线程释放锁后才能获取该锁。</p>
+<p>&emsp;&emsp;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">synchronized</span>(obj)&#123;  <span class="comment">//obj为要锁定的资源（对象）</span></span><br><span class="line">    ---<span class="comment">//同步代码块（临界区）  </span></span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+
+<p><strong>synchronized 实际是用对象锁保证了临界区内代码的原子性，临界区内的代码对外是不可分割的，不会被线程切换所打断，即切换线程时不会释放锁，以下情况时才会释放锁</strong>：</p>
+<ul>
+<li>正常退出同步代码块。</li>
+<li>抛出异常或错误。</li>
+<li>执行了同步监视器<strong>对象</strong>的wait()方法，则当前线程暂停，并释放同步监视器。  </li>
+</ul>
+<p>&emsp;&emsp;</p>
+<p>另外， 由于<strong style="color:red">Java中的线程是与操作系统的原生线程一一对应的， 所以当阻塞一个线程时， 需要从用户态切换到内核态执行阻塞操作</strong>， 这是很耗时的操作， 而synchronized的使用就会导致上下文切换（线程获取不到锁时）。</p>
+<p>&emsp;&emsp;</p>
+<p>示例，对上述i++，i–问题：多次执行，可保证结果为0。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Slf4j(topic = &quot;c.SimpleDemo&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SimpleDemo</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> Integer counter = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">static</span> Object lock = <span class="keyword">new</span> Object();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        Thread t1 = <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5000</span>; i++) &#123;</span><br><span class="line">                <span class="keyword">synchronized</span> (lock)&#123;</span><br><span class="line">                    counter++;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;, <span class="string">&quot;t1&quot;</span>);</span><br><span class="line">        Thread t2 = <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5000</span>; i++) &#123;</span><br><span class="line">                <span class="keyword">synchronized</span>(lock)&#123;</span><br><span class="line">                    counter--;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;, <span class="string">&quot;t2&quot;</span>);</span><br><span class="line">        t1.start();</span><br><span class="line">        t2.start();</span><br><span class="line">        t1.join();</span><br><span class="line">        t2.join();</span><br><span class="line">        log.debug(<span class="string">&quot;&#123;&#125;&quot;</span>, counter);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;</p>
+<h3 id="synchronized方法"><a href="#synchronized方法" class="headerlink" title="synchronized方法"></a>synchronized方法</h3><p>使用synchronized关键字修饰的方法称为同步方法</p>
+<p>同步方法分为两种：</p>
+<ul>
+<li>实例方法，此时<strong>相当于为当前对象加锁（this）</strong>。</li>
+<li>类方法，<strong>相当于为当前类的class对象加锁</strong>。</li>
+</ul>
+<blockquote>
+<p>synchronized可以修饰方法、代码块，不能修饰构造器、成员变量。</p>
+</blockquote>
+<p>&emsp;&emsp;</p>
+<p><strong>可变类的线程安全是以性能为代价的</strong>，为减少该影响：</p>
+<ul>
+<li>不要对线程安全类的所有方法都进行同步，只对会改变共享资源的方法同步。</li>
+<li>若可变类有两种运行环境：单线程和多线程。则应该<strong>为每种环境提供一种方法</strong>。（<strong>如StringBuilder（单线程），StringBuffer（多线程）</strong>）。</li>
+</ul>
+<p>&emsp;&emsp;</p>
+<h2 id="对象头中的Mark-Word字段"><a href="#对象头中的Mark-Word字段" class="headerlink" title="对象头中的Mark Word字段"></a>对象头中的Mark Word字段</h2><p>HotSpot虚拟机对象的对象头部分包括两类信息。第一类是用于存储对象自身的运行时数据， 如哈希码(HashCode) 、GC分代年龄、锁状态标志、线程持有的锁、偏向线程ID、偏向时间戳等，这部分数据的长度在32位和64位的虚拟机（<strong>未开启压缩指针</strong>）中分别为32个比特和64个比特， 官方称它为“<strong>Mark Word</strong>”。</p>
+<p>对象需要存储的运行时数据很多，考虑到虚拟机的空间效率， <strong>Mark Word被设计成一个有着动态定义的数据结构，以便根据对象的状态复用自己的存储空间</strong>。</p>
+<p>不同状态的数据结构如下：</p>
+<p>32位JVM的Mark Word不同状态下的结构：</p>
+<p><img src="https://gitee.com/bxgitee/noteImage/raw/master/image/image-20210215171435678.png" alt="image-20210215171435678"></p>
+<p>64位：</p>
+<p><img src="https://gitee.com/bxgitee/noteImage/raw/master/image/image-20210215171452314.png" alt="image-20210215171452314"></p>
+<p>&emsp;&emsp;</p>
+<h2 id="Monitor"><a href="#Monitor" class="headerlink" title="Monitor"></a>Monitor</h2><p>Monitor称为监视器或管程。使用monitor加锁又叫<strong>重量级锁</strong>。</p>
+<blockquote>
+<p>操作系统本身并不支持 monitor 机制，实际上，monitor 是属于编程语言的范畴。</p>
+<p>monitor 的重要特点是，同一个时刻，只有一个 进程/线程 能进入 monitor 中定义的临界区，这使得 monitor 能够达到互斥的效果。但仅仅有互斥的作用是不够的，无法进入 monitor 临界区的 进程/线程，它们应该被阻塞，并且在必要的时候会被唤醒。</p>
+</blockquote>
+<p>&emsp;&emsp;</p>
+<p>多线程并发状态下，synchronized关键字对对象加锁实际上是将线程关联一个Monitor对象（<strong>Mark Word中包含指向monitor对象的指针</strong>），<strong>只有获取monitor对象的拥有权才能对对象进入临界区（monitor对象的owner指向当前线程）</strong>。</p>
+<p>monitor对象的数据结构如图所示：</p>
+<ul>
+<li><strong>owner</strong>为当前锁拥有者</li>
+<li><strong>EntryList</strong>是阻塞队列，即正在等待锁的进程，线程处于BLOCKED状态。</li>
+<li><strong>WaitSet</strong>中的线程是本来拥有锁的进程，但因一些条件不满足不得已暂停，进入WaitSet，其状态是WAITING。（如调用<code>wait()</code>方法）</li>
+<li>WaitSet的进程由owner进程调用<code>notify()</code>或<code>notifyAll()</code>方法唤醒，<strong>唤醒后进入EntyList参加锁的竞争</strong>。</li>
+<li><strong>WAITING、BLOCKED状态的线程都不会占用cpu</strong>。</li>
+</ul>
+<p><img src="https://gitee.com/bxgitee/noteImage/raw/master/image/image-20210215132033013.png" alt="image-20210215132033013"></p>
+<ul>
+<li>刚开始 Monitor 中 owner为null</li>
+<li>当 Thread-2执行 synchronized(obj)就会将 Monitor的所有者owner置为Thread-2, Monitor中只能有一个Owner</li>
+<li>在 Thread-2上锁的过程中,如果 Thread-3, Thread-4, Thread-5也来执行 synchronized(obj),就会进入<strong>Entrylist BLOCKED（阻塞队列）</strong>。</li>
+<li>Thread-2执行完同步代码块的内容，然后唤醒 Entry List中等待的线程来竟争锁，竞争时是非公平的。</li>
+</ul>
+<p>&emsp;&emsp;</p>
+<blockquote>
+<p>to be done….</p>
+<p><a target="_blank" rel="noopener" href="https://www.php.cn/java-article-410323.html">Java中的monitor</a> </p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/wayne566/article/details/107845947#281b3bab-47e9-7ef5-34cb-f8364ca8e376">https://blog.csdn.net/wayne566/article/details/107845947#281b3bab-47e9-7ef5-34cb-f8364ca8e376</a></p>
+</blockquote>
+<p>&emsp;&emsp;</p>
+<h2 id="从字节码看synchronized"><a href="#从字节码看synchronized" class="headerlink" title="从字节码看synchronized"></a>从字节码看synchronized</h2><p>Test类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">final</span> Object lock = <span class="keyword">new</span> Object();</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">int</span> counter = <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">synchronized</span> (lock)&#123;</span><br><span class="line">            counter++;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对该类的class文件执行<code>javap -c</code>指令，得到反编译的指令码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(java.lang.String[])</span></span>;</span><br><span class="line">   Code:</span><br><span class="line">      0: getstatic     #2                  // （lock引用）进入临界区</span><br><span class="line">      <span class="number">3</span>: dup								<span class="comment">// </span></span><br><span class="line">      <span class="number">4</span>: astore_1</span><br><span class="line">      <span class="number">5</span>: monitorenter						<span class="comment">// 将lock对象的 MarkWord 置为Monitor指针</span></span><br><span class="line">      6: getstatic     #3                  // Field counter:I</span><br><span class="line">      <span class="number">9</span>: iconst_1</span><br><span class="line">     <span class="number">10</span>: iadd</span><br><span class="line">     11: putstatic     #3                  // Field counter:I</span><br><span class="line">     <span class="number">14</span>: aload_1</span><br><span class="line">     <span class="number">15</span>: monitorexit						<span class="comment">// 将lock对象的 MarkWord 重置，唤醒EntryList</span></span><br><span class="line">     <span class="number">16</span>: goto          <span class="number">24</span></span><br><span class="line">     <span class="number">19</span>: astore_2							<span class="comment">// 19-23为异常处理指令</span></span><br><span class="line">     <span class="number">20</span>: aload_1</span><br><span class="line">     <span class="number">21</span>: monitorexit <span class="comment">// ----!-----						</span></span><br><span class="line">     <span class="number">22</span>: aload_2</span><br><span class="line">     <span class="number">23</span>: athrow</span><br><span class="line">     <span class="number">24</span>: <span class="keyword">return</span></span><br><span class="line">   Exception table: <span class="comment">//异常表</span></span><br><span class="line">      from    to  target type</span><br><span class="line">          <span class="number">6</span>    <span class="number">16</span>    <span class="number">19</span>   any 				<span class="comment">// 6-16行的指令发生异常时，调用19行的指令处理异常				</span></span><br><span class="line">         <span class="number">19</span>    <span class="number">22</span>    <span class="number">19</span>   any</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>synchronized关键字后的临界区代码在字节码中<strong>放在monitorenter和monitorexit之间，对应获取锁，释放锁</strong>。</li>
+<li>且会<strong>对应有一个异常表，用于当执行临界区代码发生异常时，可以保证锁的释放</strong>（异常处理指令中有monitorexit指令）。</li>
+</ul>
+<blockquote>
+<p>方法级别的 synchronized 不会在字节码指令中有所体现</p>
+</blockquote>
+<p>&emsp;&emsp;</p>
+<h2 id="synchronized的优化"><a href="#synchronized的优化" class="headerlink" title="synchronized的优化"></a>synchronized的优化</h2><p>使用synchronized时并不是直接将锁对象关联一个monitor，关联monitor会有一些开销。jvm中会有以下的一些优化（<strong>since jdk6</strong>）。</p>
+<h3 id="轻量级锁"><a href="#轻量级锁" class="headerlink" title="轻量级锁"></a>轻量级锁</h3><p>轻量级锁的使用场景：如果一个对象虽然有多线程要加锁，但<strong>加锁的时间是错开的（也就是没有竞争），那么可以使用轻量级锁来优化</strong>。或者说，在同一个线程内对同一个对象多次加锁的情况。<br>轻量级锁<strong>对使用者是透明的，即语法仍然是 synchronized</strong>。轻量级锁是由JVM在底层实现的。</p>
+<p>&emsp;&emsp;</p>
+<p>轻量级锁工作过程示例：</p>
+<p>代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> Object obj = <span class="keyword">new</span> Object();</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">method1</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">synchronized</span> (obj) &#123; <span class="comment">// 同步块 A method2();</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">method2</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">synchronized</span> (obj) &#123; <span class="comment">// 同步块 B</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>当调用<code>method1()</code>，<strong>并进入synchronized方法块</strong>时，会在JVM栈中创建一个<strong>锁记录（Lock Record）对象</strong>，<strong>锁记录内部储存对象的Mark Word（该部分初始时存储的是锁记录地址）和对象引用reference</strong>。</p>
+<p><img src="https://gitee.com/bxgitee/noteImage/raw/master/image/image-20210215202631025.png" alt="image-20210215202631025"></p>
+</li>
+<li><p>让锁记录中 Object reference 指向锁对象，并尝试用 cas 替换 Object 的 Mark Word，将 Mark Word 的值存入锁记录（<strong>这里的Mark Word信息包含哈希码 、GC分代年龄等信息</strong>），而<strong>锁记录地址和状态码01</strong>放在对象头的Mark Word位置：</p>
+<p><img src="https://gitee.com/bxgitee/noteImage/raw/master/image/image-20210215202745938.png" alt="image-20210215202745938"></p>
+</li>
+<li><p>如果 cas <strong>替换成功</strong>，<strong>对象头中</strong>存储了 <strong>锁记录地址和状态 00 ，表示由该线程给对象加锁</strong>，这时图示如下：</p>
+<p><img src="https://gitee.com/bxgitee/noteImage/raw/master/image/image-20210215202832715.png" alt="image-20210215202832715"></p>
+</li>
+<li><p>如果 cas 失败，有两种情况：</p>
+<ul>
+<li><p>如果是其它线程已经持有了该 Object 的轻量级锁，这时表明有竞争，进入锁膨胀过程</p>
+</li>
+<li><p>如果是自己执行了 synchronized <strong>锁重入（即在当前线程再次对该对象加锁）</strong>，那么再添加一条 Lock Record 作为重入的计数，<strong>并将锁地址部分置为null</strong>。</p>
+<p><img src="https://gitee.com/bxgitee/noteImage/raw/master/image/image-20210215202937466.png" alt="image-20210215202937466"></p>
+</li>
+</ul>
+</li>
+<li><p>当退出 synchronized 代码块（解锁时）如果有取值为 null 的锁记录，表示有重入，这时重置锁记录，表示重入计数减一</p>
+<p><img src="https://gitee.com/bxgitee/noteImage/raw/master/image/image-20210215203039298.png" alt="image-20210215203039298"></p>
+</li>
+<li><p>当退出 synchronized 代码块（解锁时）锁记录的值不为 null，这时使用 cas 将 Mark Word 的值恢复给对象头</p>
+<ul>
+<li>成功，则解锁成功</li>
+<li>失败，<strong>说明轻量级锁进行了锁膨胀或已经升级为重量级锁，进入重量级锁解锁流程</strong></li>
+</ul>
+</li>
+</ul>
+<p>&emsp;&emsp;</p>
+<h3 id="锁膨胀"><a href="#锁膨胀" class="headerlink" title="锁膨胀"></a>锁膨胀</h3><p>如果在尝试加轻量级锁的过程中，CAS操作无法成功，这时一种情况就是有其它线程为此对象加上了轻量级锁（有竞争），这时需要进行锁膨胀，<strong>将轻量级锁变为重量级锁</strong>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> Object obj = <span class="keyword">new</span> Object();</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">method1</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">synchronized</span> (obj) &#123; <span class="comment">// 同步块</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>锁膨胀过程：</p>
+<ul>
+<li><p>当 Thread-1 进行轻量级加锁时，Thread-0 已经对该对象加了轻量级锁</p>
+<p><img src="https://gitee.com/bxgitee/noteImage/raw/master/image/image-20210216112027960.png" alt="image-20210216112027960"></p>
+</li>
+<li><p>这时 Thread-1 加轻量级锁失败，进入锁膨胀流程</p>
+<ul>
+<li><p>为 Object 对象申请 Monitor 锁，让 Object 指向重量级锁地址（即Object对象头的Mark Word字段变为</p>
+<p><code>monitor地址+状态10</code> 。</p>
+</li>
+<li><p>然后自己进入 Monitor 的 EntryList BLOCKED</p>
+<p><img src="https://gitee.com/bxgitee/noteImage/raw/master/image/image-20210216112243984.png" alt="image-20210216112243984"></p>
+</li>
+</ul>
+</li>
+<li><p>当 Thread-0 退出同步块解锁时，使用 cas 将 Mark Word 的值恢复给对象头，失败。<strong>这时会进入重量级解锁流程，即按照 Monitor 地址找到 Monitor 对象，设置 Owner 为 null，唤醒 EntryList 中 BLOCKED 线程</strong>。</p>
+</li>
+</ul>
+<h3 id="自旋优化"><a href="#自旋优化" class="headerlink" title="自旋优化"></a>自旋优化</h3><p>重量级锁竞争的时候，还可以使用自旋来进行优化，<strong>即若锁已被其他线程持有，当前线程不会立刻进入阻塞，而是先进行若干次循环尝试等待锁被释放</strong>（自旋重试），如果当前线程自旋成功（<strong>即这时候持锁线程已经退出了同步块，释放了锁</strong>），那么当前线程就可以避免阻塞（即等一等，多试几次）。若<strong>是重试后仍失败，则依然进入阻塞状态</strong>。</p>
+<ul>
+<li>自旋会占用 CPU 时间，单核 CPU 自旋就是浪费（即暂停持锁线程让当前线程自旋，显然必定是自旋失败的），多核 CPU 自旋才能发挥优势。 </li>
+<li><strong>在 Java 6 之后自旋锁是自适应的</strong>，比如对象刚刚的一次自旋操作成功过，那么认为这次自旋成功的可能性会 高，就多自旋几次；反之，就少自旋甚至不自旋。 </li>
+<li>Java 7 之后不能控制是否开启自旋功能（默认开启）</li>
+</ul>
+<p>&emsp;&emsp;</p>
+<h3 id="偏向锁"><a href="#偏向锁" class="headerlink" title="偏向锁"></a>偏向锁</h3><p>轻量级锁在没有竞争时（就当前线程），<strong>每次重入仍然需要执行 CAS 操作</strong>，造成不必要的开销。<br><strong>Java 6</strong> 中引入了偏向锁来做进一步优化：<strong>第一次使用 CAS 时将线程 ID 设置到对象的 Mark Word 头（即Mark Word为Baised状态），之后锁重入时检查线程 ID 是否是当前线程，若是表示没有竞争，不用重新 CAS</strong>，而对于轻量级锁，每次锁重入都需要进行cas操作。</p>
+<p>一个对象创建时：</p>
+<ul>
+<li><p>如果开启了偏向锁（默认开启），那么对象创建后，Mark Word 值为 0x05 即最后 3 位为 101，这时它的 thread、epoch、age 都为 0</p>
+</li>
+<li><p><strong>偏向锁是默认是延迟的，不会在程序启动时立即生效</strong>，如果想避免延迟，可以加 VM 参数 </p>
+<p><code>-XX:BiasedLockingStartupDelay=0</code> 来禁用延迟 </p>
+</li>
+<li><p>如果没有开启偏向锁，那么对象创建后，markword 值为 0x01 即最后 3 位为 001，这时它的 hashcode、 age 都为 0，第<strong>一次用到 hashcode 时才会赋值</strong>。</p>
+</li>
+<li><p>多个线程竞争的情况偏向锁不适用。</p>
+</li>
+<li><p>锁优先级：偏向》轻量》重量</p>
+</li>
+<li><p>使用<code>hashCode()</code>将会自动禁用偏向锁，因为此时Mark Word中没地方放线程id，不能使用biased状态。<strong>而对于轻量锁、重量级锁的hashCode值都是放在线程栈帧的锁记录（经cas交换）</strong>。</p>
+</li>
+</ul>
+<p>&emsp;&emsp;</p>
+<h4 id="验证延迟demo"><a href="#验证延迟demo" class="headerlink" title="验证延迟demo"></a>验证延迟demo</h4><p>**jdk6默认开启偏向锁，但默认情况下是延时开启的，也就是说，<font color="red">程序刚启动创建的对象是不会开启偏向锁的，几秒后后创建的对象才会开启偏向锁的</font>**。</p>
+<p>demo：（使用jol工具包打印对象头，使用logback打印日志信息，基于jdk8，64位JVM，<strong>注意打印的字节是小端序</strong>）</p>
+<p>创建一个Dog类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Dog</span> </span>&#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;</p>
+<p>test1：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">test1</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Dog dog = <span class="keyword">new</span> Dog();</span><br><span class="line">    log.debug(ClassLayout.parseInstance(dog).toPrintable());</span><br><span class="line">    <span class="keyword">synchronized</span> (dog)&#123;</span><br><span class="line">        log.debug(ClassLayout.parseInstance(dog).toPrintable());</span><br><span class="line">    &#125;</span><br><span class="line">    log.debug(ClassLayout.parseInstance(dog).toPrintable());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>输出：</p>
+<img src="https://gitee.com/bxgitee/noteImage/raw/master/image/image-20210216133250351.png" alt="image-20210216133250351" style="zoom:80%;" />
+
+<ul>
+<li>对象刚创建时是normal状态（001）</li>
+<li>由于对象是程序刚启动时就创建，所以进入临界区时是轻量级锁状态（LightWeight locked，00），不是偏向锁状态。</li>
+<li>解锁后回复到normal状态。</li>
+</ul>
+<p>&emsp;&emsp;</p>
+<p>test2：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">test2</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Dog dog = <span class="keyword">new</span> Dog();</span><br><span class="line">    log.debug(ClassLayout.parseInstance(dog).toPrintable());</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        Thread.sleep(<span class="number">5000</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">synchronized</span> (dog)&#123;</span><br><span class="line">        log.debug(ClassLayout.parseInstance(dog).toPrintable());</span><br><span class="line">    &#125;</span><br><span class="line">    log.debug(ClassLayout.parseInstance(dog).toPrintable());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对象是刚启动时创建的，即使延迟5s后进入synchronized也是使用轻量级锁。输出结果与1同。</p>
+<p>&emsp;&emsp;</p>
+<p>test3：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">test3</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        Thread.sleep(<span class="number">5000</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    Dog dog = <span class="keyword">new</span> Dog();</span><br><span class="line">    log.debug(ClassLayout.parseInstance(dog).toPrintable());</span><br><span class="line">    <span class="keyword">synchronized</span> (dog)&#123;</span><br><span class="line">        log.debug(ClassLayout.parseInstance(dog).toPrintable());</span><br><span class="line">    &#125;</span><br><span class="line">    log.debug(ClassLayout.parseInstance(dog).toPrintable());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>输出：</p>
+<p><img src="https://gitee.com/bxgitee/noteImage/raw/master/image/image-20210216133827656.png" alt="image-20210216133827656"></p>
+<ul>
+<li>延迟5s后再创建dog对象，其初始时是Biased状态（101），只是没有记录线程id等信息。</li>
+<li>进入synchronized后，记录线程id等信息。</li>
+<li>退出synchronized后mark word仍不变。</li>
+</ul>
+<p>&emsp;&emsp;</p>
+<h4 id="撤销偏向锁-其他线程访问"><a href="#撤销偏向锁-其他线程访问" class="headerlink" title="撤销偏向锁-其他线程访问"></a>撤销偏向锁-其他线程访问</h4><p><strong>当有其它线程使用偏向锁对象时，会将偏向锁升级为轻量级锁（synchronized代码块执行错开的情况，若是发生竞争会升级为重量级锁）</strong>。</p>
+<p>添加 <code>-XX:BiasedLockingStartupDelay=0</code> 参数。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">test4</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Dog dog = <span class="keyword">new</span> Dog();</span><br><span class="line">    <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">        log.debug(ClassLayout.parseInstance(dog).toPrintable());</span><br><span class="line">        <span class="keyword">synchronized</span> (dog)&#123;</span><br><span class="line">            log.debug(ClassLayout.parseInstance(dog).toPrintable());</span><br><span class="line">        &#125;</span><br><span class="line">        log.debug(ClassLayout.parseInstance(dog).toPrintable());</span><br><span class="line">    &#125;, <span class="string">&quot;t1&quot;</span>).start();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Thread.sleep(<span class="number">2000</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        log.debug(ClassLayout.parseInstance(dog).toPrintable());</span><br><span class="line">        <span class="keyword">synchronized</span> (dog)&#123;</span><br><span class="line">            log.debug(ClassLayout.parseInstance(dog).toPrintable());</span><br><span class="line">        &#125;</span><br><span class="line">        log.debug(ClassLayout.parseInstance(dog).toPrintable());</span><br><span class="line">    &#125;, <span class="string">&quot;t2&quot;</span>).start();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>输出概况：</p>
+<figure class="highlight angelscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">t1 - <span class="number">101</span> <span class="number">00.</span>..</span><br><span class="line">t1 - <span class="number">101</span> 线程id等</span><br><span class="line">t1 - <span class="number">101</span> 线程id等</span><br><span class="line">t2 - 与上同（<span class="number">101</span> 线程id等）</span><br><span class="line">t2 - <span class="number">000</span> <span class="comment">//轻量级锁</span></span><br><span class="line">t2 - <span class="number">001</span> <span class="comment">//normal状态</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;</p>
+<blockquote>
+<p> 调用 wait/notify 也会撤销偏向锁</p>
+</blockquote>
+<h4 id="批量重偏向"><a href="#批量重偏向" class="headerlink" title="批量重偏向"></a>批量重偏向</h4><p>如果对象虽然被多个线程访问，但没有竞争，这时偏向了线程 T1 的对象仍有机会重新偏向 T2，重偏向会重置对象 的 Thread ID<br>当撤销偏向锁阈值到达 20 次（默认次数）时（<strong>即第20次开始</strong>），<strong>jvm会在给<font color="red">之后的对象</font>加锁时重新偏向至加锁线程</strong>）。</p>
+<p>示例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">test6</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Vector&lt;Dog&gt; list = <span class="keyword">new</span> Vector&lt;&gt;();</span><br><span class="line">    Thread t1 = <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">30</span>; i++) &#123;</span><br><span class="line">            Dog d = <span class="keyword">new</span> Dog();</span><br><span class="line">            list.add(d);</span><br><span class="line">            <span class="keyword">synchronized</span> (d) &#123;</span><br><span class="line">                log.debug(i + <span class="string">&quot;\t&quot;</span> + ClassLayout.parseInstance(d).toPrintable().substring(<span class="number">174</span>, <span class="number">211</span>));</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">synchronized</span> (list) &#123;</span><br><span class="line">            list.notify();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;, <span class="string">&quot;t1&quot;</span>);</span><br><span class="line">    t1.start();</span><br><span class="line">    Thread t2 = <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">        <span class="keyword">synchronized</span> (list) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                list.wait();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        log.debug(<span class="string">&quot;===============&gt; &quot;</span>);</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">30</span>; i++) &#123;</span><br><span class="line">            Dog d = list.get(i);</span><br><span class="line">            log.debug(i + <span class="string">&quot;\t&quot;</span> + ClassLayout.parseInstance(d).toPrintable().substring(<span class="number">174</span>, <span class="number">211</span>));</span><br><span class="line">            <span class="keyword">synchronized</span> (d) &#123;</span><br><span class="line">                log.debug(i + <span class="string">&quot;\t&quot;</span> + ClassLayout.parseInstance(d).toPrintable().substring(<span class="number">174</span>, <span class="number">211</span>));</span><br><span class="line">            &#125;</span><br><span class="line">            log.debug(i + <span class="string">&quot;\t&quot;</span> + ClassLayout.parseInstance(d).toPrintable().substring(<span class="number">174</span>, <span class="number">211</span>));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;, <span class="string">&quot;t2&quot;</span>);</span><br><span class="line">    t2.start();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>输出：</p>
+<figure class="highlight angelscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">14</span>:<span class="number">50</span>:<span class="number">38.229</span> c.TestBiased [t1] - <span class="number">0</span>	<span class="number">00000101</span> <span class="number">11011000</span> <span class="number">01010100</span> <span class="number">00011011</span>) </span><br><span class="line"><span class="number">14</span>:<span class="number">50</span>:<span class="number">38.232</span> c.TestBiased [t1] - <span class="number">1</span>	<span class="number">00000101</span> <span class="number">11011000</span> <span class="number">01010100</span> <span class="number">00011011</span>) </span><br><span class="line">...</span><br><span class="line"><span class="number">14</span>:<span class="number">50</span>:<span class="number">38.232</span> c.TestBiased [t1] - <span class="number">28</span>	<span class="number">00000101</span> <span class="number">11011000</span> <span class="number">01010100</span> <span class="number">00011011</span>) </span><br><span class="line"><span class="number">14</span>:<span class="number">50</span>:<span class="number">38.233</span> c.TestBiased [t1] - <span class="number">29</span>	<span class="number">00000101</span> <span class="number">11011000</span> <span class="number">01010100</span> <span class="number">00011011</span>) </span><br><span class="line"><span class="number">14</span>:<span class="number">50</span>:<span class="number">38.244</span> c.TestBiased [t2] - ===============&gt; </span><br><span class="line"><span class="number">14</span>:<span class="number">50</span>:<span class="number">38.244</span> c.TestBiased [t2] - <span class="number">0</span>	<span class="number">00000101</span> <span class="number">11011000</span> <span class="number">01010100</span> <span class="number">00011011</span>) </span><br><span class="line"><span class="number">14</span>:<span class="number">50</span>:<span class="number">38.245</span> c.TestBiased [t2] - <span class="number">0</span>	<span class="number">11110000</span> <span class="number">11101101</span> <span class="number">10101100</span> <span class="number">00011011</span>) </span><br><span class="line"><span class="number">14</span>:<span class="number">50</span>:<span class="number">38.245</span> c.TestBiased [t2] - <span class="number">0</span>	<span class="number">00000001</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span>) </span><br><span class="line"><span class="number">14</span>:<span class="number">50</span>:<span class="number">38.245</span> c.TestBiased [t2] - <span class="number">1</span>	<span class="number">00000101</span> <span class="number">11011000</span> <span class="number">01010100</span> <span class="number">00011011</span>) </span><br><span class="line"><span class="number">14</span>:<span class="number">50</span>:<span class="number">38.246</span> c.TestBiased [t2] - <span class="number">1</span>	<span class="number">11110000</span> <span class="number">11101101</span> <span class="number">10101100</span> <span class="number">00011011</span>) </span><br><span class="line"><span class="number">14</span>:<span class="number">50</span>:<span class="number">38.246</span> c.TestBiased [t2] - <span class="number">1</span>	<span class="number">00000001</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span>) </span><br><span class="line">...</span><br><span class="line"><span class="number">14</span>:<span class="number">50</span>:<span class="number">38.262</span> c.TestBiased [t2] - <span class="number">18</span>	<span class="number">00000101</span> <span class="number">11011000</span> <span class="number">01010100</span> <span class="number">00011011</span>) </span><br><span class="line"><span class="number">14</span>:<span class="number">50</span>:<span class="number">38.262</span> c.TestBiased [t2] - <span class="number">18</span>	<span class="number">11110000</span> <span class="number">11101101</span> <span class="number">10101100</span> <span class="number">00011011</span>) </span><br><span class="line"><span class="number">14</span>:<span class="number">50</span>:<span class="number">38.262</span> c.TestBiased [t2] - <span class="number">18</span>	<span class="number">00000001</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span>)  <span class="comment">// 前19次都是轻量级锁</span></span><br><span class="line"><span class="number">14</span>:<span class="number">50</span>:<span class="number">38.262</span> c.TestBiased [t2] - <span class="number">19</span>	<span class="number">00000101</span> <span class="number">11011000</span> <span class="number">01010100</span> <span class="number">00011011</span>) </span><br><span class="line"><span class="number">14</span>:<span class="number">50</span>:<span class="number">38.263</span> c.TestBiased [t2] - <span class="number">19</span>	<span class="number">00000101</span> <span class="number">11101001</span> <span class="number">01010100</span> <span class="number">00011011</span>) </span><br><span class="line"><span class="number">14</span>:<span class="number">50</span>:<span class="number">38.263</span> c.TestBiased [t2] - <span class="number">19</span>	<span class="number">00000101</span> <span class="number">11101001</span> <span class="number">01010100</span> <span class="number">00011011</span>) </span><br><span class="line">...</span><br><span class="line"><span class="number">14</span>:<span class="number">50</span>:<span class="number">38.268</span> c.TestBiased [t2] - <span class="number">28</span>	<span class="number">00000101</span> <span class="number">11011000</span> <span class="number">01010100</span> <span class="number">00011011</span>) </span><br><span class="line"><span class="number">14</span>:<span class="number">50</span>:<span class="number">38.268</span> c.TestBiased [t2] - <span class="number">28</span>	<span class="number">00000101</span> <span class="number">11101001</span> <span class="number">01010100</span> <span class="number">00011011</span>) </span><br><span class="line"><span class="number">14</span>:<span class="number">50</span>:<span class="number">38.268</span> c.TestBiased [t2] - <span class="number">28</span>	<span class="number">00000101</span> <span class="number">11101001</span> <span class="number">01010100</span> <span class="number">00011011</span>) </span><br><span class="line"><span class="number">14</span>:<span class="number">50</span>:<span class="number">38.269</span> c.TestBiased [t2] - <span class="number">29</span>	<span class="number">00000101</span> <span class="number">11011000</span> <span class="number">01010100</span> <span class="number">00011011</span>) </span><br><span class="line"><span class="number">14</span>:<span class="number">50</span>:<span class="number">38.269</span> c.TestBiased [t2] - <span class="number">29</span>	<span class="number">00000101</span> <span class="number">11101001</span> <span class="number">01010100</span> <span class="number">00011011</span>) </span><br><span class="line"><span class="number">14</span>:<span class="number">50</span>:<span class="number">38.269</span> c.TestBiased [t2] - <span class="number">29</span>	<span class="number">00000101</span> <span class="number">11101001</span> <span class="number">01010100</span> <span class="number">00011011</span>) </span><br></pre></td></tr></table></figure>
+
+<p>在t2的前19次（0-18），给对象加锁时都将偏向锁改为轻量级锁（<strong>即其他线程访问撤销偏向锁的情况</strong>），<strong>在第20次（19）及其之后的加锁中进行了重偏向（注意是加锁一个重偏向一个）</strong>，将Mark Word的线程id改为t2线程。</p>
+<p>&emsp;&emsp;</p>
+<h4 id="批量撤销偏向锁"><a href="#批量撤销偏向锁" class="headerlink" title="批量撤销偏向锁"></a>批量撤销偏向锁</h4><p>重偏向的阈值是20次，<strong>而当到达40次时（即重偏向操作进行了20次），<font color="red">当前类的所有对象</font>都会变为不可偏向</strong>。</p>
+<p>demo见<code>lock.TestBiased.test7</code>。</p>
+<p>在t2的19-38进行了重偏向，在t3的第1次（0）已不可偏向，又使用了轻量级锁。t3之后创建的dog对象不可偏向，而cat对象可以。</p>
+<p>注意：<strong><font color="red" size="5px">上述的撤销偏向锁，重偏向、批量撤销偏向锁都是只针对一个类而言</font></strong>。</p>
+<p>&emsp;&emsp;</p>
+<h4 id="锁消除"><a href="#锁消除" class="headerlink" title="锁消除"></a>锁消除</h4><p>JIT编译器会对一些synchronized块进行优化，若加锁的对象不可能被共享（比如对局部变量加锁），那么JIT会将synchronized去掉，省去不必要的开销。</p>
+<p>&emsp;&emsp;</p>
+<h2 id="synchronized的内存语义"><a href="#synchronized的内存语义" class="headerlink" title="synchronized的内存语义"></a>synchronized的内存语义</h2><p>synchronized的这个内存语义就可以解决共享变量内存可见性问题。</p>
+<p>进入和退出synchronized块的语义：</p>
+<ul>
+<li><p><strong>进入synchronized块</strong>的内存语义是<strong>把在synchronized块内使用到的变量从线程的工作内存中清除</strong>， 这样在synchronized块内使用到该变量时就不会从线程的工作内存中获取， 而是直接从主内存中获取。</p>
+</li>
+<li><p><strong>退出synchronized块</strong>的内存语义是<strong>把在synchronized块内对共享变量的修改刷新到主内存</strong>。</p>
+</li>
+</ul>
+<p><strong>这也是加锁和释放锁的语义</strong>，当获取锁后会清空锁块内本地内存中将会被用到的共享变量，在使用这些共享变量时从主内存进行加载，在释放锁时将本地内存中修改的共享变量刷新到主内存。</p>
+<p>除可以解决共享变量内存可见性问题外， synchronized经常被用来实现原子性操作。另外要注意，<strong>synchronized关键字会引起线程上下文切换并带来线程调度开销</strong>。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">bxxiao</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2021/03/11/synchronized/">http://example.com/2021/03/11/synchronized/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">bxxiao</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/Tag/Java%E5%B9%B6%E5%8F%91/">Java并发</a></div><div class="post_share"><div class="social-share" data-image="/images/wallhaven-137lo1.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2021/03/11/%E8%AE%A1%E7%BD%91%E7%AC%94%E8%AE%B0/"><img class="next-cover" src="/images/wallhaven-xl8kzl.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">计算机网络笔记</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2021/02/25/多线程笔记1/" title="多线程笔记1"><img class="cover" src="/images/wallhaven-xl8kzl.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-02-25</div><div class="title">多线程笔记1</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#i-i%E2%80%93%E5%90%8C%E6%AD%A5%E9%97%AE%E9%A2%98"><span class="toc-text">i++,i–同步问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#synchronized%E5%85%B3%E9%94%AE%E5%AD%97"><span class="toc-text">synchronized关键字</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0"><span class="toc-text">概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#synchronized%E6%96%B9%E6%B3%95"><span class="toc-text">synchronized方法</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AF%B9%E8%B1%A1%E5%A4%B4%E4%B8%AD%E7%9A%84Mark-Word%E5%AD%97%E6%AE%B5"><span class="toc-text">对象头中的Mark Word字段</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Monitor"><span class="toc-text">Monitor</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%8E%E5%AD%97%E8%8A%82%E7%A0%81%E7%9C%8Bsynchronized"><span class="toc-text">从字节码看synchronized</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#synchronized%E7%9A%84%E4%BC%98%E5%8C%96"><span class="toc-text">synchronized的优化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BD%BB%E9%87%8F%E7%BA%A7%E9%94%81"><span class="toc-text">轻量级锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%94%81%E8%86%A8%E8%83%80"><span class="toc-text">锁膨胀</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%87%AA%E6%97%8B%E4%BC%98%E5%8C%96"><span class="toc-text">自旋优化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%81%8F%E5%90%91%E9%94%81"><span class="toc-text">偏向锁</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%AA%8C%E8%AF%81%E5%BB%B6%E8%BF%9Fdemo"><span class="toc-text">验证延迟demo</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%92%A4%E9%94%80%E5%81%8F%E5%90%91%E9%94%81-%E5%85%B6%E4%BB%96%E7%BA%BF%E7%A8%8B%E8%AE%BF%E9%97%AE"><span class="toc-text">撤销偏向锁-其他线程访问</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%89%B9%E9%87%8F%E9%87%8D%E5%81%8F%E5%90%91"><span class="toc-text">批量重偏向</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%89%B9%E9%87%8F%E6%92%A4%E9%94%80%E5%81%8F%E5%90%91%E9%94%81"><span class="toc-text">批量撤销偏向锁</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%94%81%E6%B6%88%E9%99%A4"><span class="toc-text">锁消除</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#synchronized%E7%9A%84%E5%86%85%E5%AD%98%E8%AF%AD%E4%B9%89"><span class="toc-text">synchronized的内存语义</span></a></li></ol></div></div></div></div></main><footer id="footer" style="background-image: url('/images/wallhaven-137lo1.jpg')"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2021 By bxxiao</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
