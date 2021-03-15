@@ -3368,16 +3368,16 @@ li.categoryBar-list-item:nth-child(9) {
   background: url('/images/violet-evergarden4.png');
 }
 li.categoryBar-list-item:nth-child(10) {
-  background: url('/images/微信图片_202103012012254.jpg');
+  background: url('/images/wallhaven-5dzgy7.png');
 }
 li.categoryBar-list-item:nth-child(11) {
-  background: url('/images/violet-evergarden3.png');
+  background: url('/images/wallhaven-5dzgy7.png');
 }
 li.categoryBar-list-item:nth-child(1)>span::after {
   content: '' !important;
 }
 li.categoryBar-list-item {
-  width: 32.3% !important;
+  width: 24% !important;
 }
 @media screen and (max-width: 650px) {
   li.categoryBar-list-item {
@@ -3387,7 +3387,7 @@ li.categoryBar-list-item {
   }
 }
 .categoryBar-list {
-  max-height: 570px;
+  max-height: 380px;
   overflow: auto;
 }
 .categoryBar-list::-webkit-scrollbar {
@@ -3395,7 +3395,7 @@ li.categoryBar-list-item {
 }
 @media screen and (max-width: 650px) {
   .categoryBar-list {
-    max-height: 480px;
+    max-height: 320px;
   }
 }
 #post-comment .comment-head {
