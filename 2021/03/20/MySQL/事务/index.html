@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="（以下部分内容摘抄自javaGuide博客文档） 基本概念​        事务是逻辑上的一组操作，即一个或多个SQL语句，要么都执行，要么都不执行。如果单元中某条SQL语句一旦执行失败或产生错误，整个单元将会回滚。所有受到影响的数据将返回到事物开始以前的状态；如果单元中的所有SQL语句均执行成功， 则事物被顺利执行。 ​        事务最经典也经常被拿出来说例子就是转账了。假如小明要给小红转">
+<meta property="og:type" content="article">
+<meta property="og:title" content="事务">
+<meta property="og:url" content="http://example.com/2021/03/20/MySQL/%E4%BA%8B%E5%8A%A1/index.html">
+<meta property="og:site_name" content="bxxiao">
+<meta property="og:description" content="（以下部分内容摘抄自javaGuide博客文档） 基本概念​        事务是逻辑上的一组操作，即一个或多个SQL语句，要么都执行，要么都不执行。如果单元中某条SQL语句一旦执行失败或产生错误，整个单元将会回滚。所有受到影响的数据将返回到事物开始以前的状态；如果单元中的所有SQL语句均执行成功， 则事物被顺利执行。 ​        事务最经典也经常被拿出来说例子就是转账了。假如小明要给小红转">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://gitee.com/bxgitee/noteImage/raw/master/image/20200716162156.png">
+<meta property="article:published_time" content="2021-03-20T12:55:23.154Z">
+<meta property="article:modified_time" content="2021-03-20T12:59:41.520Z">
+<meta property="article:author" content="bxxiao">
+<meta property="article:tag" content="MySQL">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gitee.com/bxgitee/noteImage/raw/master/image/20200716162156.png">
+
+<link rel="canonical" href="http://example.com/2021/03/20/MySQL/%E4%BA%8B%E5%8A%A1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>事务 | bxxiao</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="bxxiao" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">bxxiao</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/03/20/MySQL/%E4%BA%8B%E5%8A%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="bxxiao">
+      <meta itemprop="description" content="_mo_yu_">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bxxiao">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          事务
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-03-20 20:55:23 / 修改时间：20:59:41" itemprop="dateCreated datePublished" datetime="2021-03-20T20:55:23+08:00">2021-03-20</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/MySQL/" itemprop="url" rel="index"><span itemprop="name">MySQL</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>（以下部分内容摘抄自<a href="https://snailclimb.gitee.io/javaguide/#/docs/database/MySQL" target="_blank">javaGuide博客文档</a>）</p>
+<h3 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h3><p>​        <strong>事务是逻辑上的一组操作，即一个或多个SQL语句，要么都执行，要么都不执行</strong>。<strong>如果单元中某条SQL语句一旦执行失败或产生错误，整个单元将会回滚</strong>。所有受到影响的数据将返回到事物开始以前的状态；如果单元中的所有SQL语句均执行成功， 则事物被顺利执行。</p>
+<p>​        事务最经典也经常被拿出来说例子就是转账了。假如小明要给小红转账1000元，这个转账会涉及到两个关键操作就是：将小明的余额减少1000元，将小红的余额增加1000元。万一在这两个操作之间突然出现错误比如银行系统崩溃，导致小明余额减少而小红的余额没有增加，这样就不对了。事务就是保证这两个关键操作要么都成功，要么都要失败。</p>
+<h3 id="事物的四大特性-ACID"><a href="#事物的四大特性-ACID" class="headerlink" title="事物的四大特性(ACID)"></a>事物的四大特性(ACID)</h3><p><img src="https://gitee.com/bxgitee/noteImage/raw/master/image/20200716162156.png"></p>
+<ol>
+<li><p><strong>原子性（Atomicity）：</strong> 事务是最小的执行单位，不允许分割。事务的原子性确保动作要么全部完成，要么完全不起作用；</p>
+</li>
+<li><p><strong>一致性（Consistency）：</strong> 执行事务前后，数据保持一致，多个事务对同一个数据读取的结果是相同的；</p>
+<ul>
+<li><p><strong>ACID里的AID都是数据库的特征,也就是依赖数据库的具体实现.而唯独这个C,实际上它依赖于应用层,也就是依赖于开发者.这里的一致性是指<font color="red">系统从一个正确的状态,迁移到另一个正确的状态</font>.什么叫正确的状态呢?就是当前的状态满足预定的约束就叫做正确的状态.而事务具备ACID里C的特性是说通过事务的AID来保证我们的一致性</strong>。</p>
+<p>（来自<a target="_blank" rel="noopener" href="https://www.zhihu.com/question/31346392/answer/362597203">https://www.zhihu.com/question/31346392/answer/362597203</a> 作者：孟波）</p>
+</li>
+</ul>
+</li>
+<li><p><strong>隔离性（Isolation）：</strong> 并发访问数据库时，<strong>一个用户的事务不被其他事务所干扰</strong>，各并发事务之间是独立的；</p>
+</li>
+<li><p><strong>持久性（Durability）：</strong> 一个事务被提交之后。它对数据库中数据的改变是持久的，即使数据库发生故障也不应该对其有任何影响。</p>
+</li>
+</ol>
+<h3 id="事务的创建"><a href="#事务的创建" class="headerlink" title="事务的创建"></a>事务的创建</h3><p>​        事务可分为隐式事务和显式事务。隐式事务如DML语言（insert、update、delete），每一个语句都是一个事务；而显式事务通过sql语句开启事务跟关闭事务，一个事务可有多条语句。</p>
+<p>​        <strong>msyql默认关闭事务，通过<code>SHOW VARIABLES LIKE &#39;%autocommit%&#39;;</code>命令可看到``autocommit=ON`，即自动提交默认开启。创建事务前需关闭自动提交</strong>。<strong><span style="color:red;">事务中不能包括DDL语句</span></strong>。</p>
+<p>显示事务的创建：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--1.开启事务</span></span><br><span class="line"><span class="keyword">SET</span> autocommit=<span class="number">0</span>;</span><br><span class="line"><span class="keyword">START</span> TRASACTION; <span class="comment">#可选</span></span><br><span class="line"><span class="comment">--编写事务语句</span></span><br><span class="line">语句1</span><br><span class="line">语句2</span><br><span class="line">...</span><br><span class="line"><span class="comment">--结束事务</span></span><br><span class="line"><span class="keyword">COMMIT</span>;</span><br><span class="line"><span class="comment">#或者</span></span><br><span class="line"><span class="keyword">ROLLBACK</span>;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>一个转账的例子：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#先建表</span></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="keyword">account</span>(</span><br><span class="line">	username <span class="built_in">VARCHAR</span>(<span class="number">10</span>),</span><br><span class="line">	money <span class="keyword">DOUBLE</span></span><br><span class="line">);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="keyword">account</span> <span class="keyword">VALUES</span>(<span class="string">&#x27;zhangsan&#x27;</span>, <span class="number">1000</span>),(<span class="string">&#x27;xiaoming&#x27;</span>, <span class="number">1000</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">#转账例子</span></span><br><span class="line"><span class="comment">#开启事务（关闭事务自动提交）</span></span><br><span class="line"><span class="keyword">SET</span> autocommit=<span class="number">0</span>;</span><br><span class="line"><span class="keyword">START</span> <span class="keyword">TRANSACTION</span>;</span><br><span class="line"><span class="comment">#事务语句</span></span><br><span class="line"><span class="keyword">UPDATE</span> <span class="keyword">account</span> <span class="keyword">SET</span> money=<span class="number">500</span> <span class="keyword">WHERE</span> username=<span class="string">&#x27;zhangsan&#x27;</span>;</span><br><span class="line"><span class="keyword">UPDATE</span> <span class="keyword">account</span> <span class="keyword">SET</span> money=<span class="number">1500</span> <span class="keyword">WHERE</span> username=<span class="string">&#x27;xiaoming&#x27;</span>;</span><br><span class="line"><span class="comment">#提交事务</span></span><br><span class="line"><span class="keyword">COMMIT</span>;</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="回滚点SAVEPOINT"><a href="#回滚点SAVEPOINT" class="headerlink" title="回滚点SAVEPOINT"></a>回滚点SAVEPOINT</h4><p>​        回滚点跟<code>ROLLBACK</code>搭配使用，其作用是设置一个保存点，当执行<code>ROLLBACK</code>时回滚到保存点。</p>
+<p>eg：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SET</span> autocommit=<span class="number">0</span>;</span><br><span class="line"><span class="keyword">START</span> <span class="keyword">TRANSACTION</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">DELETE</span> <span class="keyword">FROM</span> <span class="keyword">account</span> <span class="keyword">WHERE</span> <span class="keyword">id</span>=<span class="number">2</span>;</span><br><span class="line"><span class="keyword">SAVEPOINT</span> a;</span><br><span class="line"><span class="keyword">DELETE</span> <span class="keyword">FROM</span> <span class="keyword">account</span> <span class="keyword">WHERE</span> <span class="keyword">id</span>=<span class="number">3</span>;</span><br><span class="line"><span class="keyword">ROLLBACK</span> <span class="keyword">TO</span> a;</span><br></pre></td></tr></table></figure>
+
+<p>执行以上语句后查询account表，可发现只删除了id为2的记录。</p>
+<h3 id="事务并发问题"><a href="#事务并发问题" class="headerlink" title="事务并发问题"></a>事务并发问题</h3><p>​        在典型的应用程序中，多个事务并发运行，经常会操作相同的数据来完成各自的任务（<strong>多个用户对同一数据进行操作</strong>）。并发虽然是必须的，但可能会导致以下的问题。</p>
+<ul>
+<li><p><strong>脏读（Dirty read）:</strong> <strong>当一个事务正在访问数据并且对数据进行了修改，而这种修改还没有提交到数据库中，这时另外一个事务也访问了这个数据，然后使用了这个数据。因为这个数据是还没有提交的数据，那么另外一个事务读到的这个数据是“脏数据”，依据“脏数据”所做的操作可能是不正确的</strong>，比如可能出现错误而回滚事务，导致修改后的数据没有存入数据库。</p>
+</li>
+<li><p><strong>丢失修改（Lost to modify）:</strong> <strong>指在一个事务读取一个数据时，另外一个事务也访问了该数据，那么在第一个事务中修改了这个数据后，第二个事务也修改了这个数据。这样第一个事务内的修改结果就被丢失，因此称为丢失修改</strong>。 例如：</p>
+<ul>
+<li><p>事务1读取某表中的数据A=20，事务2也读取A=20，事务1修改A=A-1，事务2也修改A=A-1，最终结果A=19，事务1的修改被丢失。（<strong>即结果应该是A=18，但因为事务2的修改覆盖了事务1的修改，使事务1丢失</strong>）</p>
+</li>
+<li><p>考虑飞机订票系统中的一个活动序列: </p>
+<ol>
+<li>甲售票点（甲事务）读出某航班的机票余额A,设A=16. </li>
+<li>乙售票点（乙事务）读出同一航班的机票余额A,也为16. </li>
+<li>甲售票点卖出一张机票,修改余额A←A-1.所以A为15,把A写回数据库. </li>
+<li>乙售票点也卖出一张机票,修改余额A←A-1.所以A为15,把A写回数据库. </li>
+</ol>
+<p><strong><span style="color:red">结果明明卖出两张机票，数据库中机票余额只减少1</span></strong>。 </p>
+</li>
+</ul>
+</li>
+<li><p><strong>不可重复读（Unrepeatableread）:</strong> <strong>指在一个事务内多次读同一数据。在这个事务还没有结束时，另一个事务也访问该数据。那么，在第一个事务中的两次读数据之间，由于第二个事务的修改导致第一个事务两次读取的结果可能不一样。这就发生了在一个事务内两次读到的数据是不一样的情况，因此称为不可重复读</strong>。（事务1读数据的过程中，事务2把数据给改了，导致事务1两次读的数据不同）</p>
+</li>
+<li><p><strong>幻读（Phantom read）:</strong> 幻读与不可重复读类似。它发生在一个事务（T1）读取了几行数据，接着另一个并发事务（T2）插入了一些数据时。在随后的查询中，<strong>第一个事务（T1）就会发现多了一些原本不存在的记录，就好像发生了幻觉一样，所以称为幻读</strong>。（<strong>在同一事务下，连续执行两次同样的SQL语句第二次的SQL语句可能返回之前不存在的行</strong>）</p>
+</li>
+</ul>
+<p><strong><span style="color:red">不可重复读和幻读区别</span></strong>： </p>
+<p><strong>不可重复读的重点是数据的值被修改，比如多次读取一条记录发现其中某些列的值被修改</strong>，幻读的重点在于<strong>新增或者删除比如多次读取一条记录发现记录增多或减少了</strong>。</p>
+<h3 id="MySQL的事务隔离级别"><a href="#MySQL的事务隔离级别" class="headerlink" title="MySQL的事务隔离级别"></a>MySQL的事务隔离级别</h3><p><strong><span style="color:red">SQL 标准定义了四个隔离级别：</span></strong> </p>
+<ul>
+<li><strong>READ-UNCOMMITTED(读取未提交)：</strong> 最低的隔离级别，允许读取尚未提交的数据变更，<strong><span style="color:red">可能会导致脏读、幻读或不可重复读</span></strong>。</li>
+<li><strong>READ-COMMITTED(读取已提交)：</strong> 允许读取并发事务已经提交的数据，<strong><span style="color:red">可以阻止脏读，但是幻读或不可重复读仍有可能发生</span></strong>。</li>
+<li><strong>REPEATABLE-READ(可重复读)：</strong> <strong>对同一字段的多次读取结果都是一致的</strong>，除非数据是被本身事务自己所修改，<span style="color:red"><strong>可以阻止脏读和不可重复读，但幻读仍有可能发生</strong></span>。</li>
+<li><strong>SERIALIZABLE(可串行化)：</strong> <strong>最高的隔离级别，完全服从ACID的隔离级别</strong>。所有的事务依次逐个执行，这样事务之间就完全不可能产生干扰，也就是说，<strong>该级别可以防止脏读、不可重复读以及幻读</strong>。但效率极低。该标准类似于线程锁。</li>
+</ul>
+<p>可总结为下表（<strong>打勾表示可能发生</strong>）</p>
+<table>
+<thead>
+<tr>
+<th>隔离级别</th>
+<th>脏读</th>
+<th>不可重复读</th>
+<th>幻影读</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>READ-UNCOMMITTED</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+</tr>
+<tr>
+<td>READ-COMMITTED</td>
+<td>×</td>
+<td>√</td>
+<td>√</td>
+</tr>
+<tr>
+<td>REPEATABLE-READ</td>
+<td>×</td>
+<td>×</td>
+<td>√</td>
+</tr>
+<tr>
+<td>SERIALIZABLE</td>
+<td>×</td>
+<td>×</td>
+<td>×</td>
+</tr>
+</tbody></table>
+<p>MySQL <strong>InnoDB 存储引擎</strong>的默认支持的隔离级别是 <strong>REPEATABLE-READ（可重读）</strong>。可以<strong>通过<code>SELECT @@tx_isolation;</code>命令</strong>来查看</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; SELECT @@tx_isolation;</span><br><span class="line">+<span class="comment">-----------------+</span></span><br><span class="line">| @@tx_isolation  |</span><br><span class="line">+<span class="comment">-----------------+</span></span><br><span class="line">| REPEATABLE-READ |</span><br><span class="line">+<span class="comment">-----------------+</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>​        <strong><span style="color:red">这里需要注意的是</span></strong>：与 SQL 标准不同的地方在于 InnoDB 存储引擎在 <strong>REPEATABLE-READ（可重读）</strong> 事务隔离级别下使用的是<strong>Next-Key Lock 锁算法</strong>，因此<strong><span style="color:red">可以避免幻读的产生</span></strong>，这与其他数据库系统(如 SQL Server) 是不同的。所以说<strong><span style="color:red">InnoDB 存储引擎的默认支持的隔离级别已经可以完全保证事务的隔离性要求，即达到了 SQL标准的 SERIALIZABLE(可串行化) 隔离级别</span></strong>。因为隔离级别越低，事务请求的锁越少，所以大部分数据库系统的隔离级别都是 <strong>READ-COMMITTED(读取提交内容)</strong> ，<strong>但是InnoDB 存储引擎默认使用 REPEAaTABLE-READ（可重读），<span style="color:red"> 并不会有任何性能损失</span></strong>。</p>
+<p>InnoDB 存储引擎在 <strong>分布式事务</strong> 的情况下一般会用到 <strong>SERIALIZABLE(可串行化)</strong> 隔离级别。</p>
+<p>设置事务隔离级别：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SET</span> <span class="keyword">SESSION</span>/<span class="keyword">GLOBAL</span> <span class="keyword">TRANSACTION</span> <span class="keyword">ISOLATION</span> <span class="keyword">LEVEL</span> </span><br><span class="line"><span class="keyword">read</span> uncommitted | <span class="keyword">read</span> committed | repeatable <span class="keyword">read</span>(默认) | <span class="keyword">serializable</span>;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="锁机制与InnoDB锁算法（to-be-continue）"><a href="#锁机制与InnoDB锁算法（to-be-continue）" class="headerlink" title="锁机制与InnoDB锁算法（to be continue）"></a>锁机制与InnoDB锁算法（to be continue）</h3>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/Tag/MySQL/" rel="tag"># MySQL</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/03/20/Java/%E9%9B%86%E5%90%88%E6%BA%90%E7%A0%81/HashMap%20-%20JDK1.8/" rel="prev" title="HashMap源码-JDK1.8">
+      <i class="fa fa-chevron-left"></i> HashMap源码-JDK1.8
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/03/20/MySQL/MySQL%E6%A6%82%E8%BF%B0/" rel="next" title="MySQL概述">
+      MySQL概述 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">1.</span> <span class="nav-text">基本概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8B%E7%89%A9%E7%9A%84%E5%9B%9B%E5%A4%A7%E7%89%B9%E6%80%A7-ACID"><span class="nav-number">2.</span> <span class="nav-text">事物的四大特性(ACID)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8B%E5%8A%A1%E7%9A%84%E5%88%9B%E5%BB%BA"><span class="nav-number">3.</span> <span class="nav-text">事务的创建</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9B%9E%E6%BB%9A%E7%82%B9SAVEPOINT"><span class="nav-number">3.1.</span> <span class="nav-text">回滚点SAVEPOINT</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8B%E5%8A%A1%E5%B9%B6%E5%8F%91%E9%97%AE%E9%A2%98"><span class="nav-number">4.</span> <span class="nav-text">事务并发问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MySQL%E7%9A%84%E4%BA%8B%E5%8A%A1%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB"><span class="nav-number">5.</span> <span class="nav-text">MySQL的事务隔离级别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%94%81%E6%9C%BA%E5%88%B6%E4%B8%8EInnoDB%E9%94%81%E7%AE%97%E6%B3%95%EF%BC%88to-be-continue%EF%BC%89"><span class="nav-number">6.</span> <span class="nav-text">锁机制与InnoDB锁算法（to be continue）</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">bxxiao</p>
+  <div class="site-description" itemprop="description">_mo_yu_</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">28</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/bxxiao" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;bxxiao" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">bxxiao</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  <script defer src="/lib/three/three.min.js"></script>
+    <script defer src="/lib/three/three-waves.min.js"></script>
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

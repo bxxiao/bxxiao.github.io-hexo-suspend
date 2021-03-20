@@ -20,18 +20,18 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="1. 类的生命周期类的生命周期：  类的加载、连接和初始化都是在程序运行期间完成的。这为Java程序提供更大的灵活性。 &amp;emsp;&amp;emsp; 以下几种情况，生命周期将结束：  执行了System.exit()或Runtime.getRuntime().exit()方法 程序正常执行结束 程序在执行过程中遇到了异常或错误而异常终止 由于操作系统出现错误而导致Java虚拟机进程终止 JVM进程被终">
+  <meta name="description" content="类的生命周期类的生命周期：  类的加载、连接和初始化都是在程序运行期间完成的。这为Java程序提供更大的灵活性。 &amp;emsp;&amp;emsp; 以下几种情况，生命周期将结束：  执行了System.exit()或Runtime.getRuntime().exit()方法 程序正常执行结束 程序在执行过程中遇到了异常或错误而异常终止 由于操作系统出现错误而导致Java虚拟机进程终止 JVM进程被终止。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="类加载过程">
 <meta property="og:url" content="http://example.com/2021/02/17/Java/JVM/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E8%BF%87%E7%A8%8B/index.html">
 <meta property="og:site_name" content="bxxiao">
-<meta property="og:description" content="1. 类的生命周期类的生命周期：  类的加载、连接和初始化都是在程序运行期间完成的。这为Java程序提供更大的灵活性。 &amp;emsp;&amp;emsp; 以下几种情况，生命周期将结束：  执行了System.exit()或Runtime.getRuntime().exit()方法 程序正常执行结束 程序在执行过程中遇到了异常或错误而异常终止 由于操作系统出现错误而导致Java虚拟机进程终止 JVM进程被终">
+<meta property="og:description" content="类的生命周期类的生命周期：  类的加载、连接和初始化都是在程序运行期间完成的。这为Java程序提供更大的灵活性。 &amp;emsp;&amp;emsp; 以下几种情况，生命周期将结束：  执行了System.exit()或Runtime.getRuntime().exit()方法 程序正常执行结束 程序在执行过程中遇到了异常或错误而异常终止 由于操作系统出现错误而导致Java虚拟机进程终止 JVM进程被终止。">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://gitee.com/bxgitee/noteImage/raw/master/image/image-20210123141452535.png">
 <meta property="og:image" content="https://gitee.com/bxgitee/noteImage/raw/master/image/image-20210118171003597.png">
 <meta property="og:image" content="https://gitee.com/bxgitee/noteImage/raw/master/image/image-20210227110905036.png">
 <meta property="article:published_time" content="2021-02-17T09:57:24.583Z">
-<meta property="article:modified_time" content="2021-03-20T12:06:56.548Z">
+<meta property="article:modified_time" content="2021-03-20T12:51:57.168Z">
 <meta property="article:author" content="bxxiao">
 <meta property="article:tag" content="JVM">
 <meta name="twitter:card" content="summary">
@@ -196,7 +196,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-03-20 20:06:56" itemprop="dateModified" datetime="2021-03-20T20:06:56+08:00">2021-03-20</time>
+                <time title="修改时间：2021-03-20 20:51:57" itemprop="dateModified" datetime="2021-03-20T20:51:57+08:00">2021-03-20</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -223,7 +223,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="1-类的生命周期"><a href="#1-类的生命周期" class="headerlink" title="1. 类的生命周期"></a>1. 类的生命周期</h2><p><strong>类的生命周期</strong>：</p>
+        <h2 id="类的生命周期"><a href="#类的生命周期" class="headerlink" title="类的生命周期"></a>类的生命周期</h2><p><strong>类的生命周期</strong>：</p>
 <p><img src="https://gitee.com/bxgitee/noteImage/raw/master/image/image-20210123141452535.png" alt="image-20210123141452535"></p>
 <p>类的加载、连接和初始化都是在<strong><font color="red">程序运行期间</font></strong>完成的。这为Java程序提供更大的灵活性。</p>
 <p>&emsp;&emsp;</p>
@@ -236,11 +236,11 @@
 <li>JVM进程被终止。</li>
 </ul>
 <p>&emsp;&emsp;</p>
-<h2 id="2-类加载过程"><a href="#2-类加载过程" class="headerlink" title="2. 类加载过程"></a>2. 类加载过程</h2><p>Class文件需要加载到虚拟机中之后才能运行和使用，当程序<strong>主动使用</strong>某个类时，若该类未被加载到内存中（<strong>即首次主动使用</strong>），则系统<strong>通过加载、连接、初始化3个步骤来对该类进行初始化</strong>。连接过程又可分为三步:<strong>验证-&gt;准备-&gt;解析</strong>。</p>
+<h2 id="类加载过程"><a href="#类加载过程" class="headerlink" title="类加载过程"></a>类加载过程</h2><p>Class文件需要加载到虚拟机中之后才能运行和使用，当程序<strong>主动使用</strong>某个类时，若该类未被加载到内存中（<strong>即首次主动使用</strong>），则系统<strong>通过加载、连接、初始化3个步骤来对该类进行初始化</strong>。连接过程又可分为三步:<strong>验证-&gt;准备-&gt;解析</strong>。</p>
 <p>类加载过程图示：</p>
 <img src="https://gitee.com/bxgitee/noteImage/raw/master/image/image-20210118171003597.png" alt="image-20210118171003597" style="zoom:80%;" />
 
-<h3 id="2-1-加载"><a href="#2-1-加载" class="headerlink" title="2.1 加载"></a>2.1 加载</h3><p>加载指<strong>将类的class文件读入内存</strong>，将其<strong>放在运行时数据区的方法区内</strong>，并<strong>为之创建一个<code>java.lang.Class</code>对象</strong>，<strong>用来封装类在方法区内的数据结构，并提供了方法区内的数据结构的接口</strong>。（JVM规范并未说明Cass对象位于哪里， HotSpot虚拟机将其放在了方法区中）</p>
+<h3 id="加载"><a href="#加载" class="headerlink" title="加载"></a>加载</h3><p>加载指<strong>将类的class文件读入内存</strong>，将其<strong>放在运行时数据区的方法区内</strong>，并<strong>为之创建一个<code>java.lang.Class</code>对象</strong>，<strong>用来封装类在方法区内的数据结构，并提供了方法区内的数据结构的接口</strong>。（JVM规范并未说明Cass对象位于哪里， HotSpot虚拟机将其放在了方法区中）</p>
 <p>加载阶段主要完成下面3件事情：</p>
 <ol>
 <li>通过全类名获取定义此类的二进制字节流</li>
@@ -255,7 +255,7 @@
 <li>将Java源文件<strong>动态编译</strong>为class文件（如动态代理）</li>
 </ul>
 <p>&emsp;&emsp;</p>
-<h3 id="2-2-连接"><a href="#2-2-连接" class="headerlink" title="2.2 连接"></a>2.2 连接</h3><p><strong>连接阶段负责把类的二进制数据合并到JRE中</strong>。</p>
+<h3 id="连接"><a href="#连接" class="headerlink" title="连接"></a>连接</h3><p><strong>连接阶段负责把类的二进制数据合并到JRE中</strong>。</p>
 <ul>
 <li><p>验证：检验被加载的类是否有正确的内部结构并和其他类协调一致。</p>
 <ul>
@@ -282,7 +282,7 @@
 </li>
 </ul>
 <p>&emsp;&emsp;</p>
-<h3 id="2-3-初始化"><a href="#2-3-初始化" class="headerlink" title="2.3 初始化"></a>2.3 初始化</h3><p>初始化阶段，虚拟机对类进行初始化，<strong>主要是对类变量进行初始化（赋指定的值）</strong>。JVM会<strong>按顺序</strong>执行类文件中的初始化语句（static）。</p>
+<h3 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h3><p>初始化阶段，虚拟机对类进行初始化，<strong>主要是对类变量进行初始化（赋指定的值）</strong>。JVM会<strong>按顺序</strong>执行类文件中的初始化语句（static）。</p>
 <p>初始化一个类包含以下步骤：</p>
 <ul>
 <li>若该类还没被加载和连接，则对该类进行加载和连接。</li>
@@ -292,7 +292,7 @@
 <p><strong>执行第2个步骤时，对父类的初始化步骤同样遵循这3个步骤</strong>。若父类有直接父类，则进行同样操作，以此类推。<strong>所以JVM最先初始化的总是<code>java.lang.Object</code>类</strong>。</p>
 <p><strong>只有<font color="red">主动使用类时</font>才会对类执行初始化操作</strong>。</p>
 <p>&emsp;&emsp;</p>
-<h2 id="3-类的卸载"><a href="#3-类的卸载" class="headerlink" title="3. 类的卸载"></a>3. 类的卸载</h2><p>当 Mysample类被加载、连接和初始化后，它的生命周期就开始了。<strong>当代表MySample类的Class对象不再被引用，即不可触及时该Class对象就会被JVM垃圾回收机制回收，结束生命周期</strong>， Mysample类在方法区内的数据也会被卸载，从而结束 Mysample类的生命周期。</p>
+<h2 id="类的卸载"><a href="#类的卸载" class="headerlink" title="类的卸载"></a>类的卸载</h2><p>当 Mysample类被加载、连接和初始化后，它的生命周期就开始了。<strong>当代表MySample类的Class对象不再被引用，即不可触及时该Class对象就会被JVM垃圾回收机制回收，结束生命周期</strong>， Mysample类在方法区内的数据也会被卸载，从而结束 Mysample类的生命周期。</p>
 <p><strong><font color="red">类何时结束生命周期，取决于代表它的Class对象何时结束生命周期</font></strong>。</p>
 <blockquote>
 <ul>
@@ -313,7 +313,7 @@
 <figure class="highlight crystal"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[Unloading <span class="class"><span class="keyword">class</span> <span class="title">classloader</span>.<span class="title">MyTest1</span> 0<span class="title">x0000000100061028</span>]</span></span><br></pre></td></tr></table></figure>
 
 <p>&emsp;&emsp;</p>
-<h2 id="4-主动使用和被动使用"><a href="#4-主动使用和被动使用" class="headerlink" title="4. 主动使用和被动使用"></a>4. 主动使用和被动使用</h2><h3 id="4-1-主动使用"><a href="#4-1-主动使用" class="headerlink" title="4.1 主动使用"></a>4.1 主动使用</h3><p><strong>《JVM规范》严格规定<font color="red">有且只有</font>以下6种情况需要立即对类进行初始化</strong>：</p>
+<h2 id="主动使用和被动使用"><a href="#主动使用和被动使用" class="headerlink" title="主动使用和被动使用"></a>主动使用和被动使用</h2><h3 id="主动使用"><a href="#主动使用" class="headerlink" title="主动使用"></a>主动使用</h3><p><strong>《JVM规范》严格规定<font color="red">有且只有</font>以下6种情况需要立即对类进行初始化</strong>：</p>
 <ul>
 <li><strong>当遇到 new 、 getstatic、putstatic或invokestatic 这4条直接码指令时</strong>，对应以下情况：<ul>
 <li>创建类的示例。（JVM执行<strong>new指令</strong>）。</li>
@@ -330,7 +330,7 @@
 </ul>
 <p>&emsp;&emsp;</p>
 <p><strong>这六种场景的行为称为对一个类型进行主动引用，其他情况的引用都称为被动引用，不会引起初始化</strong>。</p>
-<h3 id="4-2-被动使用"><a href="#4-2-被动使用" class="headerlink" title="4.2 被动使用"></a>4.2 被动使用</h3><p><strong>除了以上情况，其他情况视为对类的被动使用，不会触发对类的初始化</strong>。一些被动使用的情况：</p>
+<h3 id="被动使用"><a href="#被动使用" class="headerlink" title="被动使用"></a>被动使用</h3><p><strong>除了以上情况，其他情况视为对类的被动使用，不会触发对类的初始化</strong>。一些被动使用的情况：</p>
 <ul>
 <li><p>通过子类访问父类的静态变量，不会导致子类的初始化。<strong>访问静态变量，只有定义了该变量的类才会被初始化</strong>。</p>
 <p>示例：</p>
@@ -356,7 +356,7 @@
 </li>
 </ul>
 <p>还有一种final static的情况，如下。</p>
-<h3 id="4-3-关于final-static"><a href="#4-3-关于final-static" class="headerlink" title="4.3 关于final static"></a>4.3 关于final static</h3><p>对于一个<strong>final修饰的静态变量</strong>，<strong><font color="red">若该变量的值在编译时就可以确定</font>，那么该变量相当于“宏变量”。Java编译器会在编译时直接把这个类变量出现的地方替换为它的值。该常量在编译阶段会存入到<font color="red">调用这个常量的方法所在的类的常量池中</font>，本质上，调用类并没有直接引用到定义常量的类，而是在调用常量池中的常量，因此并不会触发定义常量的类的初始化</strong>，且在把常量放入常量池之后，访问常量的类与定义该常量的类已经没有关系，此时将常量所在类的class文件删除仍然能运行。</p>
+<h3 id="关于final-static"><a href="#关于final-static" class="headerlink" title="关于final static"></a>关于final static</h3><p>对于一个<strong>final修饰的静态变量</strong>，<strong><font color="red">若该变量的值在编译时就可以确定</font>，那么该变量相当于“宏变量”。Java编译器会在编译时直接把这个类变量出现的地方替换为它的值。该常量在编译阶段会存入到<font color="red">调用这个常量的方法所在的类的常量池中</font>，本质上，调用类并没有直接引用到定义常量的类，而是在调用常量池中的常量，因此并不会触发定义常量的类的初始化</strong>，且在把常量放入常量池之后，访问常量的类与定义该常量的类已经没有关系，此时将常量所在类的class文件删除仍然能运行。</p>
 <p>&emsp;&emsp;</p>
 <p>示例：（MyTest2）</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FinalStaticTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        System.out.println(FinalStatic.a);<span class="comment">//不会导致类的初始化，static块不执行</span></span><br><span class="line">        System.out.println(FinalStatic.b);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//。。。。。。</span></span><br><span class="line"><span class="comment">//输出：</span></span><br><span class="line"><span class="comment">//ojbk</span></span><br><span class="line"><span class="comment">//FinalStatic&#x27;s static block</span></span><br><span class="line"><span class="comment">//obbk</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">FinalStatic</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String a = <span class="string">&quot;ojbk&quot;</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> String b = <span class="string">&quot;obbk&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;FinalStatic&#x27;s static block&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -378,7 +378,7 @@
 <figure class="highlight angelscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">3</span>: getstatic     #<span class="number">3</span>                  <span class="comment">// Field classloader/FinalStatic2.str:Ljava/lang/String;</span></span><br></pre></td></tr></table></figure>
 
 <p>&emsp;&emsp;</p>
-<h2 id="5-关于准备、初始化阶段的示例"><a href="#5-关于准备、初始化阶段的示例" class="headerlink" title="5. 关于准备、初始化阶段的示例"></a>5. 关于准备、初始化阶段的示例</h2><p>定义类：</p>
+<h2 id="关于准备、初始化阶段的示例"><a href="#关于准备、初始化阶段的示例" class="headerlink" title="关于准备、初始化阶段的示例"></a>关于准备、初始化阶段的示例</h2><p>定义类：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Singleton</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> count1 = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Singleton singleton = <span class="keyword">new</span> Singleton();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span></span>&#123;</span><br><span class="line">        count1++;</span><br><span class="line">        count2++;</span><br><span class="line">        System.out.println(count1);</span><br><span class="line">        System.out.println(count2);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> count2 = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> singleton;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>测试代码：</p>
@@ -386,7 +386,7 @@
 
 <p>解析：在使用了Singleton的静态方法<code>getInstance()</code>时，引起了对Singleton的初始化，而初始化之前需要进行加载和连接，其中，<strong><font color="red">在连接阶段的准备阶段，为count1和count2分配了内存，并赋默认值（0）</font></strong>，在<strong>随后的初始化阶段</strong>，<strong>按顺序执行初始化语句，</strong>count被赋值为1，随后执行<code>new Singleton()</code>，将count1、2++，此时的值为2、1，<strong>最后执行<code>count2 = 0</code>，所以最后两个变量的值是2，0</strong>。</p>
 <p>&emsp;&emsp;</p>
-<h2 id="6-关于接口的初始化"><a href="#6-关于接口的初始化" class="headerlink" title="6. 关于接口的初始化"></a>6. 关于接口的初始化</h2><p><strong>类的初始化规则不全部适用于接口</strong>，对于接口：</p>
+<h2 id="关于接口的初始化"><a href="#关于接口的初始化" class="headerlink" title="关于接口的初始化"></a>关于接口的初始化</h2><p><strong>类的初始化规则不全部适用于接口</strong>，对于接口：</p>
 <ul>
 <li><strong>当一个接口在初始化时，不会触发其父接口的初始化</strong>，只有在真正使用到父接口的时候（如引用接口中所定义的常量时），才会执行父接口的初始化。<strong>即使调用实现类的实现方法也不会触发接口的初始化</strong>。</li>
 <li><strong><font color="red">若是一个接口包含default方法，则当其实现类被初始化时，会先初始化接口</font></strong>。（若还没初始化）</li>
@@ -398,7 +398,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">IParent</span></span>&#123;</span><br><span class="line">    String a = UUID.randomUUID().toString();</span><br><span class="line">    Thread thread = <span class="keyword">new</span> Thread()&#123;</span><br><span class="line">        &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;IParent.instance initializer&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">IChild</span> <span class="keyword">extends</span> <span class="title">IParent</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> b = <span class="number">6</span>;</span><br><span class="line">    String str = UUID.randomUUID().toString();</span><br><span class="line">    Thread thread = <span class="keyword">new</span> Thread()&#123;</span><br><span class="line">        &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;IChild.instance initializer&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Imp</span> <span class="keyword">implements</span> <span class="title">IParent</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> c = <span class="number">6</span>;</span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Imp.static initializer&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyTest4</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//1.访问宏变量，没有引起两个接口的初始化，output：</span></span><br><span class="line">        <span class="comment">//6</span></span><br><span class="line">        <span class="comment">// System.out.println(IChild.b);</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">//2.IChild被初始化，但其父接口并没有被初始化，output：</span></span><br><span class="line">        <span class="comment">//IChild.instance initializer</span></span><br><span class="line">		<span class="comment">//caac858a-e095-4152-abf4-b75f41a24873</span></span><br><span class="line">        <span class="comment">// System.out.println(IChild.str);</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">//3.类的初始化并不会触发其实现接口的初始化，output：</span></span><br><span class="line">        <span class="comment">//Imp.static initializer</span></span><br><span class="line">		<span class="comment">//6</span></span><br><span class="line">        System.out.println(Imp.c);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>&emsp;&emsp;</p>
-<h2 id="7-参考"><a href="#7-参考" class="headerlink" title="7. 参考"></a>7. 参考</h2><blockquote>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><blockquote>
 <p><a href="https://www.bilibili.com/video/BV187411B7iv" target="_blank"> 深入理解JVM虚拟机视频</a> </p>
 <p><a href="https://snailclimb.gitee.io/javaguide/#/docs/java/jvm/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E8%BF%87%E7%A8%8B" target="_blank">Guide-类的加载过程</a> </p>
 <p><a href="https://gu_chun_bo.gitee.io/java-construct/#/jvm%E5%AD%A6%E4%B9%A0/jvm-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E8%BF%87%E7%A8%8B" target="_blank">jvm-类加载过程</a> </p>
@@ -488,7 +488,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E7%B1%BB%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="nav-number">1.</span> <span class="nav-text">1. 类的生命周期</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E8%BF%87%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">2. 类加载过程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E5%8A%A0%E8%BD%BD"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 加载</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E8%BF%9E%E6%8E%A5"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 连接</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 初始化</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E7%B1%BB%E7%9A%84%E5%8D%B8%E8%BD%BD"><span class="nav-number">3.</span> <span class="nav-text">3. 类的卸载</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E4%B8%BB%E5%8A%A8%E4%BD%BF%E7%94%A8%E5%92%8C%E8%A2%AB%E5%8A%A8%E4%BD%BF%E7%94%A8"><span class="nav-number">4.</span> <span class="nav-text">4. 主动使用和被动使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E4%B8%BB%E5%8A%A8%E4%BD%BF%E7%94%A8"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 主动使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E8%A2%AB%E5%8A%A8%E4%BD%BF%E7%94%A8"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 被动使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-%E5%85%B3%E4%BA%8Efinal-static"><span class="nav-number">4.3.</span> <span class="nav-text">4.3 关于final static</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E5%85%B3%E4%BA%8E%E5%87%86%E5%A4%87%E3%80%81%E5%88%9D%E5%A7%8B%E5%8C%96%E9%98%B6%E6%AE%B5%E7%9A%84%E7%A4%BA%E4%BE%8B"><span class="nav-number">5.</span> <span class="nav-text">5. 关于准备、初始化阶段的示例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-%E5%85%B3%E4%BA%8E%E6%8E%A5%E5%8F%A3%E7%9A%84%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">6.</span> <span class="nav-text">6. 关于接口的初始化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-%E5%8F%82%E8%80%83"><span class="nav-number">7.</span> <span class="nav-text">7. 参考</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B1%BB%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="nav-number">1.</span> <span class="nav-text">类的生命周期</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B1%BB%E5%8A%A0%E8%BD%BD%E8%BF%87%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">类加载过程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8A%A0%E8%BD%BD"><span class="nav-number">2.1.</span> <span class="nav-text">加载</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%9E%E6%8E%A5"><span class="nav-number">2.2.</span> <span class="nav-text">连接</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">2.3.</span> <span class="nav-text">初始化</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B1%BB%E7%9A%84%E5%8D%B8%E8%BD%BD"><span class="nav-number">3.</span> <span class="nav-text">类的卸载</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BB%E5%8A%A8%E4%BD%BF%E7%94%A8%E5%92%8C%E8%A2%AB%E5%8A%A8%E4%BD%BF%E7%94%A8"><span class="nav-number">4.</span> <span class="nav-text">主动使用和被动使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BB%E5%8A%A8%E4%BD%BF%E7%94%A8"><span class="nav-number">4.1.</span> <span class="nav-text">主动使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A2%AB%E5%8A%A8%E4%BD%BF%E7%94%A8"><span class="nav-number">4.2.</span> <span class="nav-text">被动使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B3%E4%BA%8Efinal-static"><span class="nav-number">4.3.</span> <span class="nav-text">关于final static</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B3%E4%BA%8E%E5%87%86%E5%A4%87%E3%80%81%E5%88%9D%E5%A7%8B%E5%8C%96%E9%98%B6%E6%AE%B5%E7%9A%84%E7%A4%BA%E4%BE%8B"><span class="nav-number">5.</span> <span class="nav-text">关于准备、初始化阶段的示例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B3%E4%BA%8E%E6%8E%A5%E5%8F%A3%E7%9A%84%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">6.</span> <span class="nav-text">关于接口的初始化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">7.</span> <span class="nav-text">参考</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -502,24 +502,29 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">27</span>
+          <span class="site-state-item-count">28</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-count">10</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-count">9</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
 </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/bxxiao" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;bxxiao" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
 
 
 

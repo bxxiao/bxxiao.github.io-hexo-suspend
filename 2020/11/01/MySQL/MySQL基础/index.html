@@ -20,26 +20,25 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="概述​        MySQL很牛逼。 MySQL是属于C&#x2F;S架构的软件。 MySQL的优点：可将数据持久化到本地；可用sql语言进行查询，便于管理。  MySQL的卸载及安装MySQL卸载MySQL的卸载：https:&#x2F;&#x2F;www.bilibili.com&#x2F;video&#x2F;BV12b411K7Zu?p&#x3D;249  第6集 MySQL8.0.22的安装https:&#x2F;&#x2F;blog.csdn.net&#x2F;qq_4">
+  <meta name="description" content="DQL 该笔记的实例代码中的数据库是myemploees。  SQL语言的分类：  DQL（Data Query Language）：数据查询语言。 DML（Data Management Language）：数据操作语言，修改表的语言，如插入、修改、删除语句。 DDL（Data Definition Language）：数据定义语言，如创建表、创建库。 TCL（Translation Contr">
 <meta property="og:type" content="article">
 <meta property="og:title" content="MySQL基础">
-<meta property="og:url" content="http://example.com/2020/11/01/MySQL%E5%9F%BA%E7%A1%80%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:url" content="http://example.com/2020/11/01/MySQL/MySQL%E5%9F%BA%E7%A1%80/index.html">
 <meta property="og:site_name" content="bxxiao">
-<meta property="og:description" content="概述​        MySQL很牛逼。 MySQL是属于C&#x2F;S架构的软件。 MySQL的优点：可将数据持久化到本地；可用sql语言进行查询，便于管理。  MySQL的卸载及安装MySQL卸载MySQL的卸载：https:&#x2F;&#x2F;www.bilibili.com&#x2F;video&#x2F;BV12b411K7Zu?p&#x3D;249  第6集 MySQL8.0.22的安装https:&#x2F;&#x2F;blog.csdn.net&#x2F;qq_4">
+<meta property="og:description" content="DQL 该笔记的实例代码中的数据库是myemploees。  SQL语言的分类：  DQL（Data Query Language）：数据查询语言。 DML（Data Management Language）：数据操作语言，修改表的语言，如插入、修改、删除语句。 DDL（Data Definition Language）：数据定义语言，如创建表、创建库。 TCL（Translation Contr">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://gitee.com/bxgitee/noteImage/raw/master/image/image-20200714170433903.png">
 <meta property="og:image" content="https://gitee.com/bxgitee/noteImage/raw/master/image/image-20210315154030410.png">
 <meta property="og:image" content="https://gitee.com/bxgitee/noteImage/raw/master/image/image-20210315154114696.png">
-<meta property="og:image" content="https://gitee.com/bxgitee/noteImage/raw/master/image/20200716162156.png">
 <meta property="og:image" content="https://gitee.com/bxgitee/noteImage/raw/master/image/image-20200526104150723.png">
 <meta property="article:published_time" content="2020-11-01T09:41:43.673Z">
-<meta property="article:modified_time" content="2021-03-16T09:09:01.968Z">
+<meta property="article:modified_time" content="2021-03-20T13:00:53.757Z">
 <meta property="article:author" content="bxxiao">
 <meta property="article:tag" content="MySQL">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://gitee.com/bxgitee/noteImage/raw/master/image/image-20200714170433903.png">
 
-<link rel="canonical" href="http://example.com/2020/11/01/MySQL%E5%9F%BA%E7%A1%80%E7%AC%94%E8%AE%B0/">
+<link rel="canonical" href="http://example.com/2020/11/01/MySQL/MySQL%E5%9F%BA%E7%A1%80/">
 
 
 <script id="page-configurations">
@@ -168,7 +167,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2020/11/01/MySQL%E5%9F%BA%E7%A1%80%E7%AC%94%E8%AE%B0/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/11/01/MySQL/MySQL%E5%9F%BA%E7%A1%80/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -198,7 +197,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-03-16 17:09:01" itemprop="dateModified" datetime="2021-03-16T17:09:01+08:00">2021-03-16</time>
+                <time title="修改时间：2021-03-20 21:00:53" itemprop="dateModified" datetime="2021-03-20T21:00:53+08:00">2021-03-20</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -221,73 +220,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>​        MySQL很牛逼。</p>
-<p><strong><span style="color:red">MySQL是属于C/S架构的软件</span></strong>。</p>
-<p>MySQL的优点：可将数据持久化到本地；可用sql语言进行查询，便于管理。</p>
-<hr>
-<h2 id="MySQL的卸载及安装"><a href="#MySQL的卸载及安装" class="headerlink" title="MySQL的卸载及安装"></a>MySQL的卸载及安装</h2><h3 id="MySQL卸载"><a href="#MySQL卸载" class="headerlink" title="MySQL卸载"></a>MySQL卸载</h3><p>MySQL的卸载：<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV12b411K7Zu?p=249">https://www.bilibili.com/video/BV12b411K7Zu?p=249</a>  第6集</p>
-<h3 id="MySQL8-0-22的安装"><a href="#MySQL8-0-22的安装" class="headerlink" title="MySQL8.0.22的安装"></a>MySQL8.0.22的安装</h3><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_43715354/article/details/109354222">https://blog.csdn.net/qq_43715354/article/details/109354222</a></p>
-<p>按照该教程至第八步。</p>
-<ul>
-<li><p>启动cmd。</p>
-</li>
-<li><p>输入<code>mysql -u root -p</code> </p>
-</li>
-<li><p>输入上述随机生成的密码进入数据库。进入后需要修改密码，因为随机生成的密码在登录后会过期。（这时若不修改密码，执行一切sql语句都会报错，提醒修改密码）</p>
-</li>
-<li><p>修改密码的命令：</p>
-<ul>
-<li><p><code>alter user &#39;root&#39;@&#39;localhost&#39; identified by &#39;newPassword&#39;;</code> </p>
-</li>
-<li><p><code>flush privileges;</code> </p>
-</li>
-</ul>
-</li>
-</ul>
-<h3 id="my-ini文件"><a href="#my-ini文件" class="headerlink" title="my.ini文件"></a>my.ini文件</h3><p>MySQL的安装目录下的<code>my.ini</code>文件是MySQL的配置文件，在其中可配置相关信息（#开头的为注释），其中的<code>[mysqld]</code>下可配置服务端的相关信息，如下：</p>
-<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[mysqld]</span></span><br><span class="line"><span class="comment"># 设置3306端口</span></span><br><span class="line"><span class="attr">port</span>=<span class="number">3306</span></span><br><span class="line"><span class="comment"># 设置mysql的安装目录</span></span><br><span class="line"><span class="attr">basedir</span>=D:\\Program Files\MySQL\mysql-<span class="number">8.0</span>.<span class="number">22</span></span><br><span class="line"><span class="comment"># 设置mysql数据库的数据的存放目录</span></span><br><span class="line"><span class="attr">datadir</span>=D:\\Program Files\MySQL\mysql-<span class="number">8.0</span>.<span class="number">22</span>\data</span><br><span class="line"><span class="comment"># 允许最大连接数</span></span><br><span class="line"><span class="attr">max_connections</span>=<span class="number">200</span></span><br><span class="line"><span class="comment"># 允许连接失败的次数。</span></span><br><span class="line"><span class="attr">max_connect_errors</span>=<span class="number">10</span></span><br><span class="line"><span class="comment"># 服务端使用的字符集默认为utf8mb4</span></span><br><span class="line"><span class="attr">character-set-server</span>=utf8mb4</span><br><span class="line"><span class="comment"># 创建新表时将使用的默认存储引擎</span></span><br><span class="line"><span class="attr">default-storage-engine</span>=INNODB</span><br><span class="line"><span class="comment"># 默认使用“mysql_native_password”插件认证</span></span><br><span class="line"><span class="comment">#mysql_native_password</span></span><br><span class="line"><span class="attr">default_authentication_plugin</span>=mysql_native_password</span><br><span class="line"><span class="section">[mysql]</span></span><br><span class="line"><span class="comment"># 设置mysql客户端默认字符集</span></span><br><span class="line"><span class="attr">default-character-set</span>=utf8mb4</span><br><span class="line"><span class="section">[client]</span></span><br><span class="line"><span class="comment"># 设置mysql客户端连接服务端时默认使用的端口</span></span><br><span class="line"><span class="attr">port</span>=<span class="number">3306</span></span><br><span class="line"><span class="attr">default-character-set</span>=utf8mb4</span><br></pre></td></tr></table></figure>
-
-
-
-<hr>
-<h2 id="MySQL服务的启动和关闭"><a href="#MySQL服务的启动和关闭" class="headerlink" title="MySQL服务的启动和关闭"></a>MySQL服务的启动和关闭</h2><p>可通过</p>
-<p><strong>【右键我的电脑】-》【管理】-》【服务和应用程序】-》【服务】-》【找到MySQL】-》【双击，选择启动/关闭】</strong> </p>
-<p>或者：</p>
-<p><strong>以【管理员身份运行命令行】-》【输入命令<code>net stop/start mysqlServerName</code>】</strong> </p>
-<hr>
-<h2 id="登录MySQL及环境变量"><a href="#登录MySQL及环境变量" class="headerlink" title="登录MySQL及环境变量"></a>登录MySQL及环境变量</h2><h3 id="登录MySQL"><a href="#登录MySQL" class="headerlink" title="登录MySQL"></a>登录MySQL</h3><p>​        可通过MySQL自带的命令行（只能登录root用户）。</p>
-<p>​        也可通过命令行：</p>
-<p>​        <code>mysql -h localhost -P 3306 -u root -p </code> </p>
-<p>​        <code>mysql -h localhost -P 3306 -u root -padmin</code> （<strong>用于连接远程</strong>）</p>
-<p>​        <code>mysql -u root -pPassword</code> （<strong>连接本地MySQL</strong>）</p>
-<h3 id="MySQL环境变量"><a href="#MySQL环境变量" class="headerlink" title="MySQL环境变量"></a>MySQL环境变量</h3><p>​        若以上命令不可用，可能原因是没有配置环境变量（<strong>若是使用msi安装包安装则MySQL会自动配置</strong>）。</p>
-<p>​        手动配置过程：在<code>Path</code>环境变量中添加MySQL的安装目录中的bin目录路径即可。</p>
-<hr>
-<h2 id="MySQL语法规范及常用命令"><a href="#MySQL语法规范及常用命令" class="headerlink" title="MySQL语法规范及常用命令"></a>MySQL语法规范及常用命令</h2><h3 id="语法规范"><a href="#语法规范" class="headerlink" title="语法规范"></a>语法规范</h3><ul>
-<li>MySQL中的<strong>命令以<code>;</code>或<code>\g</code>结束</strong>。</li>
-<li>MySQL命令不区分大小写。</li>
-<li>注释<ul>
-<li>单行注释：<code>#注释</code>或<code>-- 注释</code>(空格必需)</li>
-<li>多行注释：<code>/* 注释 */</code> </li>
-</ul>
-</li>
-</ul>
-<h3 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h3><p>进入MySQL后，可使用以下相关命令：</p>
-<p>显示所有数据库：<strong><code>show databases;</code></strong> </p>
-<p><code>----------------------------------</code> </p>
-<p>使用指定数据库：<strong><code>use dababaseName;</code> </strong></p>
-<p><code>----------------------------------</code>   </p>
-<p>显示当前数据库中的所有表：<strong><code>show tables;</code> </strong></p>
-<p><code>----------------------------------</code> </p>
-<p>显示指定数据库的所有表（<strong>使用该命令后，当前数据库位置不变</strong>）：<strong><code>show tables from databaseName</code> </strong></p>
-<p><code>----------------------------------</code> </p>
-<p>查看表结构：<strong><code>desc tableName</code> </strong> </p>
-<p><code>----------------------------------</code> </p>
-<p>查看MySQL版本：</p>
-<p>在MySQL中：<strong><code>select version();</code> </strong> </p>
-<p>在MySQL外：<strong><code>mysql --version</code>或<code>mysql -V</code> </strong> </p>
-<p><code>----------------------------------</code> </p>
-<h2 id="MySQL基础-DQL"><a href="#MySQL基础-DQL" class="headerlink" title="MySQL基础-DQL"></a>MySQL基础-DQL</h2><blockquote>
+        <h2 id="DQL"><a href="#DQL" class="headerlink" title="DQL"></a>DQL</h2><blockquote>
 <p>该笔记的实例代码中的数据库是<code>myemploees</code>。</p>
 </blockquote>
 <p>SQL语言的分类：</p>
@@ -606,7 +539,7 @@
 
 
 
-<h2 id="MySQL基础-DML"><a href="#MySQL基础-DML" class="headerlink" title="MySQL基础-DML"></a>MySQL基础-DML</h2><p>&emsp;&emsp;DML（Data Manage Language），数据操作语言，用于<strong>对表进行插入（insert）、删除（delete）、更新（update）操作</strong>。</p>
+<h2 id="DML"><a href="#DML" class="headerlink" title="DML"></a>DML</h2><p>&emsp;&emsp;DML（Data Manage Language），数据操作语言，用于<strong>对表进行插入（insert）、删除（delete）、更新（update）操作</strong>。</p>
 <h3 id="插入（insert）"><a href="#插入（insert）" class="headerlink" title="插入（insert）"></a>插入（insert）</h3><p>&emsp;&emsp;插入语句的语法有两种，如下：</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#1</span></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> table_name[(colum1, colum2, ...)]  <span class="comment">#该部分省略时默认所有字段</span></span><br><span class="line"><span class="keyword">VALUES</span>(value1, value2, ...)</span><br><span class="line">[, (value11, value22, ...)] ; <span class="comment">#可同时插入多个记录</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#2</span></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> table_name</span><br><span class="line"><span class="keyword">SET</span> colum1=value1, colum2=value2, ...;</span><br><span class="line"></span><br><span class="line"><span class="comment">#3</span></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> table_name[(colum1, colum2, ...)]</span><br><span class="line"><span class="keyword">SELECT</span> ...;</span><br></pre></td></tr></table></figure>
 
@@ -664,7 +597,7 @@
 </ul>
 <p>如果使用其他存储引擎，则 <code>TRUNCATE TABLE</code> 语句将删除并重新创建一个新表。</p>
 <p>此外，<code>TRUNCATE TABLE</code>语句不使用<code>DELETE</code>语句，因此与表关联的<a target="_blank" rel="noopener" href="http://www.yiibai.com/mysql/triggers.html">DELETE触发器</a>将不被调用。</p>
-<h2 id="MySQL基础-DDL"><a href="#MySQL基础-DDL" class="headerlink" title="MySQL基础-DDL"></a>MySQL基础-DDL</h2><p>​        数据定义语言（Data Define Language， DDL）用于对数据库、表进行创建、修改、删除操作。</p>
+<h2 id="DDL"><a href="#DDL" class="headerlink" title="DDL"></a>DDL</h2><p>​        数据定义语言（Data Define Language， DDL）用于对数据库、表进行创建、修改、删除操作。</p>
 <h3 id="库的管理"><a href="#库的管理" class="headerlink" title="库的管理"></a>库的管理</h3><p>库的相关语法如下：<strong>其中，对于创建、删除库，若是库已存在或不存在会报错，可使用<code>IF (NOT) EXISTS</code>进行判断，使语句正确执行</strong>。</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#创建库</span></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">DATABASE</span> [<span class="keyword">IF</span> <span class="keyword">NOT</span> <span class="keyword">EXISTS</span>] database_name;</span><br><span class="line"></span><br><span class="line"><span class="comment">#删除库</span></span><br><span class="line"><span class="keyword">DROP</span> <span class="keyword">DATABASE</span> [<span class="keyword">IF</span> <span class="keyword">EXISTS</span>] database_name;</span><br><span class="line"></span><br><span class="line"><span class="comment">#修改库</span></span><br><span class="line"><span class="comment">#修改库名（该语法似乎不用了）</span></span><br><span class="line"><span class="keyword">RENAME</span> <span class="keyword">DATABASE</span> database_name <span class="keyword">TO</span> new_name;</span><br><span class="line"></span><br><span class="line"><span class="comment">#修改字符集</span></span><br><span class="line"><span class="keyword">ALTER</span> <span class="keyword">DATABASE</span> database_name <span class="built_in">CHARACTER</span> <span class="keyword">SET</span> character_name;</span><br></pre></td></tr></table></figure>
 
@@ -711,7 +644,7 @@
 
 
 <hr>
-<h2 id="MySQL基础-数据类型"><a href="#MySQL基础-数据类型" class="headerlink" title="MySQL基础-数据类型"></a>MySQL基础-数据类型</h2><p>MySQL的数据类型有：</p>
+<h2 id="MySQL数据类型"><a href="#MySQL数据类型" class="headerlink" title="MySQL数据类型"></a>MySQL数据类型</h2><p>MySQL的数据类型有：</p>
 <ul>
 <li>数值型：<ul>
 <li>整型</li>
@@ -844,7 +777,7 @@
 <p>可见，两次查询t1的两个值都不变，插入时的时间是什么，查询出的是什么。</p>
 <p><strong>而t2查询出的值是保存的UTC时间转化为当前时区的时间</strong>。<strong>比如第一行的t2值，插入数据时是在东八区，该时刻的东九区比东八区快一个小时</strong>。</p>
 <hr>
-<h2 id="MySQL基础-约束"><a href="#MySQL基础-约束" class="headerlink" title="MySQL基础-约束"></a>MySQL基础-约束</h2><h3 id="概述-1"><a href="#概述-1" class="headerlink" title="概述"></a>概述</h3><p>​        约束就是一种限制，用于限制表中的数据，<strong>使数据有更好的准确和可靠性</strong>。</p>
+<h2 id="MySQL约束"><a href="#MySQL约束" class="headerlink" title="MySQL约束"></a>MySQL约束</h2><h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p>​        约束就是一种限制，用于限制表中的数据，<strong>使数据有更好的准确和可靠性</strong>。</p>
 <p>MySQL中的常见约束：</p>
 <table>
 <thead>
@@ -927,123 +860,7 @@
 <li>标识列可以通过<code>SET auto_increment_increment=3;</code>设置步长，也可以通过手动插入值设置起始值。</li>
 </ul>
 <hr>
-<h2 id="MySQL基础-事务"><a href="#MySQL基础-事务" class="headerlink" title="MySQL基础-事务"></a>MySQL基础-事务</h2><p>（以下部分内容摘抄自<a href="https://snailclimb.gitee.io/javaguide/#/docs/database/MySQL" target="_blank">javaGuide博客文档</a>）</p>
-<h3 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h3><p>​        <strong>事务是逻辑上的一组操作，即一个或多个SQL语句，要么都执行，要么都不执行</strong>。<strong>如果单元中某条SQL语句一旦执行失败或产生错误，整个单元将会回滚</strong>。所有受到影响的数据将返回到事物开始以前的状态；如果单元中的所有SQL语句均执行成功， 则事物被顺利执行。</p>
-<p>​        事务最经典也经常被拿出来说例子就是转账了。假如小明要给小红转账1000元，这个转账会涉及到两个关键操作就是：将小明的余额减少1000元，将小红的余额增加1000元。万一在这两个操作之间突然出现错误比如银行系统崩溃，导致小明余额减少而小红的余额没有增加，这样就不对了。事务就是保证这两个关键操作要么都成功，要么都要失败。</p>
-<h3 id="事物的四大特性-ACID"><a href="#事物的四大特性-ACID" class="headerlink" title="事物的四大特性(ACID)"></a>事物的四大特性(ACID)</h3><p><img src="https://gitee.com/bxgitee/noteImage/raw/master/image/20200716162156.png"></p>
-<ol>
-<li><p><strong>原子性（Atomicity）：</strong> 事务是最小的执行单位，不允许分割。事务的原子性确保动作要么全部完成，要么完全不起作用；</p>
-</li>
-<li><p><strong>一致性（Consistency）：</strong> 执行事务前后，数据保持一致，多个事务对同一个数据读取的结果是相同的；</p>
-<ul>
-<li><p><strong>ACID里的AID都是数据库的特征,也就是依赖数据库的具体实现.而唯独这个C,实际上它依赖于应用层,也就是依赖于开发者.这里的一致性是指<font color="red">系统从一个正确的状态,迁移到另一个正确的状态</font>.什么叫正确的状态呢?就是当前的状态满足预定的约束就叫做正确的状态.而事务具备ACID里C的特性是说通过事务的AID来保证我们的一致性</strong>。</p>
-<p>（来自<a target="_blank" rel="noopener" href="https://www.zhihu.com/question/31346392/answer/362597203">https://www.zhihu.com/question/31346392/answer/362597203</a> 作者：孟波）</p>
-</li>
-</ul>
-</li>
-<li><p><strong>隔离性（Isolation）：</strong> 并发访问数据库时，<strong>一个用户的事务不被其他事务所干扰</strong>，各并发事务之间是独立的；</p>
-</li>
-<li><p><strong>持久性（Durability）：</strong> 一个事务被提交之后。它对数据库中数据的改变是持久的，即使数据库发生故障也不应该对其有任何影响。</p>
-</li>
-</ol>
-<h3 id="事务的创建"><a href="#事务的创建" class="headerlink" title="事务的创建"></a>事务的创建</h3><p>​        事务可分为隐式事务和显式事务。隐式事务如DML语言（insert、update、delete），每一个语句都是一个事务；而显式事务通过sql语句开启事务跟关闭事务，一个事务可有多条语句。</p>
-<p>​        <strong>msyql默认关闭事务，通过<code>SHOW VARIABLES LIKE &#39;%autocommit%&#39;;</code>命令可看到``autocommit=ON`，即自动提交默认开启。创建事务前需关闭自动提交</strong>。<strong><span style="color:red;">事务中不能包括DDL语句</span></strong>。</p>
-<p>显示事务的创建：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--1.开启事务</span></span><br><span class="line"><span class="keyword">SET</span> autocommit=<span class="number">0</span>;</span><br><span class="line"><span class="keyword">START</span> TRASACTION; <span class="comment">#可选</span></span><br><span class="line"><span class="comment">--编写事务语句</span></span><br><span class="line">语句1</span><br><span class="line">语句2</span><br><span class="line">...</span><br><span class="line"><span class="comment">--结束事务</span></span><br><span class="line"><span class="keyword">COMMIT</span>;</span><br><span class="line"><span class="comment">#或者</span></span><br><span class="line"><span class="keyword">ROLLBACK</span>;</span><br></pre></td></tr></table></figure>
-
-
-
-<p>一个转账的例子：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#先建表</span></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="keyword">account</span>(</span><br><span class="line">	username <span class="built_in">VARCHAR</span>(<span class="number">10</span>),</span><br><span class="line">	money <span class="keyword">DOUBLE</span></span><br><span class="line">);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="keyword">account</span> <span class="keyword">VALUES</span>(<span class="string">&#x27;zhangsan&#x27;</span>, <span class="number">1000</span>),(<span class="string">&#x27;xiaoming&#x27;</span>, <span class="number">1000</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">#转账例子</span></span><br><span class="line"><span class="comment">#开启事务（关闭事务自动提交）</span></span><br><span class="line"><span class="keyword">SET</span> autocommit=<span class="number">0</span>;</span><br><span class="line"><span class="keyword">START</span> <span class="keyword">TRANSACTION</span>;</span><br><span class="line"><span class="comment">#事务语句</span></span><br><span class="line"><span class="keyword">UPDATE</span> <span class="keyword">account</span> <span class="keyword">SET</span> money=<span class="number">500</span> <span class="keyword">WHERE</span> username=<span class="string">&#x27;zhangsan&#x27;</span>;</span><br><span class="line"><span class="keyword">UPDATE</span> <span class="keyword">account</span> <span class="keyword">SET</span> money=<span class="number">1500</span> <span class="keyword">WHERE</span> username=<span class="string">&#x27;xiaoming&#x27;</span>;</span><br><span class="line"><span class="comment">#提交事务</span></span><br><span class="line"><span class="keyword">COMMIT</span>;</span><br></pre></td></tr></table></figure>
-
-
-
-<h4 id="回滚点SAVEPOINT"><a href="#回滚点SAVEPOINT" class="headerlink" title="回滚点SAVEPOINT"></a>回滚点SAVEPOINT</h4><p>​        回滚点跟<code>ROLLBACK</code>搭配使用，其作用是设置一个保存点，当执行<code>ROLLBACK</code>时回滚到保存点。</p>
-<p>eg：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SET</span> autocommit=<span class="number">0</span>;</span><br><span class="line"><span class="keyword">START</span> <span class="keyword">TRANSACTION</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">DELETE</span> <span class="keyword">FROM</span> <span class="keyword">account</span> <span class="keyword">WHERE</span> <span class="keyword">id</span>=<span class="number">2</span>;</span><br><span class="line"><span class="keyword">SAVEPOINT</span> a;</span><br><span class="line"><span class="keyword">DELETE</span> <span class="keyword">FROM</span> <span class="keyword">account</span> <span class="keyword">WHERE</span> <span class="keyword">id</span>=<span class="number">3</span>;</span><br><span class="line"><span class="keyword">ROLLBACK</span> <span class="keyword">TO</span> a;</span><br></pre></td></tr></table></figure>
-
-<p>执行以上语句后查询account表，可发现只删除了id为2的记录。</p>
-<h3 id="事务并发问题"><a href="#事务并发问题" class="headerlink" title="事务并发问题"></a>事务并发问题</h3><p>​        在典型的应用程序中，多个事务并发运行，经常会操作相同的数据来完成各自的任务（<strong>多个用户对同一数据进行操作</strong>）。并发虽然是必须的，但可能会导致以下的问题。</p>
-<ul>
-<li><p><strong>脏读（Dirty read）:</strong> <strong>当一个事务正在访问数据并且对数据进行了修改，而这种修改还没有提交到数据库中，这时另外一个事务也访问了这个数据，然后使用了这个数据。因为这个数据是还没有提交的数据，那么另外一个事务读到的这个数据是“脏数据”，依据“脏数据”所做的操作可能是不正确的</strong>，比如可能出现错误而回滚事务，导致修改后的数据没有存入数据库。</p>
-</li>
-<li><p><strong>丢失修改（Lost to modify）:</strong> <strong>指在一个事务读取一个数据时，另外一个事务也访问了该数据，那么在第一个事务中修改了这个数据后，第二个事务也修改了这个数据。这样第一个事务内的修改结果就被丢失，因此称为丢失修改</strong>。 例如：</p>
-<ul>
-<li><p>事务1读取某表中的数据A=20，事务2也读取A=20，事务1修改A=A-1，事务2也修改A=A-1，最终结果A=19，事务1的修改被丢失。（<strong>即结果应该是A=18，但因为事务2的修改覆盖了事务1的修改，使事务1丢失</strong>）</p>
-</li>
-<li><p>考虑飞机订票系统中的一个活动序列: </p>
-<ol>
-<li>甲售票点（甲事务）读出某航班的机票余额A,设A=16. </li>
-<li>乙售票点（乙事务）读出同一航班的机票余额A,也为16. </li>
-<li>甲售票点卖出一张机票,修改余额A←A-1.所以A为15,把A写回数据库. </li>
-<li>乙售票点也卖出一张机票,修改余额A←A-1.所以A为15,把A写回数据库. </li>
-</ol>
-<p><strong><span style="color:red">结果明明卖出两张机票，数据库中机票余额只减少1</span></strong>。 </p>
-</li>
-</ul>
-</li>
-<li><p><strong>不可重复读（Unrepeatableread）:</strong> <strong>指在一个事务内多次读同一数据。在这个事务还没有结束时，另一个事务也访问该数据。那么，在第一个事务中的两次读数据之间，由于第二个事务的修改导致第一个事务两次读取的结果可能不一样。这就发生了在一个事务内两次读到的数据是不一样的情况，因此称为不可重复读</strong>。（事务1读数据的过程中，事务2把数据给改了，导致事务1两次读的数据不同）</p>
-</li>
-<li><p><strong>幻读（Phantom read）:</strong> 幻读与不可重复读类似。它发生在一个事务（T1）读取了几行数据，接着另一个并发事务（T2）插入了一些数据时。在随后的查询中，<strong>第一个事务（T1）就会发现多了一些原本不存在的记录，就好像发生了幻觉一样，所以称为幻读</strong>。（<strong>在同一事务下，连续执行两次同样的SQL语句第二次的SQL语句可能返回之前不存在的行</strong>）</p>
-</li>
-</ul>
-<p><strong><span style="color:red">不可重复读和幻读区别</span></strong>： </p>
-<p><strong>不可重复读的重点是数据的值被修改，比如多次读取一条记录发现其中某些列的值被修改</strong>，幻读的重点在于<strong>新增或者删除比如多次读取一条记录发现记录增多或减少了</strong>。</p>
-<h3 id="MySQL的事务隔离级别"><a href="#MySQL的事务隔离级别" class="headerlink" title="MySQL的事务隔离级别"></a>MySQL的事务隔离级别</h3><p><strong><span style="color:red">SQL 标准定义了四个隔离级别：</span></strong> </p>
-<ul>
-<li><strong>READ-UNCOMMITTED(读取未提交)：</strong> 最低的隔离级别，允许读取尚未提交的数据变更，<strong><span style="color:red">可能会导致脏读、幻读或不可重复读</span></strong>。</li>
-<li><strong>READ-COMMITTED(读取已提交)：</strong> 允许读取并发事务已经提交的数据，<strong><span style="color:red">可以阻止脏读，但是幻读或不可重复读仍有可能发生</span></strong>。</li>
-<li><strong>REPEATABLE-READ(可重复读)：</strong> <strong>对同一字段的多次读取结果都是一致的</strong>，除非数据是被本身事务自己所修改，<span style="color:red"><strong>可以阻止脏读和不可重复读，但幻读仍有可能发生</strong></span>。</li>
-<li><strong>SERIALIZABLE(可串行化)：</strong> <strong>最高的隔离级别，完全服从ACID的隔离级别</strong>。所有的事务依次逐个执行，这样事务之间就完全不可能产生干扰，也就是说，<strong>该级别可以防止脏读、不可重复读以及幻读</strong>。但效率极低。该标准类似于线程锁。</li>
-</ul>
-<p>可总结为下表（<strong>打勾表示可能发生</strong>）</p>
-<table>
-<thead>
-<tr>
-<th>隔离级别</th>
-<th>脏读</th>
-<th>不可重复读</th>
-<th>幻影读</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>READ-UNCOMMITTED</td>
-<td>√</td>
-<td>√</td>
-<td>√</td>
-</tr>
-<tr>
-<td>READ-COMMITTED</td>
-<td>×</td>
-<td>√</td>
-<td>√</td>
-</tr>
-<tr>
-<td>REPEATABLE-READ</td>
-<td>×</td>
-<td>×</td>
-<td>√</td>
-</tr>
-<tr>
-<td>SERIALIZABLE</td>
-<td>×</td>
-<td>×</td>
-<td>×</td>
-</tr>
-</tbody></table>
-<p>MySQL <strong>InnoDB 存储引擎</strong>的默认支持的隔离级别是 <strong>REPEATABLE-READ（可重读）</strong>。可以<strong>通过<code>SELECT @@tx_isolation;</code>命令</strong>来查看</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; SELECT @@tx_isolation;</span><br><span class="line">+<span class="comment">-----------------+</span></span><br><span class="line">| @@tx_isolation  |</span><br><span class="line">+<span class="comment">-----------------+</span></span><br><span class="line">| REPEATABLE-READ |</span><br><span class="line">+<span class="comment">-----------------+</span></span><br></pre></td></tr></table></figure>
-
-
-
-<p>​        <strong><span style="color:red">这里需要注意的是</span></strong>：与 SQL 标准不同的地方在于 InnoDB 存储引擎在 <strong>REPEATABLE-READ（可重读）</strong> 事务隔离级别下使用的是<strong>Next-Key Lock 锁算法</strong>，因此<strong><span style="color:red">可以避免幻读的产生</span></strong>，这与其他数据库系统(如 SQL Server) 是不同的。所以说<strong><span style="color:red">InnoDB 存储引擎的默认支持的隔离级别已经可以完全保证事务的隔离性要求，即达到了 SQL标准的 SERIALIZABLE(可串行化) 隔离级别</span></strong>。因为隔离级别越低，事务请求的锁越少，所以大部分数据库系统的隔离级别都是 <strong>READ-COMMITTED(读取提交内容)</strong> ，<strong>但是InnoDB 存储引擎默认使用 REPEAaTABLE-READ（可重读），<span style="color:red"> 并不会有任何性能损失</span></strong>。</p>
-<p>InnoDB 存储引擎在 <strong>分布式事务</strong> 的情况下一般会用到 <strong>SERIALIZABLE(可串行化)</strong> 隔离级别。</p>
-<p>设置事务隔离级别：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SET</span> <span class="keyword">SESSION</span>/<span class="keyword">GLOBAL</span> <span class="keyword">TRANSACTION</span> <span class="keyword">ISOLATION</span> <span class="keyword">LEVEL</span> </span><br><span class="line"><span class="keyword">read</span> uncommitted | <span class="keyword">read</span> committed | repeatable <span class="keyword">read</span>(默认) | <span class="keyword">serializable</span>;</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="锁机制与InnoDB锁算法（to-be-continue）"><a href="#锁机制与InnoDB锁算法（to-be-continue）" class="headerlink" title="锁机制与InnoDB锁算法（to be continue）"></a>锁机制与InnoDB锁算法（to be continue）</h3><h2 id="MySQL基础-视图"><a href="#MySQL基础-视图" class="headerlink" title="MySQL基础-视图"></a>MySQL基础-视图</h2><h3 id="概述-2"><a href="#概述-2" class="headerlink" title="概述"></a>概述</h3><p>（部分摘抄自<a target="_blank" rel="noopener" href="https://shockerli.net/post/1000-line-mysql-note/%EF%BC%89">https://shockerli.net/post/1000-line-mysql-note/）</a></p>
+<h2 id="视图"><a href="#视图" class="headerlink" title="视图"></a>视图</h2><h3 id="概述-1"><a href="#概述-1" class="headerlink" title="概述"></a>概述</h3><p>（部分摘抄自<a target="_blank" rel="noopener" href="https://shockerli.net/post/1000-line-mysql-note/%EF%BC%89">https://shockerli.net/post/1000-line-mysql-note/）</a></p>
 <p>​        视图是一个虚拟表，其内容由查询定义。同真实的表一样，<strong>视图包含一系列带有名称的列和行数据</strong>。但是，<strong>视图并不在数据库中以存储的数据值集形式存在</strong>。行和列数据来自由定义视图的查询所引用的表，<strong>并且在引用视图时动态生成</strong>。    </p>
 <p>​        <strong>视图具有表结构文件，但不存在数据文件</strong>。对其中所引用的基础表来说，视图的作用类似于筛选。通过视图进行查询没有任何限制，通过它们进行数据修改时的限制也很少。视图是存储在数据库中的查询的sql语句，它主要出于两种原因：<strong>安全原因</strong>，视图可以隐藏一些数据，如：社会保险基金表，可以用视图只显示姓名，地址，而不显示社会保险号和工资数等，另一原因是可<strong>使复杂的查询易于理解和使用</strong>。</p>
 <p>​        可简单的这样理解：<strong>视图存储的是sq逻辑，即sql语句，当要使用视图时根据该语句动态生成结果集</strong>。</p>
@@ -1087,7 +904,7 @@
 <li>视图一般都不允许增删改查；表允许。</li>
 </ul>
 <hr>
-<h2 id="MySQL基础-变量"><a href="#MySQL基础-变量" class="headerlink" title="MySQL基础-变量"></a>MySQL基础-变量</h2><p>MySQL变量的分类：</p>
+<h2 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h2><p>MySQL变量的分类：</p>
 <ul>
 <li>系统变量<ul>
 <li>全局变量</li>
@@ -1120,7 +937,7 @@
 
 
 
-<h2 id="MySQL基础-存储过程"><a href="#MySQL基础-存储过程" class="headerlink" title="MySQL基础-存储过程"></a>MySQL基础-存储过程</h2><p>​        存储过程是一段可执行性sql代码的集合。相比函数，更偏向于业务逻辑。实际上存储过程即类似于Java中的方法。</p>
+<h2 id="存储过程"><a href="#存储过程" class="headerlink" title="存储过程"></a>存储过程</h2><p>​        存储过程是一段可执行性sql代码的集合。相比函数，更偏向于业务逻辑。实际上存储过程即类似于Java中的方法。</p>
 <p>关于<code>DELIMITER</code>：<strong>该关键字用于指定命令结束符号，即告诉MySQL当遇见结束符时表示命令结束，可以执行</strong>。默认情况下是<code>;</code>。<strong>在某些情况下</strong>，不止要执行一条SQL语句，但又需要<code>;</code>作为各语句的结束，这时可使用该关键字指定其他的结束符。下面的存储过程创建即使用了这一点。</p>
 <p><strong>创建存储过程前需要先使用<code>DELIMITER</code>关键字指定除<code>;</code>外的结束符</strong>。</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--语法</span></span><br><span class="line"><span class="comment">--若过程体只有一句SQL语句，begin-end可以省略</span></span><br><span class="line"><span class="comment">--过程体的每条SQL语句必须以分号结尾</span></span><br><span class="line">DELIMITER $(可使用其他符号)</span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">PROCEDURE</span> 过程名 (参数列表)</span><br><span class="line"><span class="keyword">BEGIN</span></span><br><span class="line">    过程体</span><br><span class="line"><span class="keyword">END</span> $</span><br><span class="line"></span><br><span class="line"><span class="comment">--参数列表的每个参数定义包含3个部分</span></span><br><span class="line"><span class="keyword">IN</span>|<span class="keyword">OUT</span>|INOUT 参数名 数据类型</span><br><span class="line"><span class="comment">--其中</span></span><br><span class="line"><span class="keyword">IN</span>      输入：在调用过程中，将数据输入到过程体内部的参数</span><br><span class="line"><span class="keyword">OUT</span>     输出：在调用过程中，将过程体处理完的结果返回到客户端</span><br><span class="line">INOUT   输入输出：既可输入，也可输出</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">--调用</span></span><br><span class="line"><span class="keyword">CALL</span> 存储过程名(实参列表)</span><br><span class="line"></span><br><span class="line"><span class="comment">--删除存储过程</span></span><br><span class="line"><span class="keyword">DROP</span> <span class="keyword">PROCEDURE</span> procedure_name;</span><br><span class="line"></span><br><span class="line"><span class="comment">--查看存储过程的结构</span></span><br><span class="line"><span class="keyword">SHOW</span> <span class="keyword">CREATE</span> <span class="keyword">PROCEDURE</span> procedure_name;</span><br></pre></td></tr></table></figure>
@@ -1136,7 +953,7 @@
 
 
 
-<h2 id="MySQL基础-函数"><a href="#MySQL基础-函数" class="headerlink" title="MySQL基础-函数"></a>MySQL基础-函数</h2><h3 id="自定义函数"><a href="#自定义函数" class="headerlink" title="自定义函数"></a>自定义函数</h3><p>MySQL的函数有系统自带（内置函数）的，<strong>也可以自定义函数</strong>。函数于存储体类似，都是一组SQL语句的集合。</p>
+<h2 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h2><h3 id="自定义函数"><a href="#自定义函数" class="headerlink" title="自定义函数"></a>自定义函数</h3><p>MySQL的函数有系统自带（内置函数）的，<strong>也可以自定义函数</strong>。函数于存储体类似，都是一组SQL语句的集合。</p>
 <p><strong>其与存储体的区别如下</strong>：</p>
 <ul>
 <li>存储体可以有0或多个返回值。适合批量操作。</li>
@@ -1242,7 +1059,7 @@
 <p>​        在5个函数中，<code>count()</code>函数有些许不同。</p>
 <p>​        <strong>可使用<code>count(*)</code>跟<code>count(1)</code>来统计一个表有多少个记录。使用后者相当于在每个记录中添加一个名为1的字段（即新添加一个列），并统计共有多少行</strong>。</p>
 <p>tips：myisam引擎下，<code>count(*)</code>效率更高；innodb引擎下，两者效率相差不多。</p>
-<h2 id="MySQL基础-流程控制"><a href="#MySQL基础-流程控制" class="headerlink" title="MySQL基础-流程控制"></a>MySQL基础-流程控制</h2><h3 id="分支结构"><a href="#分支结构" class="headerlink" title="分支结构"></a>分支结构</h3><h4 id="if函数"><a href="#if函数" class="headerlink" title="if函数"></a>if函数</h4><p>见<code>函数\内置函数</code>第5点。</p>
+<h2 id="流程控制"><a href="#流程控制" class="headerlink" title="流程控制"></a>流程控制</h2><h3 id="分支结构"><a href="#分支结构" class="headerlink" title="分支结构"></a>分支结构</h3><h4 id="if函数"><a href="#if函数" class="headerlink" title="if函数"></a>if函数</h4><p>见<code>函数\内置函数</code>第5点。</p>
 <h4 id="case-when"><a href="#case-when" class="headerlink" title="case..when"></a><code>case..when</code></h4><p><strong>该语法有两种使用形式，可嵌套在select中（此时整个case-when执行后返回一个值），也可单独使用</strong>。</p>
 <p>**第一钟类似Java的<code>swich..case</code>**。具体语法：</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">case 要判断的字段、表达式</span><br><span class="line"></span><br><span class="line">when 常量1 then 要显示的值1或语句1;</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">when 常量n then 要显示的值n或语句n;</span><br><span class="line"></span><br><span class="line">else 默认显示</span><br><span class="line"></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
@@ -1372,7 +1189,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MySQL%E7%9A%84%E5%8D%B8%E8%BD%BD%E5%8F%8A%E5%AE%89%E8%A3%85"><span class="nav-number">2.</span> <span class="nav-text">MySQL的卸载及安装</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#MySQL%E5%8D%B8%E8%BD%BD"><span class="nav-number">2.1.</span> <span class="nav-text">MySQL卸载</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MySQL8-0-22%E7%9A%84%E5%AE%89%E8%A3%85"><span class="nav-number">2.2.</span> <span class="nav-text">MySQL8.0.22的安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#my-ini%E6%96%87%E4%BB%B6"><span class="nav-number">2.3.</span> <span class="nav-text">my.ini文件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MySQL%E6%9C%8D%E5%8A%A1%E7%9A%84%E5%90%AF%E5%8A%A8%E5%92%8C%E5%85%B3%E9%97%AD"><span class="nav-number">3.</span> <span class="nav-text">MySQL服务的启动和关闭</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%99%BB%E5%BD%95MySQL%E5%8F%8A%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F"><span class="nav-number">4.</span> <span class="nav-text">登录MySQL及环境变量</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%99%BB%E5%BD%95MySQL"><span class="nav-number">4.1.</span> <span class="nav-text">登录MySQL</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MySQL%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F"><span class="nav-number">4.2.</span> <span class="nav-text">MySQL环境变量</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MySQL%E8%AF%AD%E6%B3%95%E8%A7%84%E8%8C%83%E5%8F%8A%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4"><span class="nav-number">5.</span> <span class="nav-text">MySQL语法规范及常用命令</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%AD%E6%B3%95%E8%A7%84%E8%8C%83"><span class="nav-number">5.1.</span> <span class="nav-text">语法规范</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4"><span class="nav-number">5.2.</span> <span class="nav-text">常用命令</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MySQL%E5%9F%BA%E7%A1%80-DQL"><span class="nav-number">6.</span> <span class="nav-text">MySQL基础-DQL</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80%E6%9F%A5%E8%AF%A2"><span class="nav-number">6.1.</span> <span class="nav-text">基础查询</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9D%A1%E4%BB%B6%E6%9F%A5%E8%AF%A2"><span class="nav-number">6.2.</span> <span class="nav-text">条件查询</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8C%89%E6%9D%A1%E4%BB%B6%E8%A1%A8%E8%BE%BE%E5%BC%8F%E7%AD%9B%E9%80%89"><span class="nav-number">6.2.1.</span> <span class="nav-text">按条件表达式筛选</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8C%89%E9%80%BB%E8%BE%91%E8%A1%A8%E8%BE%BE%E5%BC%8F%E7%AD%9B%E9%80%89"><span class="nav-number">6.2.2.</span> <span class="nav-text">按逻辑表达式筛选</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A8%A1%E7%B3%8A%E6%9F%A5%E8%AF%A2"><span class="nav-number">6.2.3.</span> <span class="nav-text">模糊查询</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%92%E5%BA%8F%E6%9F%A5%E8%AF%A2"><span class="nav-number">6.3.</span> <span class="nav-text">排序查询</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E7%BB%84%E6%9F%A5%E8%AF%A2"><span class="nav-number">6.4.</span> <span class="nav-text">分组查询</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%86%E7%BB%84%E5%90%8E%E7%AD%9B%E9%80%89-having%E5%AD%90%E5%8F%A5"><span class="nav-number">6.4.1.</span> <span class="nav-text">分组后筛选(having子句)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%9E%E6%8E%A5%E6%9F%A5%E8%AF%A2"><span class="nav-number">6.5.</span> <span class="nav-text">连接查询</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%86%85%E8%BF%9E%E6%8E%A5-%E7%AD%89%E5%80%BC%E8%BF%9E%E6%8E%A5"><span class="nav-number">6.5.1.</span> <span class="nav-text">内连接-等值连接</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%86%85%E8%BF%9E%E6%8E%A5-%E9%9D%9E%E7%AD%89%E5%80%BC%E8%BF%9E%E6%8E%A5"><span class="nav-number">6.5.2.</span> <span class="nav-text">内连接-非等值连接</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%86%85%E8%BF%9E%E6%8E%A5-%E8%87%AA%E8%BF%9E%E6%8E%A5"><span class="nav-number">6.5.3.</span> <span class="nav-text">内连接-自连接</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A4%96%E8%BF%9E%E6%8E%A5"><span class="nav-number">6.5.4.</span> <span class="nav-text">外连接</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%A4%E5%8F%89%E8%BF%9E%E6%8E%A5"><span class="nav-number">6.5.5.</span> <span class="nav-text">交叉连接</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%90%E6%9F%A5%E8%AF%A2"><span class="nav-number">6.6.</span> <span class="nav-text">子查询</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#where-having%E5%90%8E%E7%9A%84%E5%AD%90%E6%9F%A5%E8%AF%A2"><span class="nav-number">6.6.1.</span> <span class="nav-text">where&#x2F;having后的子查询</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#select%E5%90%8E%E7%9A%84%E5%AD%90%E6%9F%A5%E8%AF%A2"><span class="nav-number">6.6.2.</span> <span class="nav-text">select后的子查询</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#from%E5%90%8E%E7%9A%84%E5%AD%90%E6%9F%A5%E8%AF%A2"><span class="nav-number">6.6.3.</span> <span class="nav-text">from后的子查询</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#exists%E5%90%8E%E7%9A%84%E5%AD%90%E6%9F%A5%E8%AF%A2"><span class="nav-number">6.6.4.</span> <span class="nav-text">exists后的子查询</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E9%A1%B5%E6%9F%A5%E8%AF%A2%EF%BC%88Limit%EF%BC%89"><span class="nav-number">6.7.</span> <span class="nav-text">分页查询（Limit）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%81%94%E5%90%88%E6%9F%A5%E8%AF%A2"><span class="nav-number">6.8.</span> <span class="nav-text">联合查询</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MySQL%E5%9F%BA%E7%A1%80-DML"><span class="nav-number">7.</span> <span class="nav-text">MySQL基础-DML</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8F%92%E5%85%A5%EF%BC%88insert%EF%BC%89"><span class="nav-number">7.1.</span> <span class="nav-text">插入（insert）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9B%B4%E6%96%B0%EF%BC%88update%EF%BC%89"><span class="nav-number">7.2.</span> <span class="nav-text">更新（update）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%A0%E9%99%A4%EF%BC%88delete%EF%BC%89"><span class="nav-number">7.3.</span> <span class="nav-text">删除（delete）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MySQL%E5%9F%BA%E7%A1%80-DDL"><span class="nav-number">8.</span> <span class="nav-text">MySQL基础-DDL</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BA%93%E7%9A%84%E7%AE%A1%E7%90%86"><span class="nav-number">8.1.</span> <span class="nav-text">库的管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A1%A8%E7%9A%84%E7%AE%A1%E7%90%86"><span class="nav-number">8.2.</span> <span class="nav-text">表的管理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E8%A1%A8%E7%9A%84%E5%88%9B%E5%BB%BA"><span class="nav-number">8.2.1.</span> <span class="nav-text">1.表的创建</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E8%A1%A8%E7%9A%84%E4%BF%AE%E6%94%B9"><span class="nav-number">8.2.2.</span> <span class="nav-text">2.表的修改</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E8%A1%A8%E7%9A%84%E5%88%A0%E9%99%A4"><span class="nav-number">8.2.3.</span> <span class="nav-text">3.表的删除</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-%E8%A1%A8%E7%9A%84%E5%A4%8D%E5%88%B6"><span class="nav-number">8.2.4.</span> <span class="nav-text">4.表的复制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-%E8%A1%A8%E7%9A%84%E9%80%89%E9%A1%B9-%E6%9F%A5%E7%9C%8B%E8%A1%A8%E7%BB%93%E6%9E%84"><span class="nav-number">8.2.5.</span> <span class="nav-text">5.表的选项&#x2F;查看表结构</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MySQL%E5%9F%BA%E7%A1%80-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B"><span class="nav-number">9.</span> <span class="nav-text">MySQL基础-数据类型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B4%E5%9E%8B"><span class="nav-number">9.1.</span> <span class="nav-text">整型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%8F%E6%95%B0"><span class="nav-number">9.2.</span> <span class="nav-text">小数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%97%E7%AC%A6%E5%9E%8B"><span class="nav-number">9.3.</span> <span class="nav-text">字符型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%A5%E6%9C%9F%E7%B1%BB%E5%9E%8B"><span class="nav-number">9.4.</span> <span class="nav-text">日期类型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#timestamp%E5%92%8Cdatetime"><span class="nav-number">9.4.1.</span> <span class="nav-text">timestamp和datetime</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MySQL%E5%9F%BA%E7%A1%80-%E7%BA%A6%E6%9D%9F"><span class="nav-number">10.</span> <span class="nav-text">MySQL基础-约束</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0-1"><span class="nav-number">10.1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PRIMARY-KEY%E5%92%8CUNIQUE"><span class="nav-number">10.2.</span> <span class="nav-text">PRIMARY KEY和UNIQUE</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B3%E4%BA%8E%E5%A4%96%E9%94%AE"><span class="nav-number">10.3.</span> <span class="nav-text">关于外键</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B3%E4%BA%8Eauto-increment"><span class="nav-number">10.4.</span> <span class="nav-text">关于auto_increment</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MySQL%E5%9F%BA%E7%A1%80-%E4%BA%8B%E5%8A%A1"><span class="nav-number">11.</span> <span class="nav-text">MySQL基础-事务</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">11.1.</span> <span class="nav-text">基本概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8B%E7%89%A9%E7%9A%84%E5%9B%9B%E5%A4%A7%E7%89%B9%E6%80%A7-ACID"><span class="nav-number">11.2.</span> <span class="nav-text">事物的四大特性(ACID)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8B%E5%8A%A1%E7%9A%84%E5%88%9B%E5%BB%BA"><span class="nav-number">11.3.</span> <span class="nav-text">事务的创建</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9B%9E%E6%BB%9A%E7%82%B9SAVEPOINT"><span class="nav-number">11.3.1.</span> <span class="nav-text">回滚点SAVEPOINT</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8B%E5%8A%A1%E5%B9%B6%E5%8F%91%E9%97%AE%E9%A2%98"><span class="nav-number">11.4.</span> <span class="nav-text">事务并发问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MySQL%E7%9A%84%E4%BA%8B%E5%8A%A1%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB"><span class="nav-number">11.5.</span> <span class="nav-text">MySQL的事务隔离级别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%94%81%E6%9C%BA%E5%88%B6%E4%B8%8EInnoDB%E9%94%81%E7%AE%97%E6%B3%95%EF%BC%88to-be-continue%EF%BC%89"><span class="nav-number">11.6.</span> <span class="nav-text">锁机制与InnoDB锁算法（to be continue）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MySQL%E5%9F%BA%E7%A1%80-%E8%A7%86%E5%9B%BE"><span class="nav-number">12.</span> <span class="nav-text">MySQL基础-视图</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0-2"><span class="nav-number">12.1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%86%E5%9B%BE%E7%9A%84%E5%88%9B%E5%BB%BA%E5%92%8C%E4%BD%BF%E7%94%A8"><span class="nav-number">12.2.</span> <span class="nav-text">视图的创建和使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%86%E5%9B%BE%E7%9A%84%E4%BF%AE%E6%94%B9"><span class="nav-number">12.3.</span> <span class="nav-text">视图的修改</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%86%E5%9B%BE%E7%9A%84%E5%88%A0%E9%99%A4%E5%92%8C%E6%9F%A5%E7%9C%8B"><span class="nav-number">12.4.</span> <span class="nav-text">视图的删除和查看</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%86%E5%9B%BE%E6%9B%B4%E6%96%B0"><span class="nav-number">12.5.</span> <span class="nav-text">视图更新</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%86%E5%9B%BE%E4%B8%8E%E8%A1%A8"><span class="nav-number">12.6.</span> <span class="nav-text">视图与表</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MySQL%E5%9F%BA%E7%A1%80-%E5%8F%98%E9%87%8F"><span class="nav-number">13.</span> <span class="nav-text">MySQL基础-变量</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B3%BB%E7%BB%9F%E5%8F%98%E9%87%8F"><span class="nav-number">13.1.</span> <span class="nav-text">系统变量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E5%8F%98%E9%87%8F"><span class="nav-number">13.2.</span> <span class="nav-text">自定义变量</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MySQL%E5%9F%BA%E7%A1%80-%E5%AD%98%E5%82%A8%E8%BF%87%E7%A8%8B"><span class="nav-number">14.</span> <span class="nav-text">MySQL基础-存储过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MySQL%E5%9F%BA%E7%A1%80-%E5%87%BD%E6%95%B0"><span class="nav-number">15.</span> <span class="nav-text">MySQL基础-函数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E5%87%BD%E6%95%B0"><span class="nav-number">15.1.</span> <span class="nav-text">自定义函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%85%E7%BD%AE%E5%87%BD%E6%95%B0"><span class="nav-number">15.2.</span> <span class="nav-text">内置函数</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8D%95%E8%A1%8C%E5%87%BD%E6%95%B0-%E5%AD%97%E7%AC%A6%E5%87%BD%E6%95%B0"><span class="nav-number">15.2.1.</span> <span class="nav-text">单行函数-字符函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8D%95%E8%A1%8C%E5%87%BD%E6%95%B0-%E6%95%B0%E5%AD%97%E5%87%BD%E6%95%B0"><span class="nav-number">15.2.2.</span> <span class="nav-text">单行函数-数字函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8D%95%E8%A1%8C%E5%87%BD%E6%95%B0-%E6%97%A5%E6%9C%9F%E5%87%BD%E6%95%B0"><span class="nav-number">15.2.3.</span> <span class="nav-text">单行函数-日期函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8D%95%E8%A1%8C%E5%87%BD%E6%95%B0-%E5%85%B6%E4%BB%96%E5%87%BD%E6%95%B0"><span class="nav-number">15.2.4.</span> <span class="nav-text">单行函数-其他函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8D%95%E8%A1%8C%E5%87%BD%E6%95%B0-%E6%B5%81%E7%A8%8B%E6%8E%A7%E5%88%B6%E5%87%BD%E6%95%B0"><span class="nav-number">15.2.5.</span> <span class="nav-text">单行函数-流程控制函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%86%E7%BB%84%E5%87%BD%E6%95%B0"><span class="nav-number">15.2.6.</span> <span class="nav-text">分组函数</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MySQL%E5%9F%BA%E7%A1%80-%E6%B5%81%E7%A8%8B%E6%8E%A7%E5%88%B6"><span class="nav-number">16.</span> <span class="nav-text">MySQL基础-流程控制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E6%94%AF%E7%BB%93%E6%9E%84"><span class="nav-number">16.1.</span> <span class="nav-text">分支结构</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#if%E5%87%BD%E6%95%B0"><span class="nav-number">16.1.1.</span> <span class="nav-text">if函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#case-when"><span class="nav-number">16.1.2.</span> <span class="nav-text">case..when</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#if%E7%BB%93%E6%9E%84"><span class="nav-number">16.1.3.</span> <span class="nav-text">if结构</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BE%AA%E7%8E%AF%E7%BB%93%E6%9E%84"><span class="nav-number">16.2.</span> <span class="nav-text">循环结构</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#DQL"><span class="nav-number">1.</span> <span class="nav-text">DQL</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80%E6%9F%A5%E8%AF%A2"><span class="nav-number">1.1.</span> <span class="nav-text">基础查询</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9D%A1%E4%BB%B6%E6%9F%A5%E8%AF%A2"><span class="nav-number">1.2.</span> <span class="nav-text">条件查询</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8C%89%E6%9D%A1%E4%BB%B6%E8%A1%A8%E8%BE%BE%E5%BC%8F%E7%AD%9B%E9%80%89"><span class="nav-number">1.2.1.</span> <span class="nav-text">按条件表达式筛选</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8C%89%E9%80%BB%E8%BE%91%E8%A1%A8%E8%BE%BE%E5%BC%8F%E7%AD%9B%E9%80%89"><span class="nav-number">1.2.2.</span> <span class="nav-text">按逻辑表达式筛选</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A8%A1%E7%B3%8A%E6%9F%A5%E8%AF%A2"><span class="nav-number">1.2.3.</span> <span class="nav-text">模糊查询</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%92%E5%BA%8F%E6%9F%A5%E8%AF%A2"><span class="nav-number">1.3.</span> <span class="nav-text">排序查询</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E7%BB%84%E6%9F%A5%E8%AF%A2"><span class="nav-number">1.4.</span> <span class="nav-text">分组查询</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%86%E7%BB%84%E5%90%8E%E7%AD%9B%E9%80%89-having%E5%AD%90%E5%8F%A5"><span class="nav-number">1.4.1.</span> <span class="nav-text">分组后筛选(having子句)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%9E%E6%8E%A5%E6%9F%A5%E8%AF%A2"><span class="nav-number">1.5.</span> <span class="nav-text">连接查询</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%86%85%E8%BF%9E%E6%8E%A5-%E7%AD%89%E5%80%BC%E8%BF%9E%E6%8E%A5"><span class="nav-number">1.5.1.</span> <span class="nav-text">内连接-等值连接</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%86%85%E8%BF%9E%E6%8E%A5-%E9%9D%9E%E7%AD%89%E5%80%BC%E8%BF%9E%E6%8E%A5"><span class="nav-number">1.5.2.</span> <span class="nav-text">内连接-非等值连接</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%86%85%E8%BF%9E%E6%8E%A5-%E8%87%AA%E8%BF%9E%E6%8E%A5"><span class="nav-number">1.5.3.</span> <span class="nav-text">内连接-自连接</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A4%96%E8%BF%9E%E6%8E%A5"><span class="nav-number">1.5.4.</span> <span class="nav-text">外连接</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%A4%E5%8F%89%E8%BF%9E%E6%8E%A5"><span class="nav-number">1.5.5.</span> <span class="nav-text">交叉连接</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%90%E6%9F%A5%E8%AF%A2"><span class="nav-number">1.6.</span> <span class="nav-text">子查询</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#where-having%E5%90%8E%E7%9A%84%E5%AD%90%E6%9F%A5%E8%AF%A2"><span class="nav-number">1.6.1.</span> <span class="nav-text">where&#x2F;having后的子查询</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#select%E5%90%8E%E7%9A%84%E5%AD%90%E6%9F%A5%E8%AF%A2"><span class="nav-number">1.6.2.</span> <span class="nav-text">select后的子查询</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#from%E5%90%8E%E7%9A%84%E5%AD%90%E6%9F%A5%E8%AF%A2"><span class="nav-number">1.6.3.</span> <span class="nav-text">from后的子查询</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#exists%E5%90%8E%E7%9A%84%E5%AD%90%E6%9F%A5%E8%AF%A2"><span class="nav-number">1.6.4.</span> <span class="nav-text">exists后的子查询</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E9%A1%B5%E6%9F%A5%E8%AF%A2%EF%BC%88Limit%EF%BC%89"><span class="nav-number">1.7.</span> <span class="nav-text">分页查询（Limit）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%81%94%E5%90%88%E6%9F%A5%E8%AF%A2"><span class="nav-number">1.8.</span> <span class="nav-text">联合查询</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DML"><span class="nav-number">2.</span> <span class="nav-text">DML</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8F%92%E5%85%A5%EF%BC%88insert%EF%BC%89"><span class="nav-number">2.1.</span> <span class="nav-text">插入（insert）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9B%B4%E6%96%B0%EF%BC%88update%EF%BC%89"><span class="nav-number">2.2.</span> <span class="nav-text">更新（update）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%A0%E9%99%A4%EF%BC%88delete%EF%BC%89"><span class="nav-number">2.3.</span> <span class="nav-text">删除（delete）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DDL"><span class="nav-number">3.</span> <span class="nav-text">DDL</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BA%93%E7%9A%84%E7%AE%A1%E7%90%86"><span class="nav-number">3.1.</span> <span class="nav-text">库的管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A1%A8%E7%9A%84%E7%AE%A1%E7%90%86"><span class="nav-number">3.2.</span> <span class="nav-text">表的管理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E8%A1%A8%E7%9A%84%E5%88%9B%E5%BB%BA"><span class="nav-number">3.2.1.</span> <span class="nav-text">1.表的创建</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E8%A1%A8%E7%9A%84%E4%BF%AE%E6%94%B9"><span class="nav-number">3.2.2.</span> <span class="nav-text">2.表的修改</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E8%A1%A8%E7%9A%84%E5%88%A0%E9%99%A4"><span class="nav-number">3.2.3.</span> <span class="nav-text">3.表的删除</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-%E8%A1%A8%E7%9A%84%E5%A4%8D%E5%88%B6"><span class="nav-number">3.2.4.</span> <span class="nav-text">4.表的复制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-%E8%A1%A8%E7%9A%84%E9%80%89%E9%A1%B9-%E6%9F%A5%E7%9C%8B%E8%A1%A8%E7%BB%93%E6%9E%84"><span class="nav-number">3.2.5.</span> <span class="nav-text">5.表的选项&#x2F;查看表结构</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MySQL%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B"><span class="nav-number">4.</span> <span class="nav-text">MySQL数据类型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B4%E5%9E%8B"><span class="nav-number">4.1.</span> <span class="nav-text">整型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%8F%E6%95%B0"><span class="nav-number">4.2.</span> <span class="nav-text">小数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%97%E7%AC%A6%E5%9E%8B"><span class="nav-number">4.3.</span> <span class="nav-text">字符型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%A5%E6%9C%9F%E7%B1%BB%E5%9E%8B"><span class="nav-number">4.4.</span> <span class="nav-text">日期类型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#timestamp%E5%92%8Cdatetime"><span class="nav-number">4.4.1.</span> <span class="nav-text">timestamp和datetime</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MySQL%E7%BA%A6%E6%9D%9F"><span class="nav-number">5.</span> <span class="nav-text">MySQL约束</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">5.1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PRIMARY-KEY%E5%92%8CUNIQUE"><span class="nav-number">5.2.</span> <span class="nav-text">PRIMARY KEY和UNIQUE</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B3%E4%BA%8E%E5%A4%96%E9%94%AE"><span class="nav-number">5.3.</span> <span class="nav-text">关于外键</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B3%E4%BA%8Eauto-increment"><span class="nav-number">5.4.</span> <span class="nav-text">关于auto_increment</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%86%E5%9B%BE"><span class="nav-number">6.</span> <span class="nav-text">视图</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0-1"><span class="nav-number">6.1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%86%E5%9B%BE%E7%9A%84%E5%88%9B%E5%BB%BA%E5%92%8C%E4%BD%BF%E7%94%A8"><span class="nav-number">6.2.</span> <span class="nav-text">视图的创建和使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%86%E5%9B%BE%E7%9A%84%E4%BF%AE%E6%94%B9"><span class="nav-number">6.3.</span> <span class="nav-text">视图的修改</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%86%E5%9B%BE%E7%9A%84%E5%88%A0%E9%99%A4%E5%92%8C%E6%9F%A5%E7%9C%8B"><span class="nav-number">6.4.</span> <span class="nav-text">视图的删除和查看</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%86%E5%9B%BE%E6%9B%B4%E6%96%B0"><span class="nav-number">6.5.</span> <span class="nav-text">视图更新</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%86%E5%9B%BE%E4%B8%8E%E8%A1%A8"><span class="nav-number">6.6.</span> <span class="nav-text">视图与表</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%98%E9%87%8F"><span class="nav-number">7.</span> <span class="nav-text">变量</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B3%BB%E7%BB%9F%E5%8F%98%E9%87%8F"><span class="nav-number">7.1.</span> <span class="nav-text">系统变量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E5%8F%98%E9%87%8F"><span class="nav-number">7.2.</span> <span class="nav-text">自定义变量</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AD%98%E5%82%A8%E8%BF%87%E7%A8%8B"><span class="nav-number">8.</span> <span class="nav-text">存储过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%87%BD%E6%95%B0"><span class="nav-number">9.</span> <span class="nav-text">函数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E5%87%BD%E6%95%B0"><span class="nav-number">9.1.</span> <span class="nav-text">自定义函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%85%E7%BD%AE%E5%87%BD%E6%95%B0"><span class="nav-number">9.2.</span> <span class="nav-text">内置函数</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8D%95%E8%A1%8C%E5%87%BD%E6%95%B0-%E5%AD%97%E7%AC%A6%E5%87%BD%E6%95%B0"><span class="nav-number">9.2.1.</span> <span class="nav-text">单行函数-字符函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8D%95%E8%A1%8C%E5%87%BD%E6%95%B0-%E6%95%B0%E5%AD%97%E5%87%BD%E6%95%B0"><span class="nav-number">9.2.2.</span> <span class="nav-text">单行函数-数字函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8D%95%E8%A1%8C%E5%87%BD%E6%95%B0-%E6%97%A5%E6%9C%9F%E5%87%BD%E6%95%B0"><span class="nav-number">9.2.3.</span> <span class="nav-text">单行函数-日期函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8D%95%E8%A1%8C%E5%87%BD%E6%95%B0-%E5%85%B6%E4%BB%96%E5%87%BD%E6%95%B0"><span class="nav-number">9.2.4.</span> <span class="nav-text">单行函数-其他函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8D%95%E8%A1%8C%E5%87%BD%E6%95%B0-%E6%B5%81%E7%A8%8B%E6%8E%A7%E5%88%B6%E5%87%BD%E6%95%B0"><span class="nav-number">9.2.5.</span> <span class="nav-text">单行函数-流程控制函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%86%E7%BB%84%E5%87%BD%E6%95%B0"><span class="nav-number">9.2.6.</span> <span class="nav-text">分组函数</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%81%E7%A8%8B%E6%8E%A7%E5%88%B6"><span class="nav-number">10.</span> <span class="nav-text">流程控制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E6%94%AF%E7%BB%93%E6%9E%84"><span class="nav-number">10.1.</span> <span class="nav-text">分支结构</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#if%E5%87%BD%E6%95%B0"><span class="nav-number">10.1.1.</span> <span class="nav-text">if函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#case-when"><span class="nav-number">10.1.2.</span> <span class="nav-text">case..when</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#if%E7%BB%93%E6%9E%84"><span class="nav-number">10.1.3.</span> <span class="nav-text">if结构</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BE%AA%E7%8E%AF%E7%BB%93%E6%9E%84"><span class="nav-number">10.2.</span> <span class="nav-text">循环结构</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -1386,24 +1203,29 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">27</span>
+          <span class="site-state-item-count">28</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-count">10</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-count">9</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
 </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/bxxiao" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;bxxiao" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
 
 
 

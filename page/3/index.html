@@ -159,6 +159,162 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/11/13/%E6%A1%86%E6%9E%B6/Spring%E4%B8%AD%E5%A4%84%E7%90%86json%E6%95%B0%E6%8D%AE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="bxxiao">
+      <meta itemprop="description" content="_mo_yu_">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bxxiao">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/11/13/%E6%A1%86%E6%9E%B6/Spring%E4%B8%AD%E5%A4%84%E7%90%86json%E6%95%B0%E6%8D%AE/" class="post-title-link" itemprop="url">Spring中处理json数据的总结</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-11-13 00:45:26" itemprop="dateCreated datePublished" datetime="2020-11-13T00:45:26+08:00">2020-11-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-12-03 23:46:33" itemprop="dateModified" datetime="2020-12-03T23:46:33+08:00">2020-12-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%A1%86%E6%9E%B6/" itemprop="url" rel="index"><span itemprop="name">框架</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>总结一下Spring中一些解析json数据的技巧。</p>
+<h2 id="RequestBody注解"><a href="#RequestBody注解" class="headerlink" title="@RequestBody注解"></a>@RequestBody注解</h2><p><code>@RequestBody</code>注解常用来处理<code>content-type</code>不是默认的<code>application/x-www-form-urlcoded</code>编码的内容，比如<code>application/json</code>或者是<code>application/xml</code>等。<strong>一般情况下来说常用其来处理<code>application/json</code>类型</strong>。</p>
+<p><code>@RequestBody</code>的修饰对象的控制器方法形参，一般用于修饰JavaBean形参，其<strong>可以将请求体中的JSON字符串绑定到修饰的bean上</strong>。也可以修饰字符串，会将请求体的参数以<code>key1=value1&amp;key2=value2&amp;...</code>的格式复制给String控制器参数。</p>
+<p>&emsp;  </p>
+<p><strong>修饰JavaBean时，json字符串要与JavaBean的属性对应</strong>，<strong><font color="red">且可以修饰List集合类型的形参，这时前端要以json数组的形式发送数据，且要指定<code>content-type</code>为<code>application/json</code>类型</font></strong>。</p>
+<h3 id="接收json对象字符串示例"><a href="#接收json对象字符串示例" class="headerlink" title="接收json对象字符串示例"></a>接收json对象字符串示例</h3><p>JavaBean：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Role</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> id;</span><br><span class="line">    <span class="keyword">private</span> String roleName;</span><br><span class="line"> 	<span class="comment">//getter、setter、toString</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> Integer age;</span><br><span class="line">    <span class="keyword">private</span> List&lt;Role&gt; roles;</span><br><span class="line">	<span class="comment">//getter、setter、toString</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;  </p>
+<p>Controller：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DataResolveController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostMapping(&quot;/doJsonObject&quot;)</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">resolveJsonObject</span><span class="params">(<span class="meta">@RequestBody</span> Person person)</span></span>&#123;</span><br><span class="line">        System.out.println(person);</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;ok&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;  </p>
+<p>在前端发送Ajax：</p>
+<ul>
+<li>**注意发送ajax请求时，contentType要指定为<code>application/json</code>**。</li>
+<li>person对象的属性与Person类一一对应，<strong>其中roles的属性值是一个json对象数组</strong>。</li>
+</ul>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">&quot;en&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">&quot;UTF-8&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>Index<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">&quot;https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">h1</span>&gt;</span>Test @RequestBody<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">button</span> <span class="attr">id</span>=<span class="string">&quot;send&quot;</span>&gt;</span>send ajax<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="javascript">        $(<span class="string">&quot;#send&quot;</span>).click(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">            <span class="keyword">var</span> person = &#123;</span></span><br><span class="line"><span class="javascript">                <span class="string">&quot;name&quot;</span>:<span class="string">&quot;白小纯&quot;</span>, </span></span><br><span class="line"><span class="javascript">                <span class="string">&quot;age&quot;</span>:<span class="string">&quot;20&quot;</span>, </span></span><br><span class="line"><span class="javascript">                <span class="string">&quot;roles&quot;</span>:[</span></span><br><span class="line"><span class="javascript">                    &#123;<span class="string">&quot;id&quot;</span>:<span class="string">&quot;1&quot;</span>,<span class="string">&quot;roleName&quot;</span>:<span class="string">&quot;医生&quot;</span>&#125;, </span></span><br><span class="line"><span class="javascript">                    &#123;<span class="string">&quot;id&quot;</span>:<span class="string">&quot;2&quot;</span>,<span class="string">&quot;roleName&quot;</span>:<span class="string">&quot;老师&quot;</span>&#125;</span></span><br><span class="line">                ]&#125;;</span><br><span class="line"></span><br><span class="line"><span class="javascript">            $.ajax(&#123;</span></span><br><span class="line"><span class="javascript">                type: <span class="string">&quot;POST&quot;</span>,</span></span><br><span class="line"><span class="javascript">                url: <span class="string">&quot;doJsonObject&quot;</span>,</span></span><br><span class="line"><span class="javascript">                contentType: <span class="string">&quot;application/json; charset=utf-8&quot;</span>,</span></span><br><span class="line"><span class="javascript">                data: <span class="built_in">JSON</span>.stringify(person),</span></span><br><span class="line"><span class="javascript">                dataType: <span class="string">&quot;json&quot;</span>,</span></span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;)</span><br><span class="line">    <span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;  </p>
+<p>点击按钮，后台输出：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Person&#123;<span class="attribute">name</span>=<span class="string">&#x27;白小纯&#x27;</span>, <span class="attribute">age</span>=20, roles=[Role&#123;<span class="attribute">id</span>=1, <span class="attribute">roleName</span>=<span class="string">&#x27;医生&#x27;</span>&#125;, Role&#123;<span class="attribute">id</span>=2, <span class="attribute">roleName</span>=<span class="string">&#x27;老师&#x27;</span>&#125;]&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="接收json数组示例"><a href="#接收json数组示例" class="headerlink" title="接收json数组示例"></a>接收json数组示例</h3><p>控制器：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RequestMapping(&quot;/sendarray&quot;)</span></span><br><span class="line"><span class="meta">@ResponseBody</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> String <span class="title">testReceiveArray</span><span class="params">(<span class="meta">@RequestBody</span> List&lt;Integer&gt; array)</span></span>&#123;</span><br><span class="line">    System.out.println(array);</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;success&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;  </p>
+<p>Ajax代码（jQuery）：</p>
+<ul>
+<li>这里发送json数组可以直接使用字符串形式，如下。也可以先创建一个变量<code>var array = [1,2,3,5]</code>，再通过<code>JSON.stringify(array)</code>转换为json数据。</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">$(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    $(<span class="string">&quot;#btn1&quot;</span>).click(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="comment">//var array = [1,2,3,5];</span></span><br><span class="line">        <span class="comment">//JSON.stringify(array)</span></span><br><span class="line">        $.ajax(&#123;</span><br><span class="line">            url: <span class="string">&quot;sendarray&quot;</span>,</span><br><span class="line">            type: <span class="string">&quot;post&quot;</span>,</span><br><span class="line">            data: <span class="string">&quot;[1,2,3]&quot;</span>,</span><br><span class="line">            dataType: <span class="string">&quot;text&quot;</span>,</span><br><span class="line">            contentType: <span class="string">&quot;application/json;charset=UTF-8&quot;</span>,</span><br><span class="line">            success: <span class="function"><span class="keyword">function</span> (<span class="params">result</span>) </span>&#123; </span><br><span class="line">                alert(result);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>服务端输出：<code>[1, 2, 3]</code>。</p>
+<p><strong><font color="red">List的元素也可以是其他的JavaBean</font></strong>。</p>
+<p>&emsp;  </p>
+<h2 id="使用Jackson处理json"><a href="#使用Jackson处理json" class="headerlink" title="使用Jackson处理json"></a>使用Jackson处理json</h2><h3 id="Jackson简介"><a href="#Jackson简介" class="headerlink" title="Jackson简介"></a>Jackson简介</h3><blockquote>
+<p>来自参考连接</p>
+</blockquote>
+<p>Jackson 是当前用的比较广泛的，用来序列化和反序列化 json 的 Java 的开源框架。Jackson 社区相对比较活跃，更新速度也比较快， 从 Github 中的统计来看，Jackson 是最流行的 json 解析器之一 。 Spring MVC 的默认 json 解析器便是 Jackson。 Jackson 优点很多。 Jackson 所依赖的 jar 包较少 ，简单易用。与其他 Java 的 json 的框架 Gson 等相比， Jackson 解析大的 json 文件速度比较快；Jackson 运行时占用内存比较低，性能比较好；Jackson 有灵活的 API，可以很容易进行扩展和定制。</p>
+<p>Jackson 的 1.x 版本的包名是 org.codehaus.jackson ，当升级到 2.x 版本时，包名变为 com.fasterxml.jackson。</p>
+<p>Jackson 的核心模块由三部分组成。</p>
+<ul>
+<li>jackson-core，核心包，提供基于”流模式”解析的相关 API，它包括 JsonPaser 和 JsonGenerator。 Jackson 内部实现正是通过高性能的流模式 API 的 JsonGenerator 和 JsonParser 来生成和解析 json。</li>
+<li>jackson-annotations，注解包，提供标准注解功能；</li>
+<li>jackson-databind ，数据绑定包， 提供基于”对象绑定” 解析的相关 API （ ObjectMapper ） 和”树模型” 解析的相关 API （JsonNode）；基于”对象绑定” 解析的 API 和”树模型”解析的 API 依赖基于”流模式”解析的 API。</li>
+</ul>
+<h3 id="依赖"><a href="#依赖" class="headerlink" title="依赖"></a>依赖</h3><p>对于SpringMVC项目，需要导入依赖（maven）：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.fasterxml.jackson.core<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jackson-core<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.9.6<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.fasterxml.jackson.core<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jackson-annotations<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.9.6<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.fasterxml.jackson.core<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jackson-databind<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.9.6<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>对于SpringBoot项目，依赖<code>spring-boot-starter-web</code>中就包括了Jackson的依赖。所以无需导入。</p>
+<p>&emsp;  </p>
+<h3 id="JSON字符串-》对象"><a href="#JSON字符串-》对象" class="headerlink" title="JSON字符串-》对象"></a>JSON字符串-》对象</h3><p>Jackson的一个主要类就是<code>ObjectMapper</code>，通过该类的<code>readValue()</code>方法可以将json字符串解析为指定对象。</p>
+<p>&emsp;  </p>
+<p>示例：</p>
+<p>JavaBean使用上述的Person和Role。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">testJackson</span><span class="params">()</span> <span class="keyword">throws</span> JsonProcessingException </span>&#123;</span><br><span class="line">    ObjectMapper mapper = <span class="keyword">new</span> ObjectMapper();</span><br><span class="line">    String personJson = <span class="string">&quot;&#123;\&quot;name\&quot;:\&quot;白小纯\&quot;, \&quot;age\&quot;:\&quot;20\&quot;, \&quot;roles\&quot;:[&#123;\&quot;id\&quot;:\&quot;1\&quot;,\&quot;roleName\&quot;:\&quot;医生\&quot;&#125;, &quot;</span> +</span><br><span class="line">        <span class="string">&quot;&#123;\&quot;id\&quot;:\&quot;2\&quot;,\&quot;roleName\&quot;:\&quot;老师\&quot;&#125;]&#125;&quot;</span>;</span><br><span class="line">    Person person = mapper.readValue(personJson, Person.class);</span><br><span class="line">    System.out.println(person);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>输出：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Person&#123;<span class="attribute">name</span>=<span class="string">&#x27;白小纯&#x27;</span>, <span class="attribute">age</span>=20, roles=[Role&#123;<span class="attribute">id</span>=1, <span class="attribute">roleName</span>=<span class="string">&#x27;医生&#x27;</span>&#125;, Role&#123;<span class="attribute">id</span>=2, <span class="attribute">roleName</span>=<span class="string">&#x27;老师&#x27;</span>&#125;]&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;  </p>
+<h3 id="对象-》json字符串"><a href="#对象-》json字符串" class="headerlink" title="对象-》json字符串"></a>对象-》json字符串</h3><p>通过<code>ObjectMapper</code>对象的<code>writeValueAsString()</code>方法实现。</p>
+<p>示例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testObjectToJson</span><span class="params">()</span> <span class="keyword">throws</span> JsonProcessingException </span>&#123;</span><br><span class="line">    ObjectMapper mapper = <span class="keyword">new</span> ObjectMapper();</span><br><span class="line">    </span><br><span class="line">    Person person = <span class="keyword">new</span> Person();</span><br><span class="line">    List&lt;Role&gt; roles = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">    Role role1 = <span class="keyword">new</span> Role();</span><br><span class="line">    Role role2 = <span class="keyword">new</span> Role();</span><br><span class="line"></span><br><span class="line">    role1.setId(<span class="number">1</span>);</span><br><span class="line">    role1.setRoleName(<span class="string">&quot;学生&quot;</span>);</span><br><span class="line">    role2.setId(<span class="number">2</span>);</span><br><span class="line">    role2.setRoleName(<span class="string">&quot;班长&quot;</span>);</span><br><span class="line">    roles.add(role1);</span><br><span class="line">    roles.add(role2);</span><br><span class="line"></span><br><span class="line">    person.setAge(<span class="number">20</span>);</span><br><span class="line">    person.setName(<span class="string">&quot;王大锤&quot;</span>);</span><br><span class="line">    person.setRoles(roles);</span><br><span class="line"></span><br><span class="line">    String personStr = mapper.writeValueAsString(person);</span><br><span class="line">    System.out.println(personStr);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>输出：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;<span class="attr">&quot;name&quot;</span>:<span class="string">&quot;王大锤&quot;</span>,<span class="attr">&quot;age&quot;</span>:<span class="number">20</span>,<span class="attr">&quot;roles&quot;</span>:[&#123;<span class="attr">&quot;id&quot;</span>:<span class="number">1</span>,<span class="attr">&quot;roleName&quot;</span>:<span class="string">&quot;学生&quot;</span>&#125;,&#123;<span class="attr">&quot;id&quot;</span>:<span class="number">2</span>,<span class="attr">&quot;roleName&quot;</span>:<span class="string">&quot;班长&quot;</span>&#125;]&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;  </p>
+<h3 id="JSON数组《-》Lsit"><a href="#JSON数组《-》Lsit" class="headerlink" title="JSON数组《-》Lsit"></a>JSON数组《-》Lsit</h3><p><strong><code>readValue()</code>方法可以解析JSON对象数组字符串为List集合，同样的，<code>writeValueAsString()</code>方法可以将List集合中的多个对象解析为Json对象数组字符串</strong>。</p>
+<p>示例：</p>
+<p>注意<code>readValue()</code>方法的第二个参数</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testJsonTOList</span><span class="params">()</span> <span class="keyword">throws</span> JsonProcessingException </span>&#123;</span><br><span class="line">    String rolesStr = <span class="string">&quot;[&#123;\&quot;id\&quot;:1,\&quot;roleName\&quot;:\&quot;快递员\&quot;&#125;,&#123;\&quot;id\&quot;:2,\&quot;roleName\&quot;:\&quot;程序员\&quot;&#125;]&quot;</span>;</span><br><span class="line">    ObjectMapper mapper = <span class="keyword">new</span> ObjectMapper();</span><br><span class="line">    List&lt;Role&gt; roles = mapper.readValue(rolesStr, <span class="keyword">new</span> TypeReference&lt;List&lt;Role&gt;&gt;() &#123;&#125;);</span><br><span class="line">    System.out.println(roles);</span><br><span class="line"></span><br><span class="line">    String jsonArray = mapper.writeValueAsString(roles);</span><br><span class="line">    System.out.println(jsonArray);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>输出：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[Role&#123;<span class="attribute">id</span>=1, <span class="attribute">roleName</span>=<span class="string">&#x27;快递员&#x27;</span>&#125;, Role&#123;<span class="attribute">id</span>=2, <span class="attribute">roleName</span>=<span class="string">&#x27;程序员&#x27;</span>&#125;]</span><br><span class="line">[&#123;<span class="string">&quot;id&quot;</span>:1,<span class="string">&quot;roleName&quot;</span>:<span class="string">&quot;快递员&quot;</span>&#125;,&#123;<span class="string">&quot;id&quot;</span>:2,<span class="string">&quot;roleName&quot;</span>:<span class="string">&quot;程序员&quot;</span>&#125;]</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;  </p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><blockquote>
+<p><a href="https://juejin.im/post/6844904166809157639" target="_blank">Jackson使用详解–掘金 三分恶</a>（想要深入了解Jackson可以看这篇博客，巨详细）</p>
+</blockquote>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2020/11/04/%E6%A1%86%E6%9E%B6/SSM%E6%95%B4%E5%90%88Demo/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1234,7 +1390,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-03-20 20:06:04" itemprop="dateModified" datetime="2021-03-20T20:06:04+08:00">2021-03-20</time>
+                <time title="修改时间：2021-03-20 20:48:08" itemprop="dateModified" datetime="2021-03-20T20:48:08+08:00">2021-03-20</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -1261,10 +1417,10 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h2 id="1-序列化的含义和意义"><a href="#1-序列化的含义和意义" class="headerlink" title="1. 序列化的含义和意义"></a>1. 序列化的含义和意义</h2><p><strong>序列化指将Java对象转换成字节序列</strong>， 这些字节序列可以保存在磁盘上， 或者进行网络传输。反序列化即指<strong>将序列化后的字节序列重新恢复成对象</strong>。序列化机制使得对象可以脱离程序的运行而独立存在。</p>
+          <h2 id="序列化的含义和意义"><a href="#序列化的含义和意义" class="headerlink" title="序列化的含义和意义"></a>序列化的含义和意义</h2><p><strong>序列化指将Java对象转换成字节序列</strong>， 这些字节序列可以保存在磁盘上， 或者进行网络传输。反序列化即指<strong>将序列化后的字节序列重新恢复成对象</strong>。序列化机制使得对象可以脱离程序的运行而独立存在。</p>
 <p>一个Java对象要能序列化，<strong>必须实现一个特殊的<code>java.io.Serializable</code>接口</strong>，这个接口不包含任何方法或成员变量，只是一个标记。</p>
 <p>&emsp;  </p>
-<h2 id="2-序列化-反序列化"><a href="#2-序列化-反序列化" class="headerlink" title="2. 序列化/反序列化"></a>2. 序列化/反序列化</h2><p>序列化通过<strong>ObjectOutputStream</strong>来实现，它可以把一个Java对象写入字节流。</p>
+<h2 id="序列化-反序列化"><a href="#序列化-反序列化" class="headerlink" title="序列化/反序列化"></a>序列化/反序列化</h2><p>序列化通过<strong>ObjectOutputStream</strong>来实现，它可以把一个Java对象写入字节流。</p>
 <blockquote>
 <p> <strong>当序列化一个对象到文件时， 按照 Java 的标准约定是给文件一个 .ser 扩展名</strong>.</p>
 </blockquote>
@@ -1286,7 +1442,7 @@
 
 <p><strong>可见反序列化得到的对象与原来的person不是同一个对象，即反序列化得到的是一个新的对象</strong>。</p>
 <p>&emsp;  </p>
-<h2 id="3-serialVersionUID"><a href="#3-serialVersionUID" class="headerlink" title="3. serialVersionUID"></a>3. serialVersionUID</h2><p>每一个可序列化类都会带有一个<strong>long类型的<code>serialVersionUID</code>静态常量值</strong>，<strong>如果没有人为显式定义过<code>serialVersionUID</code>，那编译器会根据类的各种信息为它自动声明一个</strong>。</p>
+<h2 id="serialVersionUID"><a href="#serialVersionUID" class="headerlink" title="serialVersionUID"></a>serialVersionUID</h2><p>每一个可序列化类都会带有一个<strong>long类型的<code>serialVersionUID</code>静态常量值</strong>，<strong>如果没有人为显式定义过<code>serialVersionUID</code>，那编译器会根据类的各种信息为它自动声明一个</strong>。</p>
 <p><strong><font color="red">serialVersionUID是序列化前后类的唯一标识符，在反序列化时，jvm会把字节流中的序列号id和被序列化类的序列号id进行比较，只有两个id相同才能成功反序列化，否则抛出InvalidClassException异常</font></strong>。</p>
 <p><strong>若是没有人为指定序列号id，则若是改变类时（如添加新的成员变量），默认的serialVersionUID值将会改变</strong>。</p>
 <p>示例：</p>
@@ -1298,7 +1454,7 @@
 
 <p><strong>一般对于可序列化类，为了<code>serialVersionUID</code>的确定性，都要人为指定一个serialVersionUID值</strong>，可以使用idea的自动生成功能：<a href="https://www.jianshu.com/p/5dfa065b7890" target="_blank">IDEA自动生成serialVersionUID</a> 。</p>
 <p>&emsp;  </p>
-<h2 id="4-反序列化时的异常"><a href="#4-反序列化时的异常" class="headerlink" title="4. 反序列化时的异常"></a>4. 反序列化时的异常</h2><p><strong>在反序列化时<code>readObject()</code>可能抛出的异常有</strong>：</p>
+<h2 id="反序列化时的异常"><a href="#反序列化时的异常" class="headerlink" title="反序列化时的异常"></a>反序列化时的异常</h2><p><strong>在反序列化时<code>readObject()</code>可能抛出的异常有</strong>：</p>
 <ul>
 <li><code>ClassNotFoundException</code>：没有找到对应的Class；</li>
 <li><code>InvalidClassException</code>：Class不匹配。</li>
@@ -1306,7 +1462,7 @@
 <p>抛出<code>ClassNotFoundException</code>的情况：一台电脑上的Java程序把一个Java对象序列化以后，通过网络传给另一台电脑上的另一个Java程序，但是这台电脑的Java程序并没有定义该类，所以无法反序列化，抛出该异常。</p>
 <p>抛出<code>InvalidClassException</code>的情况：如serialVersionUID中的示例情况。</p>
 <p>&emsp;  </p>
-<h2 id="5-序列化的特殊情况"><a href="#5-序列化的特殊情况" class="headerlink" title="5. 序列化的特殊情况"></a>5. 序列化的特殊情况</h2><ul>
+<h2 id="序列化的特殊情况"><a href="#序列化的特殊情况" class="headerlink" title="序列化的特殊情况"></a>序列化的特殊情况</h2><ul>
 <li><strong>当要序列化的对象中包含其他引用类型变量的引用时，该变量对应的类也要实现Serializable接口</strong>。</li>
 <li><strong>对同一个对象多次序列化，只有第一次序列化时JVM才会将对象转换为字节序列</strong>，之后的序列化只是直接输出一个序列化编号。且反序列化时多次使用<code>readObject()</code>读出的是同一个对象。</li>
 </ul>
@@ -1333,13 +1489,12 @@
 </ul>
 <p>&emsp;  </p>
 <p>还有一个点是<strong>序列化的受控和加强</strong>，具体见第3个参考链接中最后一个小节。</p>
-<h2 id="6-参考"><a href="#6-参考" class="headerlink" title="6. 参考"></a>6. 参考</h2><blockquote>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><blockquote>
 <p><a href="https://www.liaoxuefeng.com/wiki/1252599548343744/1298366845681698" target="_blank">廖雪峰Java教程-序列化</a> </p>
 <p><a href="https://www.runoob.com/java/java-serialization.html" target="_blank">菜鸟教程</a> </p>
 <p><a href="https://mp.weixin.qq.com/s?__biz=MzU4ODI1MjA3NQ==&mid=2247486849&idx=1&sn=c0a2555ba22921187a28547b66877af8&scene=21#wechat_redirect" target="_blank">序列化/反序列化，我忍你很久了，淦！</a> （程序羊）</p>
 <p>《疯狂Java讲义 第4版》</p>
 </blockquote>
-<p><code>---------------------------------------------------------</code></p>
 <p>&emsp;  </p>
 
       
@@ -1493,7 +1648,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-03-20 20:06:20" itemprop="dateModified" datetime="2021-03-20T20:06:20+08:00">2021-03-20</time>
+                <time title="修改时间：2021-03-20 20:49:59" itemprop="dateModified" datetime="2021-03-20T20:49:59+08:00">2021-03-20</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -1520,12 +1675,12 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="1-File类"><a href="#1-File类" class="headerlink" title="1. File类"></a>1. File类</h1><h2 id="1-1-概述"><a href="#1-1-概述" class="headerlink" title="1.1 概述"></a>1.1 概述</h2><p>使用Java io流经常会用到File类，这里先对File类做个总结。</p>
+          <h1 id="File类"><a href="#File类" class="headerlink" title="File类"></a>File类</h1><h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>使用Java io流经常会用到File类，这里先对File类做个总结。</p>
 <p>File类是Java.io包下<strong>代表与平台无关的文件和目录</strong>。可通过File对象新建、重命名、文件和目录，但<strong>不能通过File类访问文件内容本身，此操作需通过Java输入/输出流</strong>。</p>
 <p><strong>File 类是对文件系统的映射，并不是硬盘上真实的文件， new File(“filePath”) 只是创建一个与硬盘中filePath指定的文件或目录（不管存不存在）对应的File对象</strong>，并不会在硬盘中创建文件，<strong>即一个File对象只是和硬盘里面的一个文件/目录相关联</strong>。如果所指向的文件不存在，调用<code>exist()</code>将返回false，可以通过<code>createNewFile()</code>方法在硬盘中创建对应文件或目录。</p>
-<h2 id="1-2-创建File对象"><a href="#1-2-创建File对象" class="headerlink" title="1.2 创建File对象"></a>1.2 创建File对象</h2><p>创建File对象最常用的方法是使用构造器<code>new File(String pathName)</code>。pathName可以是绝对路径和相对路径。<strong>可以通过传入空字符串来创建一个当前路径对应的File对象：<code>File file = new File(&quot;&quot;);</code>，可以通过该方法来获取当前路径</strong>。</p>
+<h2 id="创建File对象"><a href="#创建File对象" class="headerlink" title="创建File对象"></a>创建File对象</h2><p>创建File对象最常用的方法是使用构造器<code>new File(String pathName)</code>。pathName可以是绝对路径和相对路径。<strong>可以通过传入空字符串来创建一个当前路径对应的File对象：<code>File file = new File(&quot;&quot;);</code>，可以通过该方法来获取当前路径</strong>。</p>
 <p>File类还包含其他构造器，具体查看官方文档或者File类源码。</p>
-<h2 id="1-3-常用API"><a href="#1-3-常用API" class="headerlink" title="1.3 常用API"></a>1.3 常用API</h2><ul>
+<h2 id="常用API"><a href="#常用API" class="headerlink" title="常用API"></a>常用API</h2><ul>
 <li><p>File类的一些静态变量：</p>
 <ul>
 <li><p><strong><code>separator</code>（String）：代表当前系统对应的文件路径分隔符</strong> </p>
@@ -1580,23 +1735,23 @@
 </ul>
 </li>
 </ul>
-<h2 id="1-4-文件过滤器"><a href="#1-4-文件过滤器" class="headerlink" title="1.4 文件过滤器"></a>1.4 文件过滤器</h2><p>在使用<code>list()</code>方法所有子文件名和路径名时，可以传入一个FilenameFilter（接口）参数，代表文件过滤器。该接口包含一个<code>boolean accept(File dir, String name)</code>方法，该方法将依次对指定File对象的子文件名和路径名进行迭代筛选，返回true表示符合要求。</p>
+<h2 id="文件过滤器"><a href="#文件过滤器" class="headerlink" title="文件过滤器"></a>文件过滤器</h2><p>在使用<code>list()</code>方法所有子文件名和路径名时，可以传入一个FilenameFilter（接口）参数，代表文件过滤器。该接口包含一个<code>boolean accept(File dir, String name)</code>方法，该方法将依次对指定File对象的子文件名和路径名进行迭代筛选，返回true表示符合要求。</p>
 <p>示例：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    File f1 = <span class="keyword">new</span> File(<span class="string">&quot;E:\\temp&quot;</span>);</span><br><span class="line"></span><br><span class="line">    String[] list1 = f1.list();</span><br><span class="line">    System.out.println(<span class="string">&quot;该目录下的所有文件：&quot;</span>);</span><br><span class="line">    <span class="keyword">for</span> (String s : list1) &#123;</span><br><span class="line">        System.out.println(s);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    System.out.println(<span class="string">&quot;过滤掉不以.txt结尾的子文件：&quot;</span>);</span><br><span class="line">    String[] list2 = f1.list(((dir, name) -&gt; name.endsWith(<span class="string">&quot;.txt&quot;</span>)));</span><br><span class="line">    <span class="keyword">for</span> (String s : list2) &#123;</span><br><span class="line">        System.out.println(s);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">输出：</span><br><span class="line">该目录下的所有文件：</span><br><span class="line">a.txt</span><br><span class="line">a.txt.bak</span><br><span class="line">answers.txt</span><br><span class="line">b.txt</span><br><span class="line">b.txt.bak</span><br><span class="line">c.txt</span><br><span class="line">c.txt.bak</span><br><span class="line">expFile.txt</span><br><span class="line">过滤掉不以.txt结尾的子文件：</span><br><span class="line">a.txt</span><br><span class="line">answers.txt</span><br><span class="line">b.txt</span><br><span class="line">c.txt</span><br><span class="line">expFile.txt</span><br></pre></td></tr></table></figure>
 
 
 
-<h1 id="2-Java-IO"><a href="#2-Java-IO" class="headerlink" title="2. Java IO"></a>2. Java IO</h1><h2 id="2-1-概述"><a href="#2-1-概述" class="headerlink" title="2.1 概述"></a>2.1 概述</h2><p>Java的IO流是实现输入/输出的基础， 它可以方便地实现数据的输入/输出操作， <strong>在Java中把不同的输入/输出源(键盘、文件、网络连接等) 抽象表述为“流”(stram) ， 通过流的方式允许Java程序使用相同的方式来访问不同的输入/输出源。流是一组有顺序的，有起点和终点的字节集合，是对数据传输的总称或抽象</strong>。即数据在两设备间的传输称为流，流的本质是数据传输，根据数据传输特性将流抽象为各种类，方便更直观的进行数据操作。</p>
+<h1 id="Java-IO"><a href="#Java-IO" class="headerlink" title="Java IO"></a>Java IO</h1><h2 id="概述-1"><a href="#概述-1" class="headerlink" title="概述"></a>概述</h2><p>Java的IO流是实现输入/输出的基础， 它可以方便地实现数据的输入/输出操作， <strong>在Java中把不同的输入/输出源(键盘、文件、网络连接等) 抽象表述为“流”(stram) ， 通过流的方式允许Java程序使用相同的方式来访问不同的输入/输出源。流是一组有顺序的，有起点和终点的字节集合，是对数据传输的总称或抽象</strong>。即数据在两设备间的传输称为流，流的本质是数据传输，根据数据传输特性将流抽象为各种类，方便更直观的进行数据操作。</p>
 <p><strong>Java io流的类层次图</strong>，其中的类皆来自java.io包（图片来自菜鸟教程）：</p>
 <img src="https://www.runoob.com/wp-content/uploads/2013/12/iostream2xx.png"  />
 
 
 
-<h2 id="2-2-流的分类"><a href="#2-2-流的分类" class="headerlink" title="2.2 流的分类"></a>2.2 流的分类</h2><h3 id="1-输入流与输出流"><a href="#1-输入流与输出流" class="headerlink" title="1) 输入流与输出流"></a>1) 输入流与输出流</h3><p>根据数据流向不同可分为输入流和输出流。</p>
+<h2 id="流的分类"><a href="#流的分类" class="headerlink" title="流的分类"></a>流的分类</h2><h3 id="输入流与输出流"><a href="#输入流与输出流" class="headerlink" title="输入流与输出流"></a>输入流与输出流</h3><p>根据数据流向不同可分为输入流和输出流。</p>
 <p>输入流：只能从中读取数据。<strong>输入流主要以InputStream、Reader抽象类作为基类</strong>。</p>
 <p>输出流：只能向其中输入数据。<strong>输出流主要以OutputStream、Writer抽象类作为基类。</strong> </p>
 <p><strong>这里的输入输出是从程序运行所在角度来划分的</strong>。</p>
-<h3 id="2-字节流和字符流"><a href="#2-字节流和字符流" class="headerlink" title="2) 字节流和字符流"></a>2) 字节流和字符流</h3><p>根据处理数据类型的不同可分为字节流和字符流。</p>
+<h3 id="字节流和字符流"><a href="#字节流和字符流" class="headerlink" title="字节流和字符流"></a>字节流和字符流</h3><p>根据处理数据类型的不同可分为字节流和字符流。</p>
 <p>两者的区别：</p>
 <ul>
 <li><p><strong>传输数据的单位不同，字节流为8位的字节，字符流为16位的字符</strong>。</p>
@@ -1609,14 +1764,14 @@
 </li>
 </ul>
 <p><strong>字节流以InputStream、OutputStream为基类。字符流以Reader、Writer为基类</strong>。</p>
-<h3 id="3-节点流和处理流"><a href="#3-节点流和处理流" class="headerlink" title="3) 节点流和处理流"></a>3) 节点流和处理流</h3><ul>
+<h3 id="节点流和处理流"><a href="#节点流和处理流" class="headerlink" title="节点流和处理流"></a>节点流和处理流</h3><ul>
 <li><p>节点流：可以从/向一个特定的IO设备（磁盘，网络等）读/写数据的流。<strong>即程序直接连接到数据源</strong>。</p>
 </li>
 <li><p>处理流：<strong>对一个已存在的节点流进行连接和封装</strong>，封装后的流提供了更简便强大的数据读写功能。<strong>关闭流时，只关闭处理流即可，外层的流将会关闭内层的节点流</strong>。</p>
 </li>
 </ul>
 <p>以下分为字节流和字符流对一些较常用的流进行总结。</p>
-<h2 id="2-3-字节流"><a href="#2-3-字节流" class="headerlink" title="2.3 字节流"></a>2.3 字节流</h2><p>字节流基类是InputStream和OutputStream。<strong>InputStream类是所有字节输入流类的抽象父类。OutputStream类是所有字节输出流的抽象父类</strong>。InputStream和OutputStream基类提供了<code>read()</code>和<code>write()</code>系列方法进行读写，可以一次读/写一个字节，也可多个字节。在处理图片、音乐等非文本文件时，使用的是字节流。</p>
+<h2 id="字节流"><a href="#字节流" class="headerlink" title="字节流"></a>字节流</h2><p>字节流基类是InputStream和OutputStream。<strong>InputStream类是所有字节输入流类的抽象父类。OutputStream类是所有字节输出流的抽象父类</strong>。InputStream和OutputStream基类提供了<code>read()</code>和<code>write()</code>系列方法进行读写，可以一次读/写一个字节，也可多个字节。在处理图片、音乐等非文本文件时，使用的是字节流。</p>
 <p>InputStream的常见子类有：</p>
 <ul>
 <li><strong>FileInputStream</strong>：从文件中读取信息。</li>
@@ -1632,13 +1787,13 @@
 <li><strong>FilterOutputStream</strong>:过滤输出流,为基础的输出流提供一些额外的操作。</li>
 </ul>
 <p>其中，<strong>创建OutputStream的子类时，若指定的文件在磁盘中不存在，则会创建对应的文件</strong>；对于InputStream，若文件不存在则抛出异常。</p>
-<h3 id="1-FileInputStream和FileOutputStream"><a href="#1-FileInputStream和FileOutputStream" class="headerlink" title="1) FileInputStream和FileOutputStream"></a>1) FileInputStream和FileOutputStream</h3><p>FileInputStream、FileOutPutStream是针对文件的字节输入、输出流，可以<strong>通过指定文件的路径（String）或指定一个File对象来创建</strong>。</p>
+<h3 id="FileInputStream"><a href="#FileInputStream" class="headerlink" title="FileInputStream"></a>FileInputStream</h3><p>FileInputStream、FileOutPutStream是针对文件的字节输入、输出流，可以<strong>通过指定文件的路径（String）或指定一个File对象来创建</strong>。</p>
 <p>一个复制文件的简单示例：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CopyDemo</span> </span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">      <span class="comment">//创建输入流，输出流，实现文件的复制</span></span><br><span class="line">      FileInputStream input = <span class="keyword">new</span> FileInputStream(<span class="string">&quot;E:\\source.java&quot;</span>);</span><br><span class="line">      FileOutputStream output = <span class="keyword">new</span> FileOutputStream(<span class="string">&quot;E:\\copy.txt&quot;</span>);</span><br><span class="line">        </span><br><span class="line">      <span class="keyword">byte</span>[] buf = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">32</span>];</span><br><span class="line">      <span class="keyword">int</span> hasRead = <span class="number">0</span>;</span><br><span class="line">      <span class="comment">//将读取的输入流数据写入输出流</span></span><br><span class="line">      <span class="keyword">while</span>((hasRead = input.read(buf)) &gt; <span class="number">0</span>) &#123;</span><br><span class="line">          output.write(buf);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="comment">//输出复制后的文件</span></span><br><span class="line">      FileInputStream file = <span class="keyword">new</span> FileInputStream(<span class="string">&quot;E:\\copy.txt&quot;</span>);</span><br><span class="line">      <span class="keyword">while</span>((hasRead = file.read(buf)) &gt; <span class="number">0</span>) &#123;</span><br><span class="line">          System.out.print(<span class="keyword">new</span> String(buf, <span class="number">0</span> ,hasRead));</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="comment">//关闭资源</span></span><br><span class="line">      input.close();</span><br><span class="line">      output.close();</span><br><span class="line">      file.close();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
 
-<h3 id="2-ByteArrayInputStream和ByteArrayOutputStream"><a href="#2-ByteArrayInputStream和ByteArrayOutputStream" class="headerlink" title="2) ByteArrayInputStream和ByteArrayOutputStream"></a>2) ByteArrayInputStream和ByteArrayOutputStream</h3><p><strong><font color="red">流的来源或目的地并不一定是文件，也可以是内存中的一块空间</font></strong>，例如一个字节数组。<strong>ByteArrayInputStream、ByteArrayOutputStream就是将字节数组当作流的输入来源、输出目的地的类</strong>。</p>
+<h3 id="ByteArrayInputStream"><a href="#ByteArrayInputStream" class="headerlink" title="ByteArrayInputStream"></a>ByteArrayInputStream</h3><p><strong><font color="red">流的来源或目的地并不一定是文件，也可以是内存中的一块空间</font></strong>，例如一个字节数组。<strong>ByteArrayInputStream、ByteArrayOutputStream就是将字节数组当作流的输入来源、输出目的地的类</strong>。</p>
 <p>创建ByteArrayInputStream需要传入一个<code>byte[]</code>；创建ByteArrayOutputStream不是传入一个byte数组（<strong>ByteArrayOutputStream中封装了一个byte数组作为输出目的地，通过<code>toByteArray()</code>方法可以获取到该数组</strong>），而是指定ByteArrayOutputStream中byte数组的长度，也可以不指定，默认为32。</p>
 <p>关于这两个流的应用场景（来自参考链接）：</p>
 <p><strong>这两个类对于要创建临时性文件的程序以及网络数据的传输、数据压缩后的传输等可以提高运行的的效率，可以不用访问磁盘</strong>。同样有StringReader与StringWriter类以字符IO流的方式处理字符串。</p>
@@ -1647,7 +1802,7 @@
 
 
 
-<h3 id="3-ObjectInputStream和ObjectOutpuStream"><a href="#3-ObjectInputStream和ObjectOutpuStream" class="headerlink" title="3) ObjectInputStream和ObjectOutpuStream"></a>3) ObjectInputStream和ObjectOutpuStream</h3><p>ObjectInputStream和ObjectOutpuStream一般<strong>用于反序列化/序列化Java对象。被操作的对象对应的类必须实现Serializable接口</strong>。</p>
+<h3 id="ObjectInputStream"><a href="#ObjectInputStream" class="headerlink" title="ObjectInputStream"></a>ObjectInputStream</h3><p>ObjectInputStream和ObjectOutpuStream一般<strong>用于反序列化/序列化Java对象。被操作的对象对应的类必须实现Serializable接口</strong>。</p>
 <ul>
 <li>ObjectInputStream能够从输入流中读取Java对象，而不需要每次读取一个字节（反序列化）</li>
 <li>ObjectOutputStream能够把对象写入到输出流中，而不需要每次写入一个字节（序列化）</li>
@@ -1664,7 +1819,7 @@
 
 
 
-<h3 id="4-过滤输入-输出流"><a href="#4-过滤输入-输出流" class="headerlink" title="4) 过滤输入/输出流"></a>4) 过滤输入/输出流</h3><p>这里的过滤输入/输出流是指<strong>FilterInputStream和FilteOutputStream</strong>，他们的作用是<strong>为基础流提供一些额外的功能</strong>。</p>
+<h3 id="过滤io流"><a href="#过滤io流" class="headerlink" title="过滤io流"></a>过滤io流</h3><p>这里的过滤输入/输出流是指<strong>FilterInputStream和FilteOutputStream</strong>，他们的作用是<strong>为基础流提供一些额外的功能</strong>。</p>
 <p><strong>常用子类</strong>：</p>
 <ul>
 <li><p>FilterInputStream常用子类</p>
@@ -1681,7 +1836,7 @@
 </ul>
 </li>
 </ul>
-<h4 id="DataInputStream和DataOutputStream"><a href="#DataInputStream和DataOutputStream" class="headerlink" title="DataInputStream和DataOutputStream"></a>DataInputStream和DataOutputStream</h4><p>DataInputStream是数据字节输入流，用来装饰其他的输入流，<strong>允许应用程序以与机器无关方式从底层输入流中读取基本 Java 数据类型</strong>；DataOutputStream可以向文件中写入基本类型的数据，与DataInputStream配合使用。</p>
+<h4 id="DataInputStream"><a href="#DataInputStream" class="headerlink" title="DataInputStream"></a>DataInputStream</h4><p>DataInputStream是数据字节输入流，用来装饰其他的输入流，<strong>允许应用程序以与机器无关方式从底层输入流中读取基本 Java 数据类型</strong>；DataOutputStream可以向文件中写入基本类型的数据，与DataInputStream配合使用。</p>
 <p>创建DataInputStream和DataOutputStream都要基于一个输入/输出节点流。</p>
 <p>示例：</p>
 <p><strong>其中的<code>writeUTF()</code>方法，是以UTF-8编码写入指定字符串；相应的，<code>readUTF()</code>是以UTF-8编码读取字符串</strong>。</p>
@@ -1689,7 +1844,7 @@
 
 
 
-<h4 id="BufferedInputStream和BufferedOutputStream"><a href="#BufferedInputStream和BufferedOutputStream" class="headerlink" title="BufferedInputStream和BufferedOutputStream"></a>BufferedInputStream和BufferedOutputStream</h4><p>BufferedInputStream和BufferedOutputStream是两个缓冲流。对于没有缓冲的节点流，如FileInputStream，<strong>读取一个字节就要与磁盘交互一次，与磁盘的交互过于频繁，读取速度较低</strong>。</p>
+<h4 id="BufferedInputStream"><a href="#BufferedInputStream" class="headerlink" title="BufferedInputStream"></a>BufferedInputStream</h4><p>BufferedInputStream和BufferedOutputStream是两个缓冲流。对于没有缓冲的节点流，如FileInputStream，<strong>读取一个字节就要与磁盘交互一次，与磁盘的交互过于频繁，读取速度较低</strong>。</p>
 <p>缓冲流中内置了一个缓冲区，</p>
 <ul>
 <li>对于BufferedOutputStream，<strong>使用<code>write()</code>方法写入数据时，写入的数据暂时被放在缓冲区，当调用<code>flush()</code>方法或者缓冲区满时才把数据写入输出流</strong>，从而减少了与磁盘的交互，提高效率。</li>
@@ -1742,14 +1897,14 @@
 <li><strong>Writer抽象类中定义了一个<code>char[]</code>缓冲区</strong>（即Writer的系列子类都有一个缓冲区），该缓冲区的默认大小是1024，<strong>且不可自行指定大小</strong>。在执行写操作时，<strong>只有缓冲区满或调用<code>flush()</code>或调用<code>close()</code>方法时才会将内容写入磁盘中的文件</strong>。</li>
 <li>创建Writer子类时，与OutputStream一样，<strong>若指定的文件在磁盘中不存在，则会创建对应的文件</strong>；对于Reader，若文件不存在则同样抛出异常。</li>
 </ul>
-<h3 id="1-InputStreamReader和OutputStreamWriter"><a href="#1-InputStreamReader和OutputStreamWriter" class="headerlink" title="1) InputStreamReader和OutputStreamWriter"></a>1) InputStreamReader和OutputStreamWriter</h3><p>InputStreamReader和OutputStreamWriter<strong>是字节流到字符流的桥接器，它们可以根据指定的字符集来进行读写内容，没有指定字符集时使用的是java虚拟机的字符集</strong>。</p>
+<h3 id="InputStreamReader"><a href="#InputStreamReader" class="headerlink" title="InputStreamReader"></a>InputStreamReader</h3><p>InputStreamReader和OutputStreamWriter<strong>是字节流到字符流的桥接器，它们可以根据指定的字符集来进行读写内容，没有指定字符集时使用的是java虚拟机的字符集</strong>。</p>
 <p>每次调用InputStreamReader的<code>read()</code>都将从底层读取一个或多个字节；每次调用OutputStreamWriter的<code>write()</code>方法都会将指定内容写入底层文件。为了提高效率，一般用BufferedReader和BufferedWriter来包装它们。</p>
 <p><strong>创建InputStreamReader和OutputStreamWriter时传入的是字节流，它们会根据指定的字符集进行字节和字符间的转换</strong>。</p>
 <p>InputStreamReader的构造器：</p>
 <p><img src="https://gitee.com/bxgitee/noteImage/raw/master/image/image-20201031105204555.png" alt="image-20201031105204555"></p>
 <p>OutputStreamWriter的构造器：</p>
 <p><img src="https://gitee.com/bxgitee/noteImage/raw/master/image/image-20201031105018986.png" alt="image-20201031105018986"></p>
-<h3 id="2-FileWriter和FileReader"><a href="#2-FileWriter和FileReader" class="headerlink" title="2) FileWriter和FileReader"></a>2) FileWriter和FileReader</h3><p>FileWriter和FileReader是InputStreamWriter和OutputStreamReader的子类，在FileWriter和FileReader中，字符集使用的是Java虚拟机的字符集。</p>
+<h3 id="FileReader"><a href="#FileReader" class="headerlink" title="FileReader"></a>FileReader</h3><p>FileWriter和FileReader是InputStreamWriter和OutputStreamReader的子类，在FileWriter和FileReader中，字符集使用的是Java虚拟机的字符集。</p>
 <p>FileWriter和FileReader的使用比较简单。它们都是节点流，可以直接传入一个FIle或文件路径来创建流。</p>
 <p><strong>其中，创建FileWriter时可以传入一个boolean值，若为true，表示写入的内容是追加在原文件结尾之后，该值默认为false</strong>。对应的两个构造器：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">FileWriter(File file, <span class="keyword">boolean</span> append)</span><br><span class="line">FileWriter(String fileName, <span class="keyword">boolean</span> append)</span><br></pre></td></tr></table></figure>
@@ -1764,7 +1919,7 @@
 
 
 
-<h3 id="3-BufferedReader和BufferedWriter"><a href="#3-BufferedReader和BufferedWriter" class="headerlink" title="3) BufferedReader和BufferedWriter"></a>3) BufferedReader和BufferedWriter</h3><p>BufferedReader和BufferedWriter的功能是<strong>为其他字符输入/输出流提供缓存的功能</strong>。关于缓存功能的说明在上文的BufferedInputStream和BufferedOutputStream中已有描述，此处不再赘述。</p>
+<h3 id="BufferedReader"><a href="#BufferedReader" class="headerlink" title="BufferedReader"></a>BufferedReader</h3><p>BufferedReader和BufferedWriter的功能是<strong>为其他字符输入/输出流提供缓存的功能</strong>。关于缓存功能的说明在上文的BufferedInputStream和BufferedOutputStream中已有描述，此处不再赘述。</p>
 <p>一个问题是，上文中提到Writer抽象基类中已经有了一个缓冲区，为何还要使用BufferedWriter？</p>
 <p>原因：<strong>Writer中定义的缓冲区大小是不能自定义的，且大小只有1024；BufferedWriter中的缓冲区默认大小是8192（1024的8倍），且大小可以自定义，可以指定更大的缓冲区，这个差别使得在操作大量数据时，BufferedWriter的效率将会比普通的字符流，如FileWriter要快得多（BufferedWriter与磁盘的交互次数更少）</strong>。</p>
 <p>使用BufferedReader和BufferedWriter来处理文本时<strong>为了保证字符集的统一，内层流可以使用InputStreamReader和OutputStreamWriter，它们可以指定字符集</strong>。</p>
@@ -1773,7 +1928,7 @@
 
 
 
-<h2 id="2-5-移动输入流中的记录指针"><a href="#2-5-移动输入流中的记录指针" class="headerlink" title="2.5 移动输入流中的记录指针"></a>2.5 移动输入流中的记录指针</h2><p>在对输入流进行读操作（<code>read()</code>）时，流中的记录指针随之向后移动。InputStream和Reader中提高了下列方法来移动输入流中的记录指针，从而可以重复读取内容：</p>
+<h2 id="移动输入流中的记录指针"><a href="#移动输入流中的记录指针" class="headerlink" title="移动输入流中的记录指针"></a>移动输入流中的记录指针</h2><p>在对输入流进行读操作（<code>read()</code>）时，流中的记录指针随之向后移动。InputStream和Reader中提高了下列方法来移动输入流中的记录指针，从而可以重复读取内容：</p>
 <ul>
 <li><code>mark(int readlimit)</code>：在此输入流中的当前位置做一个标记。<code>readlimit</code>参数<strong>告诉输入流允许在标记位置之后读取多个字节（注意是字节，不管是对于InputStream还是Reader）</strong>，若是<code>reset()</code>之后读取的字节数超过该参数，则抛出异常：<code>java.io.IOException: Mark invalid</code>。</li>
 <li><code>markSupported()</code>：判断是否支持标记，即是否支持mark方法。</li>
@@ -1785,7 +1940,7 @@
 
 
 
-<h1 id="3-参考"><a href="#3-参考" class="headerlink" title="3. 参考"></a>3. 参考</h1><blockquote>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><blockquote>
 <p>《疯狂Java讲义 第4版》</p>
 <p><a href="https://blog.csdn.net/qq_36537546/article/details/88421680" target="_blank">关于：File.separator （ 详解 ）</a> </p>
 <p><a href="https://zhuanlan.zhihu.com/p/99609337" target="_blank">一文带你看懂JAVA IO流 - 知乎</a> </p>
@@ -1815,7 +1970,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2020/11/01/MySQL%E5%9F%BA%E7%A1%80%E7%AC%94%E8%AE%B0/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/11/01/MySQL/MySQL%E5%9F%BA%E7%A1%80/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -1829,7 +1984,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2020/11/01/MySQL%E5%9F%BA%E7%A1%80%E7%AC%94%E8%AE%B0/" class="post-title-link" itemprop="url">MySQL基础</a>
+            <a href="/2020/11/01/MySQL/MySQL%E5%9F%BA%E7%A1%80/" class="post-title-link" itemprop="url">MySQL基础</a>
         </h2>
 
         <div class="post-meta">
@@ -1846,7 +2001,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-03-16 17:09:01" itemprop="dateModified" datetime="2021-03-16T17:09:01+08:00">2021-03-16</time>
+                <time title="修改时间：2021-03-20 21:00:53" itemprop="dateModified" datetime="2021-03-20T21:00:53+08:00">2021-03-20</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -1869,73 +2024,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>​        MySQL很牛逼。</p>
-<p><strong><span style="color:red">MySQL是属于C/S架构的软件</span></strong>。</p>
-<p>MySQL的优点：可将数据持久化到本地；可用sql语言进行查询，便于管理。</p>
-<hr>
-<h2 id="MySQL的卸载及安装"><a href="#MySQL的卸载及安装" class="headerlink" title="MySQL的卸载及安装"></a>MySQL的卸载及安装</h2><h3 id="MySQL卸载"><a href="#MySQL卸载" class="headerlink" title="MySQL卸载"></a>MySQL卸载</h3><p>MySQL的卸载：<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV12b411K7Zu?p=249">https://www.bilibili.com/video/BV12b411K7Zu?p=249</a>  第6集</p>
-<h3 id="MySQL8-0-22的安装"><a href="#MySQL8-0-22的安装" class="headerlink" title="MySQL8.0.22的安装"></a>MySQL8.0.22的安装</h3><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_43715354/article/details/109354222">https://blog.csdn.net/qq_43715354/article/details/109354222</a></p>
-<p>按照该教程至第八步。</p>
-<ul>
-<li><p>启动cmd。</p>
-</li>
-<li><p>输入<code>mysql -u root -p</code> </p>
-</li>
-<li><p>输入上述随机生成的密码进入数据库。进入后需要修改密码，因为随机生成的密码在登录后会过期。（这时若不修改密码，执行一切sql语句都会报错，提醒修改密码）</p>
-</li>
-<li><p>修改密码的命令：</p>
-<ul>
-<li><p><code>alter user &#39;root&#39;@&#39;localhost&#39; identified by &#39;newPassword&#39;;</code> </p>
-</li>
-<li><p><code>flush privileges;</code> </p>
-</li>
-</ul>
-</li>
-</ul>
-<h3 id="my-ini文件"><a href="#my-ini文件" class="headerlink" title="my.ini文件"></a>my.ini文件</h3><p>MySQL的安装目录下的<code>my.ini</code>文件是MySQL的配置文件，在其中可配置相关信息（#开头的为注释），其中的<code>[mysqld]</code>下可配置服务端的相关信息，如下：</p>
-<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[mysqld]</span></span><br><span class="line"><span class="comment"># 设置3306端口</span></span><br><span class="line"><span class="attr">port</span>=<span class="number">3306</span></span><br><span class="line"><span class="comment"># 设置mysql的安装目录</span></span><br><span class="line"><span class="attr">basedir</span>=D:\\Program Files\MySQL\mysql-<span class="number">8.0</span>.<span class="number">22</span></span><br><span class="line"><span class="comment"># 设置mysql数据库的数据的存放目录</span></span><br><span class="line"><span class="attr">datadir</span>=D:\\Program Files\MySQL\mysql-<span class="number">8.0</span>.<span class="number">22</span>\data</span><br><span class="line"><span class="comment"># 允许最大连接数</span></span><br><span class="line"><span class="attr">max_connections</span>=<span class="number">200</span></span><br><span class="line"><span class="comment"># 允许连接失败的次数。</span></span><br><span class="line"><span class="attr">max_connect_errors</span>=<span class="number">10</span></span><br><span class="line"><span class="comment"># 服务端使用的字符集默认为utf8mb4</span></span><br><span class="line"><span class="attr">character-set-server</span>=utf8mb4</span><br><span class="line"><span class="comment"># 创建新表时将使用的默认存储引擎</span></span><br><span class="line"><span class="attr">default-storage-engine</span>=INNODB</span><br><span class="line"><span class="comment"># 默认使用“mysql_native_password”插件认证</span></span><br><span class="line"><span class="comment">#mysql_native_password</span></span><br><span class="line"><span class="attr">default_authentication_plugin</span>=mysql_native_password</span><br><span class="line"><span class="section">[mysql]</span></span><br><span class="line"><span class="comment"># 设置mysql客户端默认字符集</span></span><br><span class="line"><span class="attr">default-character-set</span>=utf8mb4</span><br><span class="line"><span class="section">[client]</span></span><br><span class="line"><span class="comment"># 设置mysql客户端连接服务端时默认使用的端口</span></span><br><span class="line"><span class="attr">port</span>=<span class="number">3306</span></span><br><span class="line"><span class="attr">default-character-set</span>=utf8mb4</span><br></pre></td></tr></table></figure>
-
-
-
-<hr>
-<h2 id="MySQL服务的启动和关闭"><a href="#MySQL服务的启动和关闭" class="headerlink" title="MySQL服务的启动和关闭"></a>MySQL服务的启动和关闭</h2><p>可通过</p>
-<p><strong>【右键我的电脑】-》【管理】-》【服务和应用程序】-》【服务】-》【找到MySQL】-》【双击，选择启动/关闭】</strong> </p>
-<p>或者：</p>
-<p><strong>以【管理员身份运行命令行】-》【输入命令<code>net stop/start mysqlServerName</code>】</strong> </p>
-<hr>
-<h2 id="登录MySQL及环境变量"><a href="#登录MySQL及环境变量" class="headerlink" title="登录MySQL及环境变量"></a>登录MySQL及环境变量</h2><h3 id="登录MySQL"><a href="#登录MySQL" class="headerlink" title="登录MySQL"></a>登录MySQL</h3><p>​        可通过MySQL自带的命令行（只能登录root用户）。</p>
-<p>​        也可通过命令行：</p>
-<p>​        <code>mysql -h localhost -P 3306 -u root -p </code> </p>
-<p>​        <code>mysql -h localhost -P 3306 -u root -padmin</code> （<strong>用于连接远程</strong>）</p>
-<p>​        <code>mysql -u root -pPassword</code> （<strong>连接本地MySQL</strong>）</p>
-<h3 id="MySQL环境变量"><a href="#MySQL环境变量" class="headerlink" title="MySQL环境变量"></a>MySQL环境变量</h3><p>​        若以上命令不可用，可能原因是没有配置环境变量（<strong>若是使用msi安装包安装则MySQL会自动配置</strong>）。</p>
-<p>​        手动配置过程：在<code>Path</code>环境变量中添加MySQL的安装目录中的bin目录路径即可。</p>
-<hr>
-<h2 id="MySQL语法规范及常用命令"><a href="#MySQL语法规范及常用命令" class="headerlink" title="MySQL语法规范及常用命令"></a>MySQL语法规范及常用命令</h2><h3 id="语法规范"><a href="#语法规范" class="headerlink" title="语法规范"></a>语法规范</h3><ul>
-<li>MySQL中的<strong>命令以<code>;</code>或<code>\g</code>结束</strong>。</li>
-<li>MySQL命令不区分大小写。</li>
-<li>注释<ul>
-<li>单行注释：<code>#注释</code>或<code>-- 注释</code>(空格必需)</li>
-<li>多行注释：<code>/* 注释 */</code> </li>
-</ul>
-</li>
-</ul>
-<h3 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h3><p>进入MySQL后，可使用以下相关命令：</p>
-<p>显示所有数据库：<strong><code>show databases;</code></strong> </p>
-<p><code>----------------------------------</code> </p>
-<p>使用指定数据库：<strong><code>use dababaseName;</code> </strong></p>
-<p><code>----------------------------------</code>   </p>
-<p>显示当前数据库中的所有表：<strong><code>show tables;</code> </strong></p>
-<p><code>----------------------------------</code> </p>
-<p>显示指定数据库的所有表（<strong>使用该命令后，当前数据库位置不变</strong>）：<strong><code>show tables from databaseName</code> </strong></p>
-<p><code>----------------------------------</code> </p>
-<p>查看表结构：<strong><code>desc tableName</code> </strong> </p>
-<p><code>----------------------------------</code> </p>
-<p>查看MySQL版本：</p>
-<p>在MySQL中：<strong><code>select version();</code> </strong> </p>
-<p>在MySQL外：<strong><code>mysql --version</code>或<code>mysql -V</code> </strong> </p>
-<p><code>----------------------------------</code> </p>
-<h2 id="MySQL基础-DQL"><a href="#MySQL基础-DQL" class="headerlink" title="MySQL基础-DQL"></a>MySQL基础-DQL</h2><blockquote>
+          <h2 id="DQL"><a href="#DQL" class="headerlink" title="DQL"></a>DQL</h2><blockquote>
 <p>该笔记的实例代码中的数据库是<code>myemploees</code>。</p>
 </blockquote>
 <p>SQL语言的分类：</p>
@@ -2254,7 +2343,7 @@
 
 
 
-<h2 id="MySQL基础-DML"><a href="#MySQL基础-DML" class="headerlink" title="MySQL基础-DML"></a>MySQL基础-DML</h2><p>&emsp;&emsp;DML（Data Manage Language），数据操作语言，用于<strong>对表进行插入（insert）、删除（delete）、更新（update）操作</strong>。</p>
+<h2 id="DML"><a href="#DML" class="headerlink" title="DML"></a>DML</h2><p>&emsp;&emsp;DML（Data Manage Language），数据操作语言，用于<strong>对表进行插入（insert）、删除（delete）、更新（update）操作</strong>。</p>
 <h3 id="插入（insert）"><a href="#插入（insert）" class="headerlink" title="插入（insert）"></a>插入（insert）</h3><p>&emsp;&emsp;插入语句的语法有两种，如下：</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#1</span></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> table_name[(colum1, colum2, ...)]  <span class="comment">#该部分省略时默认所有字段</span></span><br><span class="line"><span class="keyword">VALUES</span>(value1, value2, ...)</span><br><span class="line">[, (value11, value22, ...)] ; <span class="comment">#可同时插入多个记录</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#2</span></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> table_name</span><br><span class="line"><span class="keyword">SET</span> colum1=value1, colum2=value2, ...;</span><br><span class="line"></span><br><span class="line"><span class="comment">#3</span></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> table_name[(colum1, colum2, ...)]</span><br><span class="line"><span class="keyword">SELECT</span> ...;</span><br></pre></td></tr></table></figure>
 
@@ -2312,7 +2401,7 @@
 </ul>
 <p>如果使用其他存储引擎，则 <code>TRUNCATE TABLE</code> 语句将删除并重新创建一个新表。</p>
 <p>此外，<code>TRUNCATE TABLE</code>语句不使用<code>DELETE</code>语句，因此与表关联的<a target="_blank" rel="noopener" href="http://www.yiibai.com/mysql/triggers.html">DELETE触发器</a>将不被调用。</p>
-<h2 id="MySQL基础-DDL"><a href="#MySQL基础-DDL" class="headerlink" title="MySQL基础-DDL"></a>MySQL基础-DDL</h2><p>​        数据定义语言（Data Define Language， DDL）用于对数据库、表进行创建、修改、删除操作。</p>
+<h2 id="DDL"><a href="#DDL" class="headerlink" title="DDL"></a>DDL</h2><p>​        数据定义语言（Data Define Language， DDL）用于对数据库、表进行创建、修改、删除操作。</p>
 <h3 id="库的管理"><a href="#库的管理" class="headerlink" title="库的管理"></a>库的管理</h3><p>库的相关语法如下：<strong>其中，对于创建、删除库，若是库已存在或不存在会报错，可使用<code>IF (NOT) EXISTS</code>进行判断，使语句正确执行</strong>。</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#创建库</span></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">DATABASE</span> [<span class="keyword">IF</span> <span class="keyword">NOT</span> <span class="keyword">EXISTS</span>] database_name;</span><br><span class="line"></span><br><span class="line"><span class="comment">#删除库</span></span><br><span class="line"><span class="keyword">DROP</span> <span class="keyword">DATABASE</span> [<span class="keyword">IF</span> <span class="keyword">EXISTS</span>] database_name;</span><br><span class="line"></span><br><span class="line"><span class="comment">#修改库</span></span><br><span class="line"><span class="comment">#修改库名（该语法似乎不用了）</span></span><br><span class="line"><span class="keyword">RENAME</span> <span class="keyword">DATABASE</span> database_name <span class="keyword">TO</span> new_name;</span><br><span class="line"></span><br><span class="line"><span class="comment">#修改字符集</span></span><br><span class="line"><span class="keyword">ALTER</span> <span class="keyword">DATABASE</span> database_name <span class="built_in">CHARACTER</span> <span class="keyword">SET</span> character_name;</span><br></pre></td></tr></table></figure>
 
@@ -2359,7 +2448,7 @@
 
 
 <hr>
-<h2 id="MySQL基础-数据类型"><a href="#MySQL基础-数据类型" class="headerlink" title="MySQL基础-数据类型"></a>MySQL基础-数据类型</h2><p>MySQL的数据类型有：</p>
+<h2 id="MySQL数据类型"><a href="#MySQL数据类型" class="headerlink" title="MySQL数据类型"></a>MySQL数据类型</h2><p>MySQL的数据类型有：</p>
 <ul>
 <li>数值型：<ul>
 <li>整型</li>
@@ -2492,7 +2581,7 @@
 <p>可见，两次查询t1的两个值都不变，插入时的时间是什么，查询出的是什么。</p>
 <p><strong>而t2查询出的值是保存的UTC时间转化为当前时区的时间</strong>。<strong>比如第一行的t2值，插入数据时是在东八区，该时刻的东九区比东八区快一个小时</strong>。</p>
 <hr>
-<h2 id="MySQL基础-约束"><a href="#MySQL基础-约束" class="headerlink" title="MySQL基础-约束"></a>MySQL基础-约束</h2><h3 id="概述-1"><a href="#概述-1" class="headerlink" title="概述"></a>概述</h3><p>​        约束就是一种限制，用于限制表中的数据，<strong>使数据有更好的准确和可靠性</strong>。</p>
+<h2 id="MySQL约束"><a href="#MySQL约束" class="headerlink" title="MySQL约束"></a>MySQL约束</h2><h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p>​        约束就是一种限制，用于限制表中的数据，<strong>使数据有更好的准确和可靠性</strong>。</p>
 <p>MySQL中的常见约束：</p>
 <table>
 <thead>
@@ -2575,123 +2664,7 @@
 <li>标识列可以通过<code>SET auto_increment_increment=3;</code>设置步长，也可以通过手动插入值设置起始值。</li>
 </ul>
 <hr>
-<h2 id="MySQL基础-事务"><a href="#MySQL基础-事务" class="headerlink" title="MySQL基础-事务"></a>MySQL基础-事务</h2><p>（以下部分内容摘抄自<a href="https://snailclimb.gitee.io/javaguide/#/docs/database/MySQL" target="_blank">javaGuide博客文档</a>）</p>
-<h3 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h3><p>​        <strong>事务是逻辑上的一组操作，即一个或多个SQL语句，要么都执行，要么都不执行</strong>。<strong>如果单元中某条SQL语句一旦执行失败或产生错误，整个单元将会回滚</strong>。所有受到影响的数据将返回到事物开始以前的状态；如果单元中的所有SQL语句均执行成功， 则事物被顺利执行。</p>
-<p>​        事务最经典也经常被拿出来说例子就是转账了。假如小明要给小红转账1000元，这个转账会涉及到两个关键操作就是：将小明的余额减少1000元，将小红的余额增加1000元。万一在这两个操作之间突然出现错误比如银行系统崩溃，导致小明余额减少而小红的余额没有增加，这样就不对了。事务就是保证这两个关键操作要么都成功，要么都要失败。</p>
-<h3 id="事物的四大特性-ACID"><a href="#事物的四大特性-ACID" class="headerlink" title="事物的四大特性(ACID)"></a>事物的四大特性(ACID)</h3><p><img src="https://gitee.com/bxgitee/noteImage/raw/master/image/20200716162156.png"></p>
-<ol>
-<li><p><strong>原子性（Atomicity）：</strong> 事务是最小的执行单位，不允许分割。事务的原子性确保动作要么全部完成，要么完全不起作用；</p>
-</li>
-<li><p><strong>一致性（Consistency）：</strong> 执行事务前后，数据保持一致，多个事务对同一个数据读取的结果是相同的；</p>
-<ul>
-<li><p><strong>ACID里的AID都是数据库的特征,也就是依赖数据库的具体实现.而唯独这个C,实际上它依赖于应用层,也就是依赖于开发者.这里的一致性是指<font color="red">系统从一个正确的状态,迁移到另一个正确的状态</font>.什么叫正确的状态呢?就是当前的状态满足预定的约束就叫做正确的状态.而事务具备ACID里C的特性是说通过事务的AID来保证我们的一致性</strong>。</p>
-<p>（来自<a target="_blank" rel="noopener" href="https://www.zhihu.com/question/31346392/answer/362597203">https://www.zhihu.com/question/31346392/answer/362597203</a> 作者：孟波）</p>
-</li>
-</ul>
-</li>
-<li><p><strong>隔离性（Isolation）：</strong> 并发访问数据库时，<strong>一个用户的事务不被其他事务所干扰</strong>，各并发事务之间是独立的；</p>
-</li>
-<li><p><strong>持久性（Durability）：</strong> 一个事务被提交之后。它对数据库中数据的改变是持久的，即使数据库发生故障也不应该对其有任何影响。</p>
-</li>
-</ol>
-<h3 id="事务的创建"><a href="#事务的创建" class="headerlink" title="事务的创建"></a>事务的创建</h3><p>​        事务可分为隐式事务和显式事务。隐式事务如DML语言（insert、update、delete），每一个语句都是一个事务；而显式事务通过sql语句开启事务跟关闭事务，一个事务可有多条语句。</p>
-<p>​        <strong>msyql默认关闭事务，通过<code>SHOW VARIABLES LIKE &#39;%autocommit%&#39;;</code>命令可看到``autocommit=ON`，即自动提交默认开启。创建事务前需关闭自动提交</strong>。<strong><span style="color:red;">事务中不能包括DDL语句</span></strong>。</p>
-<p>显示事务的创建：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--1.开启事务</span></span><br><span class="line"><span class="keyword">SET</span> autocommit=<span class="number">0</span>;</span><br><span class="line"><span class="keyword">START</span> TRASACTION; <span class="comment">#可选</span></span><br><span class="line"><span class="comment">--编写事务语句</span></span><br><span class="line">语句1</span><br><span class="line">语句2</span><br><span class="line">...</span><br><span class="line"><span class="comment">--结束事务</span></span><br><span class="line"><span class="keyword">COMMIT</span>;</span><br><span class="line"><span class="comment">#或者</span></span><br><span class="line"><span class="keyword">ROLLBACK</span>;</span><br></pre></td></tr></table></figure>
-
-
-
-<p>一个转账的例子：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#先建表</span></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="keyword">account</span>(</span><br><span class="line">	username <span class="built_in">VARCHAR</span>(<span class="number">10</span>),</span><br><span class="line">	money <span class="keyword">DOUBLE</span></span><br><span class="line">);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="keyword">account</span> <span class="keyword">VALUES</span>(<span class="string">&#x27;zhangsan&#x27;</span>, <span class="number">1000</span>),(<span class="string">&#x27;xiaoming&#x27;</span>, <span class="number">1000</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">#转账例子</span></span><br><span class="line"><span class="comment">#开启事务（关闭事务自动提交）</span></span><br><span class="line"><span class="keyword">SET</span> autocommit=<span class="number">0</span>;</span><br><span class="line"><span class="keyword">START</span> <span class="keyword">TRANSACTION</span>;</span><br><span class="line"><span class="comment">#事务语句</span></span><br><span class="line"><span class="keyword">UPDATE</span> <span class="keyword">account</span> <span class="keyword">SET</span> money=<span class="number">500</span> <span class="keyword">WHERE</span> username=<span class="string">&#x27;zhangsan&#x27;</span>;</span><br><span class="line"><span class="keyword">UPDATE</span> <span class="keyword">account</span> <span class="keyword">SET</span> money=<span class="number">1500</span> <span class="keyword">WHERE</span> username=<span class="string">&#x27;xiaoming&#x27;</span>;</span><br><span class="line"><span class="comment">#提交事务</span></span><br><span class="line"><span class="keyword">COMMIT</span>;</span><br></pre></td></tr></table></figure>
-
-
-
-<h4 id="回滚点SAVEPOINT"><a href="#回滚点SAVEPOINT" class="headerlink" title="回滚点SAVEPOINT"></a>回滚点SAVEPOINT</h4><p>​        回滚点跟<code>ROLLBACK</code>搭配使用，其作用是设置一个保存点，当执行<code>ROLLBACK</code>时回滚到保存点。</p>
-<p>eg：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SET</span> autocommit=<span class="number">0</span>;</span><br><span class="line"><span class="keyword">START</span> <span class="keyword">TRANSACTION</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">DELETE</span> <span class="keyword">FROM</span> <span class="keyword">account</span> <span class="keyword">WHERE</span> <span class="keyword">id</span>=<span class="number">2</span>;</span><br><span class="line"><span class="keyword">SAVEPOINT</span> a;</span><br><span class="line"><span class="keyword">DELETE</span> <span class="keyword">FROM</span> <span class="keyword">account</span> <span class="keyword">WHERE</span> <span class="keyword">id</span>=<span class="number">3</span>;</span><br><span class="line"><span class="keyword">ROLLBACK</span> <span class="keyword">TO</span> a;</span><br></pre></td></tr></table></figure>
-
-<p>执行以上语句后查询account表，可发现只删除了id为2的记录。</p>
-<h3 id="事务并发问题"><a href="#事务并发问题" class="headerlink" title="事务并发问题"></a>事务并发问题</h3><p>​        在典型的应用程序中，多个事务并发运行，经常会操作相同的数据来完成各自的任务（<strong>多个用户对同一数据进行操作</strong>）。并发虽然是必须的，但可能会导致以下的问题。</p>
-<ul>
-<li><p><strong>脏读（Dirty read）:</strong> <strong>当一个事务正在访问数据并且对数据进行了修改，而这种修改还没有提交到数据库中，这时另外一个事务也访问了这个数据，然后使用了这个数据。因为这个数据是还没有提交的数据，那么另外一个事务读到的这个数据是“脏数据”，依据“脏数据”所做的操作可能是不正确的</strong>，比如可能出现错误而回滚事务，导致修改后的数据没有存入数据库。</p>
-</li>
-<li><p><strong>丢失修改（Lost to modify）:</strong> <strong>指在一个事务读取一个数据时，另外一个事务也访问了该数据，那么在第一个事务中修改了这个数据后，第二个事务也修改了这个数据。这样第一个事务内的修改结果就被丢失，因此称为丢失修改</strong>。 例如：</p>
-<ul>
-<li><p>事务1读取某表中的数据A=20，事务2也读取A=20，事务1修改A=A-1，事务2也修改A=A-1，最终结果A=19，事务1的修改被丢失。（<strong>即结果应该是A=18，但因为事务2的修改覆盖了事务1的修改，使事务1丢失</strong>）</p>
-</li>
-<li><p>考虑飞机订票系统中的一个活动序列: </p>
-<ol>
-<li>甲售票点（甲事务）读出某航班的机票余额A,设A=16. </li>
-<li>乙售票点（乙事务）读出同一航班的机票余额A,也为16. </li>
-<li>甲售票点卖出一张机票,修改余额A←A-1.所以A为15,把A写回数据库. </li>
-<li>乙售票点也卖出一张机票,修改余额A←A-1.所以A为15,把A写回数据库. </li>
-</ol>
-<p><strong><span style="color:red">结果明明卖出两张机票，数据库中机票余额只减少1</span></strong>。 </p>
-</li>
-</ul>
-</li>
-<li><p><strong>不可重复读（Unrepeatableread）:</strong> <strong>指在一个事务内多次读同一数据。在这个事务还没有结束时，另一个事务也访问该数据。那么，在第一个事务中的两次读数据之间，由于第二个事务的修改导致第一个事务两次读取的结果可能不一样。这就发生了在一个事务内两次读到的数据是不一样的情况，因此称为不可重复读</strong>。（事务1读数据的过程中，事务2把数据给改了，导致事务1两次读的数据不同）</p>
-</li>
-<li><p><strong>幻读（Phantom read）:</strong> 幻读与不可重复读类似。它发生在一个事务（T1）读取了几行数据，接着另一个并发事务（T2）插入了一些数据时。在随后的查询中，<strong>第一个事务（T1）就会发现多了一些原本不存在的记录，就好像发生了幻觉一样，所以称为幻读</strong>。（<strong>在同一事务下，连续执行两次同样的SQL语句第二次的SQL语句可能返回之前不存在的行</strong>）</p>
-</li>
-</ul>
-<p><strong><span style="color:red">不可重复读和幻读区别</span></strong>： </p>
-<p><strong>不可重复读的重点是数据的值被修改，比如多次读取一条记录发现其中某些列的值被修改</strong>，幻读的重点在于<strong>新增或者删除比如多次读取一条记录发现记录增多或减少了</strong>。</p>
-<h3 id="MySQL的事务隔离级别"><a href="#MySQL的事务隔离级别" class="headerlink" title="MySQL的事务隔离级别"></a>MySQL的事务隔离级别</h3><p><strong><span style="color:red">SQL 标准定义了四个隔离级别：</span></strong> </p>
-<ul>
-<li><strong>READ-UNCOMMITTED(读取未提交)：</strong> 最低的隔离级别，允许读取尚未提交的数据变更，<strong><span style="color:red">可能会导致脏读、幻读或不可重复读</span></strong>。</li>
-<li><strong>READ-COMMITTED(读取已提交)：</strong> 允许读取并发事务已经提交的数据，<strong><span style="color:red">可以阻止脏读，但是幻读或不可重复读仍有可能发生</span></strong>。</li>
-<li><strong>REPEATABLE-READ(可重复读)：</strong> <strong>对同一字段的多次读取结果都是一致的</strong>，除非数据是被本身事务自己所修改，<span style="color:red"><strong>可以阻止脏读和不可重复读，但幻读仍有可能发生</strong></span>。</li>
-<li><strong>SERIALIZABLE(可串行化)：</strong> <strong>最高的隔离级别，完全服从ACID的隔离级别</strong>。所有的事务依次逐个执行，这样事务之间就完全不可能产生干扰，也就是说，<strong>该级别可以防止脏读、不可重复读以及幻读</strong>。但效率极低。该标准类似于线程锁。</li>
-</ul>
-<p>可总结为下表（<strong>打勾表示可能发生</strong>）</p>
-<table>
-<thead>
-<tr>
-<th>隔离级别</th>
-<th>脏读</th>
-<th>不可重复读</th>
-<th>幻影读</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>READ-UNCOMMITTED</td>
-<td>√</td>
-<td>√</td>
-<td>√</td>
-</tr>
-<tr>
-<td>READ-COMMITTED</td>
-<td>×</td>
-<td>√</td>
-<td>√</td>
-</tr>
-<tr>
-<td>REPEATABLE-READ</td>
-<td>×</td>
-<td>×</td>
-<td>√</td>
-</tr>
-<tr>
-<td>SERIALIZABLE</td>
-<td>×</td>
-<td>×</td>
-<td>×</td>
-</tr>
-</tbody></table>
-<p>MySQL <strong>InnoDB 存储引擎</strong>的默认支持的隔离级别是 <strong>REPEATABLE-READ（可重读）</strong>。可以<strong>通过<code>SELECT @@tx_isolation;</code>命令</strong>来查看</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; SELECT @@tx_isolation;</span><br><span class="line">+<span class="comment">-----------------+</span></span><br><span class="line">| @@tx_isolation  |</span><br><span class="line">+<span class="comment">-----------------+</span></span><br><span class="line">| REPEATABLE-READ |</span><br><span class="line">+<span class="comment">-----------------+</span></span><br></pre></td></tr></table></figure>
-
-
-
-<p>​        <strong><span style="color:red">这里需要注意的是</span></strong>：与 SQL 标准不同的地方在于 InnoDB 存储引擎在 <strong>REPEATABLE-READ（可重读）</strong> 事务隔离级别下使用的是<strong>Next-Key Lock 锁算法</strong>，因此<strong><span style="color:red">可以避免幻读的产生</span></strong>，这与其他数据库系统(如 SQL Server) 是不同的。所以说<strong><span style="color:red">InnoDB 存储引擎的默认支持的隔离级别已经可以完全保证事务的隔离性要求，即达到了 SQL标准的 SERIALIZABLE(可串行化) 隔离级别</span></strong>。因为隔离级别越低，事务请求的锁越少，所以大部分数据库系统的隔离级别都是 <strong>READ-COMMITTED(读取提交内容)</strong> ，<strong>但是InnoDB 存储引擎默认使用 REPEAaTABLE-READ（可重读），<span style="color:red"> 并不会有任何性能损失</span></strong>。</p>
-<p>InnoDB 存储引擎在 <strong>分布式事务</strong> 的情况下一般会用到 <strong>SERIALIZABLE(可串行化)</strong> 隔离级别。</p>
-<p>设置事务隔离级别：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SET</span> <span class="keyword">SESSION</span>/<span class="keyword">GLOBAL</span> <span class="keyword">TRANSACTION</span> <span class="keyword">ISOLATION</span> <span class="keyword">LEVEL</span> </span><br><span class="line"><span class="keyword">read</span> uncommitted | <span class="keyword">read</span> committed | repeatable <span class="keyword">read</span>(默认) | <span class="keyword">serializable</span>;</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="锁机制与InnoDB锁算法（to-be-continue）"><a href="#锁机制与InnoDB锁算法（to-be-continue）" class="headerlink" title="锁机制与InnoDB锁算法（to be continue）"></a>锁机制与InnoDB锁算法（to be continue）</h3><h2 id="MySQL基础-视图"><a href="#MySQL基础-视图" class="headerlink" title="MySQL基础-视图"></a>MySQL基础-视图</h2><h3 id="概述-2"><a href="#概述-2" class="headerlink" title="概述"></a>概述</h3><p>（部分摘抄自<a target="_blank" rel="noopener" href="https://shockerli.net/post/1000-line-mysql-note/%EF%BC%89">https://shockerli.net/post/1000-line-mysql-note/）</a></p>
+<h2 id="视图"><a href="#视图" class="headerlink" title="视图"></a>视图</h2><h3 id="概述-1"><a href="#概述-1" class="headerlink" title="概述"></a>概述</h3><p>（部分摘抄自<a target="_blank" rel="noopener" href="https://shockerli.net/post/1000-line-mysql-note/%EF%BC%89">https://shockerli.net/post/1000-line-mysql-note/）</a></p>
 <p>​        视图是一个虚拟表，其内容由查询定义。同真实的表一样，<strong>视图包含一系列带有名称的列和行数据</strong>。但是，<strong>视图并不在数据库中以存储的数据值集形式存在</strong>。行和列数据来自由定义视图的查询所引用的表，<strong>并且在引用视图时动态生成</strong>。    </p>
 <p>​        <strong>视图具有表结构文件，但不存在数据文件</strong>。对其中所引用的基础表来说，视图的作用类似于筛选。通过视图进行查询没有任何限制，通过它们进行数据修改时的限制也很少。视图是存储在数据库中的查询的sql语句，它主要出于两种原因：<strong>安全原因</strong>，视图可以隐藏一些数据，如：社会保险基金表，可以用视图只显示姓名，地址，而不显示社会保险号和工资数等，另一原因是可<strong>使复杂的查询易于理解和使用</strong>。</p>
 <p>​        可简单的这样理解：<strong>视图存储的是sq逻辑，即sql语句，当要使用视图时根据该语句动态生成结果集</strong>。</p>
@@ -2735,7 +2708,7 @@
 <li>视图一般都不允许增删改查；表允许。</li>
 </ul>
 <hr>
-<h2 id="MySQL基础-变量"><a href="#MySQL基础-变量" class="headerlink" title="MySQL基础-变量"></a>MySQL基础-变量</h2><p>MySQL变量的分类：</p>
+<h2 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h2><p>MySQL变量的分类：</p>
 <ul>
 <li>系统变量<ul>
 <li>全局变量</li>
@@ -2768,7 +2741,7 @@
 
 
 
-<h2 id="MySQL基础-存储过程"><a href="#MySQL基础-存储过程" class="headerlink" title="MySQL基础-存储过程"></a>MySQL基础-存储过程</h2><p>​        存储过程是一段可执行性sql代码的集合。相比函数，更偏向于业务逻辑。实际上存储过程即类似于Java中的方法。</p>
+<h2 id="存储过程"><a href="#存储过程" class="headerlink" title="存储过程"></a>存储过程</h2><p>​        存储过程是一段可执行性sql代码的集合。相比函数，更偏向于业务逻辑。实际上存储过程即类似于Java中的方法。</p>
 <p>关于<code>DELIMITER</code>：<strong>该关键字用于指定命令结束符号，即告诉MySQL当遇见结束符时表示命令结束，可以执行</strong>。默认情况下是<code>;</code>。<strong>在某些情况下</strong>，不止要执行一条SQL语句，但又需要<code>;</code>作为各语句的结束，这时可使用该关键字指定其他的结束符。下面的存储过程创建即使用了这一点。</p>
 <p><strong>创建存储过程前需要先使用<code>DELIMITER</code>关键字指定除<code>;</code>外的结束符</strong>。</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--语法</span></span><br><span class="line"><span class="comment">--若过程体只有一句SQL语句，begin-end可以省略</span></span><br><span class="line"><span class="comment">--过程体的每条SQL语句必须以分号结尾</span></span><br><span class="line">DELIMITER $(可使用其他符号)</span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">PROCEDURE</span> 过程名 (参数列表)</span><br><span class="line"><span class="keyword">BEGIN</span></span><br><span class="line">    过程体</span><br><span class="line"><span class="keyword">END</span> $</span><br><span class="line"></span><br><span class="line"><span class="comment">--参数列表的每个参数定义包含3个部分</span></span><br><span class="line"><span class="keyword">IN</span>|<span class="keyword">OUT</span>|INOUT 参数名 数据类型</span><br><span class="line"><span class="comment">--其中</span></span><br><span class="line"><span class="keyword">IN</span>      输入：在调用过程中，将数据输入到过程体内部的参数</span><br><span class="line"><span class="keyword">OUT</span>     输出：在调用过程中，将过程体处理完的结果返回到客户端</span><br><span class="line">INOUT   输入输出：既可输入，也可输出</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">--调用</span></span><br><span class="line"><span class="keyword">CALL</span> 存储过程名(实参列表)</span><br><span class="line"></span><br><span class="line"><span class="comment">--删除存储过程</span></span><br><span class="line"><span class="keyword">DROP</span> <span class="keyword">PROCEDURE</span> procedure_name;</span><br><span class="line"></span><br><span class="line"><span class="comment">--查看存储过程的结构</span></span><br><span class="line"><span class="keyword">SHOW</span> <span class="keyword">CREATE</span> <span class="keyword">PROCEDURE</span> procedure_name;</span><br></pre></td></tr></table></figure>
@@ -2784,7 +2757,7 @@
 
 
 
-<h2 id="MySQL基础-函数"><a href="#MySQL基础-函数" class="headerlink" title="MySQL基础-函数"></a>MySQL基础-函数</h2><h3 id="自定义函数"><a href="#自定义函数" class="headerlink" title="自定义函数"></a>自定义函数</h3><p>MySQL的函数有系统自带（内置函数）的，<strong>也可以自定义函数</strong>。函数于存储体类似，都是一组SQL语句的集合。</p>
+<h2 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h2><h3 id="自定义函数"><a href="#自定义函数" class="headerlink" title="自定义函数"></a>自定义函数</h3><p>MySQL的函数有系统自带（内置函数）的，<strong>也可以自定义函数</strong>。函数于存储体类似，都是一组SQL语句的集合。</p>
 <p><strong>其与存储体的区别如下</strong>：</p>
 <ul>
 <li>存储体可以有0或多个返回值。适合批量操作。</li>
@@ -2890,7 +2863,7 @@
 <p>​        在5个函数中，<code>count()</code>函数有些许不同。</p>
 <p>​        <strong>可使用<code>count(*)</code>跟<code>count(1)</code>来统计一个表有多少个记录。使用后者相当于在每个记录中添加一个名为1的字段（即新添加一个列），并统计共有多少行</strong>。</p>
 <p>tips：myisam引擎下，<code>count(*)</code>效率更高；innodb引擎下，两者效率相差不多。</p>
-<h2 id="MySQL基础-流程控制"><a href="#MySQL基础-流程控制" class="headerlink" title="MySQL基础-流程控制"></a>MySQL基础-流程控制</h2><h3 id="分支结构"><a href="#分支结构" class="headerlink" title="分支结构"></a>分支结构</h3><h4 id="if函数"><a href="#if函数" class="headerlink" title="if函数"></a>if函数</h4><p>见<code>函数\内置函数</code>第5点。</p>
+<h2 id="流程控制"><a href="#流程控制" class="headerlink" title="流程控制"></a>流程控制</h2><h3 id="分支结构"><a href="#分支结构" class="headerlink" title="分支结构"></a>分支结构</h3><h4 id="if函数"><a href="#if函数" class="headerlink" title="if函数"></a>if函数</h4><p>见<code>函数\内置函数</code>第5点。</p>
 <h4 id="case-when"><a href="#case-when" class="headerlink" title="case..when"></a><code>case..when</code></h4><p><strong>该语法有两种使用形式，可嵌套在select中（此时整个case-when执行后返回一个值），也可单独使用</strong>。</p>
 <p>**第一钟类似Java的<code>swich..case</code>**。具体语法：</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">case 要判断的字段、表达式</span><br><span class="line"></span><br><span class="line">when 常量1 then 要显示的值1或语句1;</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">when 常量n then 要显示的值n或语句n;</span><br><span class="line"></span><br><span class="line">else 默认显示</span><br><span class="line"></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
@@ -3024,24 +2997,29 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">27</span>
+          <span class="site-state-item-count">28</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-count">10</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-count">9</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
 </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/bxxiao" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;bxxiao" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
 
 
 
