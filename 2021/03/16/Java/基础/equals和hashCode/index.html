@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="这篇文章主要是总结自： Java hashCode() 和 equals()的若干问题解答   概述hashCode() 的作用是获取哈希码，也称为散列码；它实际上是返回一个 int 整数。这个哈希码的作用是确定该对象在哈希表中的索引位置。  hashCode() 的默认行为是对堆上的对象产生独特值。如果没有重写 hashCode() ，则一个 class 的两个对象无论如何都不会相等（即使这两个">
+<meta property="og:type" content="article">
+<meta property="og:title" content="总结 equals 和 hashCode">
+<meta property="og:url" content="http://example.com/2021/03/16/Java/%E5%9F%BA%E7%A1%80/equals%E5%92%8ChashCode/index.html">
+<meta property="og:site_name" content="bxxiao">
+<meta property="og:description" content="这篇文章主要是总结自： Java hashCode() 和 equals()的若干问题解答   概述hashCode() 的作用是获取哈希码，也称为散列码；它实际上是返回一个 int 整数。这个哈希码的作用是确定该对象在哈希表中的索引位置。  hashCode() 的默认行为是对堆上的对象产生独特值。如果没有重写 hashCode() ，则一个 class 的两个对象无论如何都不会相等（即使这两个">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-03-16T03:26:05.349Z">
+<meta property="article:modified_time" content="2021-03-20T12:06:15.135Z">
+<meta property="article:author" content="bxxiao">
+<meta property="article:tag" content="Java基础">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2021/03/16/Java/%E5%9F%BA%E7%A1%80/equals%E5%92%8ChashCode/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>总结 equals 和 hashCode | bxxiao</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="bxxiao" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">bxxiao</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/03/16/Java/%E5%9F%BA%E7%A1%80/equals%E5%92%8ChashCode/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="bxxiao">
+      <meta itemprop="description" content="_mo_yu_">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bxxiao">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          总结 equals 和 hashCode
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-03-16 11:26:05" itemprop="dateCreated datePublished" datetime="2021-03-16T11:26:05+08:00">2021-03-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-03-20 20:06:15" itemprop="dateModified" datetime="2021-03-20T20:06:15+08:00">2021-03-20</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java/%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index"><span itemprop="name">基础</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>这篇文章主要是总结自： <a target="_blank" rel="noopener" href="https://www.cnblogs.com/skywang12345/p/3324958.html">Java hashCode() 和 equals()的若干问题解答</a>  </p>
+<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p><code>hashCode()</code> 的作用是<strong>获取哈希码</strong>，也称为散列码；它实际上是返回一个 int 整数。这个<strong>哈希码的作用</strong>是确定该对象在哈希表中的索引位置。</p>
+<blockquote>
+<p><code>hashCode()</code> 的默认行为是对堆上的对象产生独特值。如果没有重写 <code>hashCode()</code> ，则一个 class 的两个对象无论如何都不会相等（即使这两个对象指向相同的数据）</p>
+</blockquote>
+<p>&emsp;&emsp;</p>
+<p><strong>该方法主要是为了支持如 HashSet 、 HashMap 等基于哈希表实现的集合</strong>。</p>
+<p> 也就是说：<strong>hashCode() 在散列表中才有用，在其它情况下没用。</strong>在散列表中 hashCode() 的作用是获取对象的散列码，进而确定该对象在散列表中的位置。</p>
+<p>讨论 equals() 和 hashCode() 的关系应该分两种情况进行：</p>
+<h2 id="不会创建“类对应的散列表”"><a href="#不会创建“类对应的散列表”" class="headerlink" title="不会创建“类对应的散列表”"></a>不会创建“类对应的散列表”</h2><p><strong>第一种是不会在 HashSet, Hashtable, HashMap 等基于哈希表实现的数据结构中用到该类</strong>，<strong style="color:red">这种情况下 equals() 和 hashCode() 没有关系，如果要比较对象，只需使用 equals() 来进行比较，而并不需要用到 hashCode() </strong>，**所以重写 equals() 时不需要重写 hashCode()**。</p>
+<p>比如只是要比较两个 Person 对象的 name 是否相同，但没有要将其放到 HashSet 等集合，只需重写 equals() 即可，如：</p>
+<p>（来自参考链接）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">equals</span><span class="params">(Object obj)</span></span>&#123;  </span><br><span class="line">    <span class="keyword">if</span>(obj == <span class="keyword">null</span>)&#123;  </span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;  </span><br><span class="line">    &#125;  </span><br><span class="line"></span><br><span class="line">    <span class="comment">//如果是同一个对象返回true，反之返回false  </span></span><br><span class="line">    <span class="keyword">if</span>(<span class="keyword">this</span> == obj)&#123;  </span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;  </span><br><span class="line">    &#125;  </span><br><span class="line"></span><br><span class="line">    <span class="comment">//判断是否类型相同  </span></span><br><span class="line">    <span class="keyword">if</span>(<span class="keyword">this</span>.getClass() != obj.getClass())&#123;  </span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;  </span><br><span class="line">    &#125;  </span><br><span class="line"></span><br><span class="line">    Person person = (Person)obj;  </span><br><span class="line">    <span class="keyword">return</span> name.equals(person.name);  </span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;</p>
+<h2 id="会创建“类对应的散列表”"><a href="#会创建“类对应的散列表”" class="headerlink" title="会创建“类对应的散列表”"></a>会创建“类对应的散列表”</h2><p><strong>第二种情况则是会在 HashSet, Hashtable, HashMap 等基于哈希表实现的数据结构中用到该类</strong>。</p>
+<p>这时需要注意两者的关系：</p>
+<ul>
+<li><p><strong>若是两个对象使用 equals() 比较返回 true，那么使用 hashCode() 应该返回相同的哈希值。否则会出现 “ 两个对象是相同的(equals 返回 true)，但却可以放进同一个哈希表 ”  的情况</strong>。</p>
+<blockquote>
+<p>hashCode() 的 javaDoc ：If two objects are equal according to the equals(Object) method, then calling the hashCode method on each of the two objects must produce the same integer result.</p>
+</blockquote>
+</li>
+<li><p><strong style="color:red">但如果使用 equals() 比较返回 false ，并不要求 hashCode() 返回不同的值</strong>。因为在哈希表中，即使两个哈希值相同（两个 key 相同），它们的值不一定相同（value 不一定相同），这种情况即哈希碰撞。</p>
+<blockquote>
+<p>hashCode() 的 javaDoc ：It is not required that if two objects are unequal according to the equals(Object) method, then calling the hashCode method on each of the two objects must produce distinct integer results</p>
+</blockquote>
+<p>一个要注意的点是：<strong>在 HashSet 、 HashMap 等基于哈希表的集合中，若是两个对象使用 equals() 比较返回 false，但 hashCode() 返回相同的值（即产生哈希碰撞时），还是会将两个对象都放进集合（这时会使用哈希碰撞解决方法，如拉链法，红黑树等）</strong>。</p>
+</li>
+</ul>
+<p>&emsp;&emsp;</p>
+<p><strong>所以若是要在哈希表实现的数据结构中使用到某个类，则需要重写这个类的 equals() 和 hashCode() ，并保证它们满足上述关系</strong>。</p>
+<p>示例：（来自参考链接）</p>
+<p>定义 Person 类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> age;</span><br><span class="line">    String name;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Person</span><span class="params">(String name, <span class="keyword">int</span> age)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">        <span class="keyword">this</span>.age = age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> name + <span class="string">&quot; - &quot;</span> +age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">hashCode</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="comment">// 两个对象的 name 的大写相同且年龄相同时，返回相同的哈希值</span></span><br><span class="line">        <span class="keyword">int</span> nameHash =  name.toUpperCase().hashCode();</span><br><span class="line">        <span class="keyword">return</span> nameHash ^ age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">equals</span><span class="params">(Object obj)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(obj == <span class="keyword">null</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//如果是同一个对象返回true，反之返回false</span></span><br><span class="line">        <span class="keyword">if</span>(<span class="keyword">this</span> == obj)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//判断是否类型相同</span></span><br><span class="line">        <span class="keyword">if</span>(<span class="keyword">this</span>.getClass() != obj.getClass())&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// name 相同（区分大小写）且年龄相同返回 true </span></span><br><span class="line">        Person person = (Person)obj;</span><br><span class="line">        <span class="keyword">return</span> name.equals(person.name) &amp;&amp; age==person.age;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>测试：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 新建Person对象，</span></span><br><span class="line">    Person p1 = <span class="keyword">new</span> Person(<span class="string">&quot;eee&quot;</span>, <span class="number">100</span>);</span><br><span class="line">    Person p2 = <span class="keyword">new</span> Person(<span class="string">&quot;eee&quot;</span>, <span class="number">100</span>);</span><br><span class="line">    Person p3 = <span class="keyword">new</span> Person(<span class="string">&quot;aaa&quot;</span>, <span class="number">200</span>);</span><br><span class="line">    Person p4 = <span class="keyword">new</span> Person(<span class="string">&quot;EEE&quot;</span>, <span class="number">100</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 新建HashSet对象</span></span><br><span class="line">    HashSet set = <span class="keyword">new</span> HashSet();</span><br><span class="line">    set.add(p1);</span><br><span class="line">    set.add(p2);</span><br><span class="line">    set.add(p3);</span><br><span class="line">    set.add(p4);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 比较p1 和 p2， 并打印它们的hashCode()</span></span><br><span class="line">    System.out.printf(<span class="string">&quot;p1.equals(p2) : %s; p1(%d) p2(%d)\n&quot;</span>, </span><br><span class="line">                      p1.equals(p2), p1.hashCode(), p2.hashCode());</span><br><span class="line">    <span class="comment">// 比较p1 和 p4， 并打印它们的hashCode()</span></span><br><span class="line">    System.out.printf(<span class="string">&quot;p1.equals(p4) : %s; p1(%d) p4(%d)\n&quot;</span>, </span><br><span class="line">                      p1.equals(p4), p1.hashCode(), p4.hashCode());</span><br><span class="line">    <span class="comment">// p1.equals(p2) : true; p1(68545) p2(68545)</span></span><br><span class="line">	<span class="comment">// p1.equals(p4) : false; p1(68545) p4(68545)</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 打印set，可以看到 p1 p4 equals返回 false，但 hashcode 相同，所以都被放进集合</span></span><br><span class="line">    System.out.printf(<span class="string">&quot;set:%s\n&quot;</span>, set);</span><br><span class="line">    <span class="comment">// set:[eee - 100, EEE - 100, aaa - 200]</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果不重写 hashCode() ，那么 p1、p2 都可以被放进 set 。</p>
+<p>&emsp;&emsp;</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/skywang12345/p/3324958.html">Java hashCode() 和 equals()的若干问题解答</a> </p>
+<p><a target="_blank" rel="noopener" href="https://snailclimb.gitee.io/javaguide/#/docs/java/basis/Java%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86?id=_129-hashcode%e4%b8%8e-equals">hashCode() 与 equals()</a> </p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/Tag/Java%E5%9F%BA%E7%A1%80/" rel="tag"># Java基础</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/03/11/Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/synchronized/" rel="prev" title="synchronized">
+      <i class="fa fa-chevron-left"></i> synchronized
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/03/16/Java/%E5%9F%BA%E7%A1%80/%E5%8C%85%E8%A3%85%E7%B1%BB%E6%80%BB%E7%BB%93/" rel="next" title="包装类总结">
+      包装类总结 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%8D%E4%BC%9A%E5%88%9B%E5%BB%BA%E2%80%9C%E7%B1%BB%E5%AF%B9%E5%BA%94%E7%9A%84%E6%95%A3%E5%88%97%E8%A1%A8%E2%80%9D"><span class="nav-number">2.</span> <span class="nav-text">不会创建“类对应的散列表”</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%9A%E5%88%9B%E5%BB%BA%E2%80%9C%E7%B1%BB%E5%AF%B9%E5%BA%94%E7%9A%84%E6%95%A3%E5%88%97%E8%A1%A8%E2%80%9D"><span class="nav-number">3.</span> <span class="nav-text">会创建“类对应的散列表”</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">4.</span> <span class="nav-text">参考</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">bxxiao</p>
+  <div class="site-description" itemprop="description">_mo_yu_</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">27</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">bxxiao</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  <script defer src="/lib/three/three.min.js"></script>
+    <script defer src="/lib/three/three-waves.min.js"></script>
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
