@@ -159,6 +159,300 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/03/05/Java/JVM/%E7%B1%BB%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84(to%20be..)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="bxxiao">
+      <meta itemprop="description" content="_mo_yu_">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bxxiao">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/03/05/Java/JVM/%E7%B1%BB%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84(to%20be..)/" class="post-title-link" itemprop="url">类文件结构</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-03-05 14:25:56" itemprop="dateCreated datePublished" datetime="2021-03-05T14:25:56+08:00">2021-03-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-03-20 20:07:13" itemprop="dateModified" datetime="2021-03-20T20:07:13+08:00">2021-03-20</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java/JVM/" itemprop="url" rel="index"><span itemprop="name">JVM</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="class文件结构概述"><a href="#class文件结构概述" class="headerlink" title="class文件结构概述"></a>class文件结构概述</h2><p><strong>Class文件是一组<font color="red">以字节为基础单位</font>的二进制流， 各个数据项目严格按照顺序紧凑地排列在文件之中，中间没有添加任何分隔符， 这使得整个Class文件中存储的内容几乎全部是程序运行的必要数据，没有空隙存在</strong>，当遇到需要占用单个字节以上空间的数据项时，则会按照高位在前的方式分割成若干个字节进行存储。</p>
+<p>Class文件格式采用一种类似于C语言结构体的伪结构来存储数据，<strong>这种伪结构中只有两种数据类型</strong>：<strong>“无符号数”和“表”</strong>。</p>
+<ul>
+<li>无符号数属于基本的数据类型，以<strong><font color="red">ul、u2、u4、u8来分别代表1个字节、2个字节、4个字节和8个字节的无符号数</font></strong>，无符号数<strong>可以用来描述数字、索引引用、数量值或者按照UTF-8编码构成字符串值</strong>。</li>
+<li><strong>表是由多个无符号数或者其他表作为数据项构成的复合数据类型</strong>，表的命名习惯以“info”结尾。表用于描述有层次关系的复合结构的数据。</li>
+</ul>
+<p>整个Class文件本质上也可以视作是一张表， 这张表由下图所示的数据项按严格顺序排列构成。<strong>该格式中的数据项，无论是顺序还是数量，都是被严格限定的</strong>。(【】内表示数量，第一列表示数据类型）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">ClassFile &#123;</span><br><span class="line">    u4             magic;【<span class="number">1</span>】 <span class="comment">//Class文件的标志（魔数）</span></span><br><span class="line">    u2             minor_version;【<span class="number">1</span>】<span class="comment">//Class 的小版本号</span></span><br><span class="line">    u2             major_version;【<span class="number">1</span>】<span class="comment">//Class 的大版本号</span></span><br><span class="line">    u2             constant_pool_count;【<span class="number">1</span>】<span class="comment">//常量池的数量</span></span><br><span class="line">    cp_info        constant_pool【constant_pool_count-<span class="number">1</span>】;<span class="comment">//常量池 数量是constant_pool_count-1，0号</span></span><br><span class="line">    u2             access_flags;【<span class="number">1</span>】<span class="comment">//Class 的访问标记</span></span><br><span class="line">    u2             this_class;【<span class="number">1</span>】<span class="comment">//当前类</span></span><br><span class="line">    u2             super_class;【<span class="number">1</span>】<span class="comment">//父类</span></span><br><span class="line">    u2             interfaces_count;【<span class="number">1</span>】<span class="comment">//接口</span></span><br><span class="line">    u2             interfaces;【interfaces_count】<span class="comment">//一个类可以实现多个接口</span></span><br><span class="line">    u2             fields_count;【<span class="number">1</span>】<span class="comment">//Class 文件的字段属性</span></span><br><span class="line">    field_info     fields;【fields_count】<span class="comment">//一个类会可以有多个字段</span></span><br><span class="line">    u2             methods_count;【<span class="number">1</span>】<span class="comment">//Class 文件的方法数量</span></span><br><span class="line">    method_info    methods;【methods_count】<span class="comment">//一个类可以有个多个方法</span></span><br><span class="line">    u2             attributes_count;【<span class="number">1</span>】<span class="comment">//此类的属性表中的属性数</span></span><br><span class="line">    attribute_info attributes;【attributes_count】<span class="comment">//属性表集合</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>class文件中，<strong>当需要描述同一类型但数量不定的多个数据项时，使用一个前置的容量计数器（u2无符号数，即两个字节）加若干个连续的数据项的形式来表示</strong>。</p>
+<h2 id="魔数"><a href="#魔数" class="headerlink" title="魔数"></a>魔数</h2><figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">u4             magic<span class="comment">;【1】</span></span><br></pre></td></tr></table></figure>
+
+<p>每个Class文件的头4个字节称为魔数，用于<strong>标志这是一个能被JVM接受的class文件</strong>。其值为<code>0xCAFEBABE</code>。</p>
+<h2 id="版本号"><a href="#版本号" class="headerlink" title="版本号"></a>版本号</h2><figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">u2             minor_version<span class="comment">;【1】</span></span><br><span class="line">u2             major_version<span class="comment">;【1】</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>紧接的4个字节是class文件的版本号，第5、6为次版本号（Minor Version），第7、8为主版本号（Major Version）</strong>。</p>
+<p><strong>高版本的 Java 虚拟机可以向下兼容执行低版本编译器生成的 Class 文件</strong>，但是低版本的 Java 虚拟机不能执行高版本编译器生成的 Class 文件。</p>
+<blockquote>
+<p>jdk1.1对应45（十进制），往上依次递增1。如jdk1.8对应52（0x34）</p>
+</blockquote>
+<h2 id="常量池"><a href="#常量池" class="headerlink" title="常量池"></a>常量池</h2><figure class="highlight angelscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">u2             constant_pool_count;【<span class="number">1</span>】<span class="comment">//常量池的数量</span></span><br><span class="line">cp_info        constant_pool【constant_pool_count<span class="number">-1</span>】;<span class="comment">//常量池 数量是constant_pool_count-1，0号</span></span><br></pre></td></tr></table></figure>
+
+<p>紧接着主、次版本号之后的是常量池， <strong>常量池可以比喻为Class文件里的资源仓库， 它是Class文件结构中与其他项目关联最多的数据</strong>。</p>
+<p><strong>常量池中常量的数量是不固定的</strong>。constant_pool_count指定常量数量。<strong>这个容量计数是从1而不是0开始的</strong>，例如，若是0x0018（十进制24），即表示有24-1=23个常量。<strong>将第0项常量空出来的目的在于</strong>：<strong><font color="red">如果后面某些指向常量池的索引值的数据在特定情况下需要表达“不引用任何一个常量池项目”的含义， 可以把索引值设置为0来表示</font></strong>。</p>
+<p>对于其他集合类型，包括接口索引集合、字段表集合、方法表集合等的容量计数都是从0开始。</p>
+<p>常量池中主要存放两大类常量：<strong>字面量和符号引用</strong>。</p>
+<ul>
+<li>字面量比较接近于Java语言层面的常量概念， 如文本字符串、被声明为final的常量值等。</li>
+<li>符号引用则属于编译原理方面的概念，主要包括下面几类常量：<ul>
+<li>被模块导出或者开放的包</li>
+<li><strong>类和接口的全限定名</strong> </li>
+<li>**字段的名称和描述符 ** </li>
+<li><strong>方法的名称和描述符</strong> </li>
+<li>方法句柄和方法类型</li>
+<li>动态调用点和动态常量</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>Java代码在进行Javac编译的时候， 并不像C和C++那样有“连接”这一步骤， 而是<strong>在虚拟机加载Class文件的时候进行动态连接</strong>的 。也就是说， <strong>在Class文件中不会保存各个方法、字段最终在内存中的布局信息，这些字段、方法的符号引用不经过虚拟机在运行期转换的话是无法得到真正的内存人口地址，也就无法直接被虚拟机使用的。当虚拟机做类加载时，将会从常量池获得对应的符号引用，再在类创建时或运行时解析、翻译到具体的内存地址之中</strong>。</p>
+</blockquote>
+<p>常量池中每一项常量都是一个表，<strong>截至JDK13</strong>， 常量表中分别有17种不同类型的常量。<strong>这些表都有一个共同的特点， 表结构起始的第一位是个u1类型的标志位</strong>(tag， 见下表标志列)，代表着当前常量属于哪种常量类型。17种类型如下表：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>标志（tag）</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CONSTANT_utf8_info</td>
+<td>1</td>
+<td>UTF-8编码的字符串</td>
+</tr>
+<tr>
+<td>CONSTANT_Integer_info</td>
+<td>3</td>
+<td>整形字面量</td>
+</tr>
+<tr>
+<td>CONSTANT_Float_info</td>
+<td>4</td>
+<td>浮点型字面量</td>
+</tr>
+<tr>
+<td>CONSTANT_Long_info</td>
+<td>５</td>
+<td>长整型字面量</td>
+</tr>
+<tr>
+<td>CONSTANT_Double_info</td>
+<td>６</td>
+<td>双精度浮点型字面量</td>
+</tr>
+<tr>
+<td>CONSTANT_Class_info</td>
+<td>７</td>
+<td>类或接口的符号引用</td>
+</tr>
+<tr>
+<td>CONSTANT_String_info</td>
+<td>８</td>
+<td>字符串类型字面量</td>
+</tr>
+<tr>
+<td>CONSTANT_Fieldref_info</td>
+<td>９</td>
+<td>字段的符号引用</td>
+</tr>
+<tr>
+<td>CONSTANT_Methodref_info</td>
+<td>10</td>
+<td>类中方法的符号引用</td>
+</tr>
+<tr>
+<td>CONSTANT_InterfaceMethodref_info</td>
+<td>11</td>
+<td>接口中方法的符号引用</td>
+</tr>
+<tr>
+<td>CONSTANT_NameAndType_info</td>
+<td>12</td>
+<td>字段或方法的符号引用</td>
+</tr>
+<tr>
+<td>CONSTANT_MethodHandle_info</td>
+<td>15</td>
+<td>表示方法句柄</td>
+</tr>
+<tr>
+<td>CONSTANT_MothodType_info</td>
+<td>16</td>
+<td>标志方法类型</td>
+</tr>
+<tr>
+<td>CONSTANT_Dynamic_info</td>
+<td>17</td>
+<td>表示一个动态计算常量</td>
+</tr>
+<tr>
+<td>CONSTANT_InvokeDynamic_info</td>
+<td>18</td>
+<td>表示一个动态方法调用点</td>
+</tr>
+<tr>
+<td>CONSTANT_Module_info</td>
+<td>19</td>
+<td>表示一个模块</td>
+</tr>
+<tr>
+<td>CONSTANT_Package_info</td>
+<td>20</td>
+<td>表示一个模块中开发或者导出的包</td>
+</tr>
+</tbody></table>
+<p>常见的11种类型的结构表：（index表示指向第几个常量项）</p>
+<p><img src="https://gitee.com/bxgitee/noteImage/raw/master/image/image-20210125112646190.png" alt="image-20210125112646190"></p>
+<blockquote>
+<p>在读取常量池时，只要读取每个项的第一个字节（tag）就可得知其类型，得知其类型后就能知道该项占多少字节，也就可以知道下一项从哪里开始，以此类推。</p>
+</blockquote>
+<h2 id="访问标志"><a href="#访问标志" class="headerlink" title="访问标志"></a>访问标志</h2><figure class="highlight angelscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">u2             access_flags;【<span class="number">1</span>】<span class="comment">//Class 的访问标记</span></span><br></pre></td></tr></table></figure>
+
+<p>常量池结束之后紧接着的两个字节代表<strong>访问标志</strong>，这个标志用于识别一些类或者接口层次的访问信息，即一个类或接口使用了哪些访问修饰符（public、abstract等）。</p>
+<p><img src="https://gitee.com/bxgitee/noteImage/raw/master/image/image-20210125113620989.png" alt="image-20210125113620989"></p>
+<p>一个类或接口可拥有多个标志，<strong>这时标志值应该为这多个标志值取或</strong>。如 ACC_PUBLIC | ACC_SUPER = 0x0021。</p>
+<h2 id="类索引、父类索引与接口索引集合"><a href="#类索引、父类索引与接口索引集合" class="headerlink" title="类索引、父类索引与接口索引集合"></a>类索引、父类索引与接口索引集合</h2><pre><code>u2             this_class;【1】//当前类
+u2             super_class;【1】//父类
+u2             interfaces_count;【1】//接口数量
+u2             interfaces;【interfaces_count】//一个类可以实现多个接口</code></pre>
+<p>类索引和父类索引都是一个u2类型的数据， 而接口索引集合是一组u2类型的数据的集合， Class文件中<strong>由这三项数据来确定该类型的继承关系</strong>。</p>
+<ul>
+<li><p><strong>类索引用于确定这个类的全限定名，父类索引用于确定这个类的父类的全限定名</strong>。Java不允许多继承， 所以父类索引只有一个， 除了java.lang.Object之外， 所有的Java类都有父类， 因此除了java.lang.Object外， 所有Java类的父类索引都不为0。<strong>这是两个索引值，指向常量池的对应项</strong>。</p>
+</li>
+<li><p><strong>接口索引集合</strong>描述这个类实现了哪些接口，集合第一个项是接口计数器，之后是对应数量的接口索引（若计数器为0则不再占用任何字节）。<strong>这些接口索引将按implements关键字（如果该Class文件表示接口， 则是extends）后的接口顺序从左到右排列在接口索引集合中</strong>。</p>
+</li>
+</ul>
+<h2 id="字段表集合"><a href="#字段表集合" class="headerlink" title="字段表集合"></a>字段表集合</h2><pre><code>u2             fields_count;【1】//Class 文件的字段属性
+field_info     fields;【fields_count】//一个类会可以有多个字段</code></pre>
+<p>字段表用于描述接口或类中声明的变量。字段<strong>包括类级变量以及实例变量</strong>，但<strong>不包括在方法内部声明的局部变量</strong>。</p>
+<p>一个字段表的结构（来自javaGuide）：</p>
+<p><img src="https://gitee.com/bxgitee/noteImage/raw/master/image/image-20210125150122301.png" alt="image-20210125150122301"></p>
+<p>各字段解释：</p>
+<ul>
+<li><strong>access_flags:</strong> 字段的作用域（<code>public</code> ，<code>private</code>，<code>protected</code>修饰符），是实例变量还是类变量（<code>static</code>修饰符），可否被序列化（transient 修饰符），可变性（final），可见性（volatile 修饰符，是否强制从主内存读写）。</li>
+<li><strong>name_index:</strong> <strong>对常量池的引用</strong>，表示的字段的简单名称；</li>
+<li><strong>descriptor_index:</strong> <strong>对常量池的引用</strong>，表示字段和方法的描述符；</li>
+<li><strong>attributes_count:</strong> 一个字段还会拥有一些额外的属性，attributes_count 存放属性的个数；</li>
+<li><strong>attributes[attributes_count]:</strong> 存放具体属性具体内容。</li>
+</ul>
+<p>上述这些信息中，各个修饰符都是布尔值，要么有某个修饰符，要么没有，<strong>适合使用标志位来表示。而字段叫什么名字、字段数据类型都是无法固定的，只能引用常量池中常量来描述</strong>。</p>
+<p><strong>字段表中不会列出继承自父类或父接口的字段</strong>。</p>
+<blockquote>
+<p>关于描述符：描述符用来描述<strong>字段的数据类型</strong>，或方<strong>法的参数列表（包括数量、类型和顺序）和返回值</strong>。基本数据类型以及无返回值void都用一个大写字符表示，对应关系：</p>
+<ul>
+<li>B- byte， C-char， D- double， F- float， I- int， J- long， s- short， z-boolean， v- void， L-对象类型，如Ljava.lang.String</li>
+<li>对于数组，一个维度对应一个 <code>[</code>， + L + 元素类型，如<code>[[I，[[Ljava.lang.String</code>。</li>
+</ul>
+<p>描述符描述方法时，<strong>按照先参数列表后返回值的顺序</strong>，如<code>()V 、(I)Ljava.lang.String</code>。</p>
+</blockquote>
+<p>access_flags表示访问标志，即字段的修饰符，其取值如下：</p>
+<p><img src="https://gitee.com/bxgitee/noteImage/raw/master/image/image-20210125150405202.png" alt="image-20210125150405202"></p>
+<h2 id="方法表集合"><a href="#方法表集合" class="headerlink" title="方法表集合"></a>方法表集合</h2><pre><code>u2             methods_count;【1】
+method_info    methods;【methods_count】</code></pre>
+<p>分别表示方法数量和方法表。</p>
+<p>Class 文件存储格式中对方法的描述与对字段的描述几乎采用了完全一致的方式。方法表的结构与字段表一样，如下：</p>
+<p><img src="https://gitee.com/bxgitee/noteImage/raw/master/image/image-20210125150122301.png" alt="image-20210125150122301"></p>
+<p><strong>Java方法里的代码，经Javac编译成字节码之后，放在方法属性表集合中一个名为“Code”的属性里面</strong>。</p>
+<p>标志位取值：</p>
+<p><img src="https://gitee.com/bxgitee/noteImage/raw/master/image/image-20210125173337287.png" alt="image-20210125173337287"></p>
+<blockquote>
+<p>synchronized关键字 的字节码相关： P46</p>
+</blockquote>
+<h2 id="属性表集合"><a href="#属性表集合" class="headerlink" title="属性表集合"></a>属性表集合</h2><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">u2             attributes_count;<span class="regexp">//</span>此类的属性表中的属性数</span><br><span class="line">attribute_info attributes[attributes_count];<span class="regexp">//</span>属性表集合</span><br></pre></td></tr></table></figure>
+
+<p>在 Class 文件，字段表，方法表中都可以携带自己的属性表集合，以用于描述某些场景专有的信息。与 Class 文件中其它的数据项目要求的顺序、长度和内容不同，属性表集合的限制稍微宽松一些，不再要求各个属性表具有严格的顺序，并且只要不与已有的属性名重复，任何人实现的编译器都可以向属性表中写 入自己定义的属性信息，Java 虚拟机运行时会忽略掉它不认识的属性。</p>
+<h3 id="一些常见属性"><a href="#一些常见属性" class="headerlink" title="一些常见属性"></a>一些常见属性</h3><p>1.<strong>Code属性</strong> </p>
+<p>结构：</p>
+<img src="https://gitee.com/bxgitee/noteImage/raw/master/image/image-20210125174146152.png" alt="image-20210125174146152" style="zoom:80%;" />
+
+<ul>
+<li><p>attribute_length表示attribute所包含的字节数，不包含 attribute name index和attribute length字段。</p>
+</li>
+<li><p>max_stack表示这个方法运行的任何时刻所能达到的操作数栈的最大深度</p>
+</li>
+<li><p>max_locals表示方法执行期间创建的局部变量的数目，包含用来表示传入的参数的局部变量</p>
+</li>
+</ul>
+<p>2.<strong>LineNumberTable</strong>属性</p>
+<p>用于表示Code中的字节码与源码的行号对应关系（一行对应一个指令）</p>
+<p>3.LocalVariableTable</p>
+<p>局部变量表，记录局部变量信息，其中的变量名等会引用常量池中的utf8字符串常量。</p>
+<p><strong>对于实例方法，在class文件中，每个方法内至少会有一个局部变量：this，即所属对象的引用</strong></p>
+<h2 id="To-be-continue"><a href="#To-be-continue" class="headerlink" title="To be continue"></a>To be continue</h2><h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><blockquote>
+<p>《深入理解JVM》</p>
+<p><a target="_blank" rel="noopener" href="https://snailclimb.gitee.io/javaguide/#/?id=java">JavaGuide文档</a> </p>
+</blockquote>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/03/04/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -3840,236 +4134,10 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/17/Java/JVM/JVM%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="bxxiao">
-      <meta itemprop="description" content="_mo_yu_">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="bxxiao">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/02/17/Java/JVM/JVM%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F/" class="post-title-link" itemprop="url">Java内存区域</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-02-17 17:57:24" itemprop="dateCreated datePublished" datetime="2021-02-17T17:57:24+08:00">2021-02-17</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-03-20 20:53:19" itemprop="dateModified" datetime="2021-03-20T20:53:19+08:00">2021-03-20</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
-                </span>
-                  ，
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Java/JVM/" itemprop="url" rel="index"><span itemprop="name">JVM</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Java内存区域"><a href="#Java内存区域" class="headerlink" title="Java内存区域"></a>Java内存区域</h1><h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>相比于C/C++，Java虚拟机拥有自动内存管理机制，不需要为每一个new操作配对对应的delete/free代码，不容易出现内存泄漏和内存溢出问题。而正是因为 Java 程序员把内存控制权利交给 Java 虚拟机，一旦出现内存泄漏和溢出方面的问题，如果不了解虚拟机是怎样使用内存的，那么排查错误将会是一个非常艰巨的任务。</p>
-<p>&emsp;&emsp;</p>
-<h2 id="运行时数据区域划分"><a href="#运行时数据区域划分" class="headerlink" title="运行时数据区域划分"></a>运行时数据区域划分</h2><p>Java 虚拟机<strong>在执行 Java 程序的过程中</strong>会把它<strong>管理的内存划分成若干个不同的数据区域</strong>。<strong>对于jdk1.8和之前的版本，内存的划分有一些不同</strong>，如下（图片来自JavaGuide）：</p>
-<p>jdk1.8之前：</p>
-<p><img src="https://gitee.com/bxgitee/noteImage/raw/master/image/JVM%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA%E5%9F%9F.png" alt="JVM运行时数据区域"></p>
-<p>jdk1.8：</p>
-<p><img src="https://gitee.com/bxgitee/noteImage/raw/master/image/jdkJava%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA%E5%9F%9FJDK1.8.png" alt="jdkJava运行时数据区域JDK1.8"></p>
-<p>&emsp;&emsp;</p>
-<h2 id="程序计数器"><a href="#程序计数器" class="headerlink" title="程序计数器"></a>程序计数器</h2><p>程序计数器是一块较小的内存空间，可以看作是<strong>当前线程所执行的字节码的行号指示器</strong>。其作用是：</p>
-<ul>
-<li><strong>字节码解释器工作时通过改变这个计数器的值来选取下一条需要执行的字节码指令</strong>。<strong>分支、循环、跳转、异常处理、线程恢复等功能都需要依赖这个计数器来完成</strong>。</li>
-<li><strong>在多线程的情况下，程序计数器用于记录当前线程执行的位置</strong>，从而当线程被切换回来的时候能够知道该线程上次运行到哪儿了（<strong>上下文切换</strong>）。</li>
-</ul>
-<p>程序计数器是一块“<strong>线程私有</strong>”的内存区域：</p>
-<p><strong>为什么程序计数器是线程私有</strong>：</p>
-<p>由于Java虚拟机的多线程是通过线程轮流切换、分配处理器执行时间的方式来实现的，在任何一个确定的时刻，一个处理器（对于多核处理器来说是一个内核）都只会执行一条线程中的指令。因此，<strong>为了线程切换后能恢复到正确的执行位置</strong>，每条线程都需要有一个独立的程序计数器，各条线程之间计数器互不影响，独立存储。</p>
-<p>&emsp;&emsp;</p>
-<p><strong>若线程正在执行一个Java方法，则计数器记录的是正在执行的方法对应字节码指令的地址</strong>。而若是在<strong>执行native方法，则计数器为空</strong>（Undefined）。**程序计数器不会抛出<code>OutOfMemoryError错误</code>**（《JVM规范》没有规定这种情况）</p>
-<p>&emsp;&emsp;</p>
-<h2 id="Java虚拟机栈"><a href="#Java虚拟机栈" class="headerlink" title="Java虚拟机栈"></a>Java虚拟机栈</h2><p><strong>与程序计数器一样，Java 虚拟机栈也是线程私有的，它的生命周期和线程相同，描述的是 Java 方法执行的内存模型：<font color="red">每个Java方法被执行的时候， Java虚拟机都会同步创建一个栈帧（Stack Frame） 用于存储局部变量表、操作数栈、动态连接、方法出口等信息</font>。每一个方法被调用直至执行完毕的过程，就<font color="red">对应着一个栈帧在虚拟机栈中从入栈到出栈的过程</font></strong>。</p>
-<p>递归调用时，每一次递归都在栈顶创建一个栈帧。</p>
-<p>Java 方法有两种返回方式：</p>
-<ol>
-<li>return 语句。</li>
-<li>抛出异常。</li>
-</ol>
-<p>不管哪种返回方式都会导致栈帧被弹出。</p>
-<p>&emsp;&emsp;</p>
-<p>Java内存可以粗糙的区分为堆内存（Heap）和栈内存 (Stack)，其中栈通常指这里的虚拟机栈，或者<strong>更多情况下只是指虚拟机栈中局部变量表部分</strong>。 </p>
-<p><strong>局部变量表主要存放了编译期可知的各种数据类型</strong>（boolean、byte、char、short、int、float、long、double）、<strong>对象引用</strong>（reference 类型，它不同于对象本身，可能是一个指向对象起始地址的引用指针，也可能是指向一个代表对象的句柄或其他与此对象相关的位置）。</p>
-<p>&emsp;&emsp;</p>
-<p><strong>Java 虚拟机栈会出现两种错误：<code>StackOverFlowError</code> 和 <code>OutOfMemoryError</code>。</strong></p>
-<ul>
-<li><strong><code>StackOverFlowError</code>：</strong> 若 Java 虚拟机栈的内存大小不允许动态扩展，那么当线程请求栈的深度超过当前 Java 虚拟机栈的最大深度的时候，就抛出 StackOverFlowError 错误。</li>
-<li><strong><code>OutOfMemoryError</code>：</strong> 若 Java 虚拟机堆中没有空闲内存，并且垃圾回收器也无法提供更多内存的话。就会抛出 OutOfMemoryError 错误。</li>
-</ul>
-<p>&emsp;&emsp;</p>
-<h2 id="本地方法栈"><a href="#本地方法栈" class="headerlink" title="本地方法栈"></a>本地方法栈</h2><p>和虚拟机栈所发挥的作用相似，区别是： <strong><font color="red">虚拟机栈为虚拟机执行 Java 方法 （也就是字节码）服务，而本地方法栈则为虚拟机使用到的 Native 方法服务。 在 HotSpot 虚拟机中本地方法栈和 Java 虚拟机栈合二为一</font></strong>。</p>
-<p>本地方法被执行的时候，在本地方法栈也会创建一个栈帧，用于存放该本地方法的局部变量表、操作数栈、动态链接、出口信息。</p>
-<p>方法执行完毕后相应的栈帧也会出栈并释放内存空间，<strong>也会出现 <code>StackOverFlowError</code> 和 <code>OutOfMemoryError</code> 两种错误</strong>。</p>
-<p>&emsp;&emsp;</p>
-<h2 id="Java堆"><a href="#Java堆" class="headerlink" title="Java堆"></a>Java堆</h2><p>Java 虚拟机所管理的内存中最大的一块，Java 堆是所有线程共享的一块内存区域，在虚拟机启动时创建。<strong><font color="red">此内存区域的唯一目的就是存放对象实例</font><strong>，</strong>几乎所有的对象实例以及数组都在这里分配内存</strong>。</p>
-<blockquote>
-<p>Java世界中“几乎”所有的对象都在堆中分配，但是，随着JIT编译期的发展与逃逸分析技术逐渐成熟，栈上分配、标量替换优化技术将会导致一些微妙的变化，所有的对象都分配到堆上也渐渐变得不那么“绝对”了。从jdk 1.7开始已经默认开启逃逸分析，如果某些方法中的对象引用没有被返回或者未被外面使用（也就是未逃逸出去），那么对象可以直接在栈上分配内存。</p>
-</blockquote>
-<p>&emsp;&emsp;</p>
-<p><strong>Java 堆是垃圾收集器管理的主要区域，因此也被称作GC 堆</strong>（Garbage Collected Heap）</p>
-<p>在垃圾回收机制中，有时会对堆进行划分，如“新生代”，“老年代”等，<strong>但这些区域划分仅仅是一部分垃圾收集器的共同特性或者说设计风格而已， 而非某个Java虚拟机具体实现的固有内存布局， 更不是《Java虚拟机规范》里对Java堆的进一步细致划分</strong>。</p>
-<p>根据JVM规范，<strong>Java堆可以处于物理上不连续的内存空间中，但在逻辑上应该被视为连续的</strong>。Java堆可以被实现为固定大小，也可实现为可扩展，当前主流JVM都是可扩展的（参数<code>-Xmx、-Xms</code>），<strong>若堆内存中没有空间可分配且不可扩展，则抛出OOM异常</strong>。</p>
-<p>（来自JavaGuide）</p>
-<p>在 JDK 7 版本及JDK 7 版本之前，堆内存被通常被分为下面三部分：</p>
-<ol>
-<li>新生代内存(Young Generation)</li>
-<li>老生代(Old Generation)</li>
-<li>永生代(Permanent Generation)</li>
-</ol>
-<p><img src="https://snailclimb.gitee.io/javaguide/docs/java/jvm/pictures/java%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F/JVM%E5%A0%86%E5%86%85%E5%AD%98%E7%BB%93%E6%9E%84-JDK7.png" alt="JVM堆内存结构-JDK7"></p>
-<p>JDK 8 版本之后方法区（HotSpot 的永久代）被彻底移除了（JDK1.7 就已经开始了），取而代之是元空间，元空间使用的是直接内存。</p>
-<p><img src="https://snailclimb.gitee.io/javaguide/docs/java/jvm/pictures/java%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F/JVM%E5%A0%86%E5%86%85%E5%AD%98%E7%BB%93%E6%9E%84-jdk8.png" alt="JVM堆内存结构-JDK8"></p>
-<p>上图所示的 Eden 区、两个 Survivor 区都属于新生代（为了区分，这两个 Survivor 区域按照顺序被命名为 from 和 to），中间一层属于老年代。</p>
-<p>&emsp;&emsp;</p>
-<blockquote>
-<p>to be continue….   <a target="_blank" rel="noopener" href="https://snailclimb.gitee.io/javaguide/#/docs/java/jvm/Java%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F?id=_24-%e5%a0%86">https://snailclimb.gitee.io/javaguide/#/docs/java/jvm/Java%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F?id=_24-%e5%a0%86</a></p>
-</blockquote>
-<p>&emsp;&emsp;</p>
-<h2 id="方法区"><a href="#方法区" class="headerlink" title="方法区"></a>方法区</h2><p>方法区与 Java 堆一样，是<strong>各个线程共享的内存区域、可以不连续的内存和大小可扩展</strong>，它<strong>用于存储已被虚拟机加载的类信息、常量、静态变量、即时编译器编译后的代码等数据</strong>。虽然 <strong>Java 虚拟机规范把方法区描述为堆的一个逻辑部分</strong>，但是它却有一个别名叫做 <strong>Non-Heap（非堆）</strong>，目的应该是与 Java 堆区分开来。</p>
-<p>&emsp;&emsp;</p>
-<h3 id="方法区与永久代的关系"><a href="#方法区与永久代的关系" class="headerlink" title="方法区与永久代的关系"></a>方法区与永久代的关系</h3><p>JDK1.8以前，方法区经常被称为永久代，JVM规范只是定义了方法区这个概念和它的作用，并没有定义永久代，永久代是Hotsp对方法区的一个具体实现，但这种实现方式Java应用更容易遇到内存溢出问题。从JDK1.6开始HotSpot逐渐放弃永久代，<strong><font color="red">到JDK1.8已完全放弃永久代的概念，改用在本地内存中实现元空间（Meta-space）（<span style="font-size:25px">元空间也是方法区的一种实现</span>）</font></strong>。</p>
-<p>永久代有一个 JVM 本身设置固定大小上限，无法进行调整，而<strong>元空间使用的是直接内存，默认情况下其上限是系统的物理内存大小（unlimited），内存溢出几率很小</strong>。可以通过<code>MaxMetaspaceSize</code>参数指定元空间大小。</p>
-<blockquote>
-<p>元空间溢出时会得到如下错误： <code>java.lang.OutOfMemoryError: MetaSpace</code> </p>
-</blockquote>
-<p>&emsp;&emsp;</p>
-<h3 id="常用参数"><a href="#常用参数" class="headerlink" title="常用参数"></a>常用参数</h3><p>JDK1.8之前通常通过下面这些参数来调节方法区大小</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">-XX:PermSize=N <span class="comment">//方法区 (永久代) 初始大小</span></span><br><span class="line">-XX:MaxPermSize=N <span class="comment">//方法区 (永久代) 最大大小,超过这个值将会抛出 OutOfMemoryError 异常:java.lang.OutOfMemoryError: PermGen</span></span><br></pre></td></tr></table></figure>
-
-<p>JDK 1.8 之后</p>
-<p>下面是一些常用参数：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">-XX:MetaspaceSize=N <span class="comment">//设置 Metaspace 的初始（和最小大小）</span></span><br><span class="line">-XX:MaxMetaspaceSize=N <span class="comment">//设置 Metaspace 的最大大小</span></span><br></pre></td></tr></table></figure>
-
-<p><code>-XX：MetaspaceSize</code> 调整标志定义元空间的初始大小如果未指定此标志，则 Metaspace 将根据运行时的应用程序需求动态地重新调整大小。</p>
-<p>&emsp;&emsp;</p>
-<h2 id="运行时常量池"><a href="#运行时常量池" class="headerlink" title="运行时常量池"></a>运行时常量池</h2><p><strong>运行时常量池是方法区的一部分。Class 文件中除了有类的版本、字段、方法、接口等描述信息外，还有常量池表，用于存放编译期生成的各种字面量和符号引用</strong>。运行时常量池是方法区的一部分，受到方法区内存的限制，<strong>当常量池无法再申请到内存时会抛出 OutOfMemoryError 错误</strong>。</p>
-<p>运行时常量池相对于Class文件常量池的另外一个重要特征是具备<strong>动态性</strong>， Java语言并不要求常量一定只有编译期才能产生，也就是说，并非预置人Class文件中常量池的内容才能进入方法区运行时常量池，<strong>运行期间也可以将新的常量放人池中</strong>。</p>
-<p>&emsp;&emsp;</p>
-<h2 id="直接内存"><a href="#直接内存" class="headerlink" title="直接内存"></a>直接内存</h2><p><strong>直接内存并不是虚拟机运行时数据区的一部分，也不是虚拟机规范中定义的内存区域，但是这部分内存也被频繁地使用。而且也可能导致 OutOfMemoryError 错误出现。</strong></p>
-<p>JDK1.4 中新加入的 <strong>NIO(New Input/Output) 类</strong>，引入了一种基于<strong>通道（Channel）</strong> 与<strong>缓存区（Buffer）</strong> 的 I/O 方式，它可以直接使用 Native 函数库直接分配堆外内存，然后通过一个存储在 Java 堆中的 DirectByteBuffer 对象作为这块内存的引用进行操作。这样就能在一些场景中显著提高性能，因为<strong>避免了在 Java 堆和 Native 堆之间来回复制数据</strong>。</p>
-<p>本机直接内存的分配不会受到 Java 堆的限制，但是会受到本机总内存大小以及处理器寻址空间的限制。</p>
-<p>&emsp;&emsp;</p>
-<h1 id="HotSpot虚拟机中的对象"><a href="#HotSpot虚拟机中的对象" class="headerlink" title="HotSpot虚拟机中的对象"></a>HotSpot虚拟机中的对象</h1><h2 id="对象创建过程"><a href="#对象创建过程" class="headerlink" title="对象创建过程"></a>对象创建过程</h2><p>创建对象在Java代码中通常只是一个new关键字，而在虚拟机中的过程如下：</p>
-<h3 id="类加载检查"><a href="#类加载检查" class="headerlink" title="类加载检查"></a>类加载检查</h3><p>虚拟机遇到一条 new 指令时，首先检查这个指令的参数是否能在常量池中定位到这个类的符号引用，并且检查这个符号引用代表的类是否已被加载过、解析和初始化过。如果没有，那必须先执行相应的类加载过程。</p>
-<p>&emsp;&emsp;</p>
-<h3 id="分配内存"><a href="#分配内存" class="headerlink" title="分配内存"></a>分配内存</h3><p>在<strong>类加载检查</strong>通过后，接下来虚拟机将为新生对象<strong>分配内存</strong>。<strong>对象所需的内存大小在类加载完成后便可确定</strong>，为对象分配空间的任务等同于<strong>把一块确定大小的内存从 Java 堆中划分出来</strong>。</p>
-<p>划分堆内存的两种方式：</p>
-<ul>
-<li><strong>指针碰撞（Bump The Pointer）</strong>。假设Java堆中内存是绝对规整的，所有<strong>被使用过的内存都被放在一边，空闲的内存被放在另一边，中间放着一个指针作为分界点的指示器</strong>，那所分配内存就仅仅是把那个指针向空闲空间方向挪动一段与对象大小相等的距离， 这种分配方式即为“指针碰撞”。（GC收集器：Serial、ParNew）</li>
-<li><strong>空闲列表（Free List）</strong>。如果Java堆中的内存并不是规整的，已被使用的内存和空闲的内存相互交错在一起，虚拟机就必须<strong>维护一个列表，记录上哪些内存块是可用的，在分配的时候从列表中找到一块足够大的空间划分给对象实例，并更新列表上的记录</strong>，这种分配方式称为“空闲列表” 。（GC收集器：CMS）</li>
-</ul>
-<p><strong>选择哪种分配方式由 Java 堆是否规整决定，<font color="red">而 Java 堆是否规整又由所采用的垃圾收集器是否带有压缩整理功能决定</font>（或者说，Java 堆是否规整取决于 GC 收集器的算法是”标记-清除”，还是”标记-整理”（也称作”标记-压缩”））</strong>。</p>
-<p>&emsp;&emsp;</p>
-<p><strong><font color="red">线程安全问题</font></strong>：</p>
-<p><strong>分配内存的操作在并发环境下并不是线程安全的</strong>，在实际开发过程中，创建对象是很频繁的事情，作为虚拟机来说，必须要保证线程是安全的。通常虚拟机采用两种方式来保证线程安全：</p>
-<ul>
-<li><strong>CAS+失败重试：</strong> CAS 是乐观锁的一种实现方式。所谓乐观锁就是，每次不加锁而是假设没有冲突而去完成某项操作，如果因为冲突失败就重试，直到成功为止。<strong>虚拟机采用 CAS 配上失败重试的方式保证更新操作的原子性。</strong></li>
-<li><strong>TLAB：</strong> <strong>为每一个线程预先在Java堆中分配一小块内存，称为本地线程分配缓存（Thread Local Allocation Buffer，TLAB）</strong>。哪个线程要分配内存，就在其对应TLAB中分配，当对象大于 TLAB 中的剩余内存或 TLAB 的内存已用尽时，再采用上述的 CAS 进行内存分配。</li>
-</ul>
-<blockquote>
-<p>虚拟机是否采用TLAB，可通过参数<code>-XX:+/-UseTLAB</code>设定。</p>
-</blockquote>
-<p>&emsp;&emsp;</p>
-<h3 id="初始化零值"><a href="#初始化零值" class="headerlink" title="初始化零值"></a>初始化零值</h3><p><strong>内存分配完成后，虚拟机需要将分配到的内存空间都初始化为零值</strong>（不包括对象头），这一步操作保证了对象的实例字段在 Java 代码中可以不赋初始值就直接使用，程序能访问到这些字段的数据类型所对应的零值。</p>
-<blockquote>
-<p>若使用了TLAB，则可以提前至TLAB分配时顺便进行。</p>
-</blockquote>
-<p>&emsp;&emsp;</p>
-<h3 id="设置对象头"><a href="#设置对象头" class="headerlink" title="设置对象头"></a>设置对象头</h3><p>初始化零值完成之后，<strong>虚拟机要对对象进行必要的设置</strong>，例如这个对象是哪个类的实例、如何才能找到类的元数据信息、对象的哈希码（实际上哈希码会延迟到调用<code>Object.hashCode()</code>方法时才调用）、对象的 GC 分代年龄等信息。 <strong>这些信息存放在对象头中。</strong> 另外，根据虚拟机当前运行状态的不同，如是否启用偏向锁等，对象头会有不同的设置方式。</p>
-<p>&emsp;&emsp;</p>
-<h3 id="执行init方法（构造函数）"><a href="#执行init方法（构造函数）" class="headerlink" title="执行init方法（构造函数）"></a>执行init方法（构造函数）</h3><p>在上面工作都完成之后，<strong>从虚拟机的视角来看，一个新的对象已经产生了，但从 Java 程序的视角来看，对象创建才刚开始，<code>&lt;init&gt;</code> 方法还没有执行，所有的字段都还为零</strong>。一般来说，执行 new 指令之后会接着执行 <code>&lt;init&gt;</code> 方法，把对象按照程序员的意愿进行初始化，这样一个真正可用的对象才算完全产生出来。</p>
-<blockquote>
-<p><strong>是否接着执行init方法，由字节码流中new指令后面是否跟随invokespecial指令所决定</strong>， Java编译器会在遇到new关键字的地方同时生成这两条字节码指令， 但如果直接通过其他方式产生的则不一定如此。</p>
-</blockquote>
-<p>&emsp;&emsp;</p>
-<h2 id="对象在堆中的内存布局"><a href="#对象在堆中的内存布局" class="headerlink" title="对象在堆中的内存布局"></a>对象在堆中的内存布局</h2><p>在 HotSpot 虚拟机中，对象在内存中的布局可以分为 3 块区域：<strong>对象头</strong>、<strong>实例数据</strong>和<strong>对齐填充</strong>。</p>
-<ul>
-<li><p><strong>HotSpot 虚拟机的对象头包括两部分信息</strong>，<strong>第一部分用于存储对象自身的运行时数据</strong>（哈希码、GC 分代年龄、锁状态标志等等），<strong>另一部分是类型指针</strong>，即对象指向它的类元数据的指针，虚拟机通过这个指针来确定这个对象是那个类的实例。</p>
-</li>
-<li><p><strong>实例数据部分是对象真正存储的有效信息</strong>，也是在程序中所定义的各种类型的字段内容。<strong>无论是从父类继承的还是在子类中定义的字段都必须记录在这部分</strong>。</p>
-</li>
-<li><p><strong>对齐填充部分不是必然存在的，也没有什么特别的含义，仅仅起占位符作用。</strong> HotSpot 虚拟机的自动内存管理系统要求对象起始地址必须是 <strong>8 字节的整数倍</strong>，换句话说就是对<strong>象的大小必须是 8 字节的整数倍</strong>。而对象头部分正好是 8 字节的倍数（1 倍或 2 倍），因此，当对象实例数据部分没有对齐时，就需要通过对齐填充来补全。</p>
-<p>&emsp;&emsp;</p>
-</li>
-</ul>
-<h2 id="对象的访问定位"><a href="#对象的访问定位" class="headerlink" title="对象的访问定位"></a>对象的访问定位</h2><p>建立对象就是为了使用对象，<strong>Java程序通过栈上的 reference 数据来操作堆上的具体对象</strong>。对象的访问方式由虚拟机实现而定，目前主流的访问方式有<strong>①使用句柄</strong>和<strong>②直接指针</strong>两种：</p>
-<ul>
-<li><p><strong>句柄：</strong> 如果使用句柄的话， Java 堆中将会<strong>划分出一块内存来作为句柄池，reference 中存储的就是对象的句柄地址，而句柄中包含了对象实例数据与类型数据各自的具体地址信息</strong>。如图：（图片来自JavaGuide）</p>
-<p><img src="https://gitee.com/bxgitee/noteImage/raw/master/image/image-20210128110202532.png" alt="image-20210128110202532"></p>
-</li>
-<li><p><strong>直接指针</strong>（HotSpot主要使用这种方式，也有例外情况）： 如果使用直接指针访问，那么 Java 堆对象的布局中就必须考虑如何放置访问类型数据的相关信息，而 reference 中存储的直接就是对象的地址。<strong>即reference直接指向堆中对象所在内存</strong>。如图：</p>
-<p><img src="https://gitee.com/bxgitee/noteImage/raw/master/image/image-20210128110402759.png" alt="image-20210128110402759"></p>
-</li>
-</ul>
-<p>&emsp;&emsp;</p>
-<p>这两种方式的优势：</p>
-<ul>
-<li>使用句柄来访问的最大好处是 reference 中存储的是稳定的句柄地址，<strong>在对象被移动时（如垃圾收集时对象经常移动）只会改变句柄中的实例数据指针，而 reference 本身不需要修改</strong>。</li>
-<li>使用直接指针访问方式最大的好处就是速度快，它<strong>节省了一次指针定位的时间开销</strong>。</li>
-</ul>
-<p>&emsp;&emsp;</p>
-<h1 id="String相关"><a href="#String相关" class="headerlink" title="String相关"></a>String相关</h1><p><a target="_blank" rel="noopener" href="https://snailclimb.gitee.io/javaguide/#/docs/java/jvm/Java%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F?id=%e5%9b%9b-%e9%87%8d%e7%82%b9%e8%a1%a5%e5%85%85%e5%86%85%e5%ae%b9">补充内容</a> </p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -4135,7 +4203,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">30</span>
+          <span class="site-state-item-count">31</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
