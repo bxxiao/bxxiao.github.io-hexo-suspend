@@ -159,6 +159,108 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/11/04/Java/%E5%9F%BA%E7%A1%80/byte%E7%B1%BB%E5%9E%8B%E6%95%B0%E6%8D%AE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="bxxiao">
+      <meta itemprop="description" content="nothing">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bxxiao">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/11/04/Java/%E5%9F%BA%E7%A1%80/byte%E7%B1%BB%E5%9E%8B%E6%95%B0%E6%8D%AE/" class="post-title-link" itemprop="url">Java-关于byte类型</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-11-04 17:38:36" itemprop="dateCreated datePublished" datetime="2020-11-04T17:38:36+08:00">2020-11-04</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-03-20 20:06:10" itemprop="dateModified" datetime="2021-03-20T20:06:10+08:00">2021-03-20</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java/%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index"><span itemprop="name">基础</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="byte类型数据的范围"><a href="#byte类型数据的范围" class="headerlink" title="byte类型数据的范围"></a>byte类型数据的范围</h2><p>Java中一个byte类型数据的大小是一个字节，即8位，其范围是-128（1000_0000) ~ 127（0111_1111），二进制的最高位是符号位。</p>
+<p>&emsp;  </p>
+<h2 id="使用二进制形式赋值报错问题"><a href="#使用二进制形式赋值报错问题" class="headerlink" title="使用二进制形式赋值报错问题"></a>使用二进制形式赋值报错问题</h2><p>为byte类型变量赋值只能是-128~127范围内的数。</p>
+<p>可以使用二进制形式赋值，如：<code>byte b = 0b10011;</code> （b=19）。<strong>且使用二进制赋值时，系统是以补码形式解析赋值的二进制数（如对于<code>0b10011</code>是19；对于<code>0b1111_1101</code>则是-3）</strong>。</p>
+<p>若想使用二进制形式赋值一个负数，如：<code>byte b = 0b1001_0101;</code>，<strong>编译器会报类型不兼容的错误</strong>（int不能赋值给byte）。需要添加类型强制转换：<code>byte b = (byte) 0b1001_0101;</code> </p>
+<p><strong>原因</strong>：（参考：<a href="https://www.cnblogs.com/ntyvictory/p/10650834.html" target="_blank">关于JAVA中Byte数据类型二进制赋值运算报错问题</a>）</p>
+<p>byte共有8个比特位，其中最高位是符号位，给它赋值<code>0b1001_0101</code>时，<strong>最高位的1系统无法判断是实际数值还是符号位数值</strong>。添加强制类型转换<code>(byte)</code>，则系统可以知道1是符号位，此时可以被赋值；<strong>如果没有加强制类型转换，则系统认为<code>0b1001_0101</code>是一个int类型数据</strong>。int类型值无法赋值给byte变量，所以会报错。</p>
+<p>&emsp;  </p>
+<h2 id="以二进制形式输出byte"><a href="#以二进制形式输出byte" class="headerlink" title="以二进制形式输出byte"></a>以二进制形式输出byte</h2><p>以二进制形式输出byte可以通过包装类<code>Integer</code>的静态方法<code>toBinaryString(int i)</code>。</p>
+<p>示例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">byte</span> a = <span class="number">2</span>;</span><br><span class="line"><span class="keyword">byte</span> b = <span class="number">12</span>;</span><br><span class="line">System.out.println(Integer.toBinaryString(a));</span><br><span class="line">System.out.println(Integer.toBinaryString(b));</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">输出：</span></span><br><span class="line"><span class="comment">10</span></span><br><span class="line"><span class="comment">1100</span></span><br><span class="line"><span class="comment">*/</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;  </p>
+<p>但若是通过该方法输出一个负数的byte变量，会看到结果是输出了一个32位的二进制数，如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">byte</span> a = -<span class="number">2</span>;</span><br><span class="line">System.out.println(Integer.toBinaryString(a));</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">输出：</span></span><br><span class="line"><span class="comment">11111111111111111111111111111110</span></span><br><span class="line"><span class="comment">*/</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>这是因为byte值被赋值给<code>toBinaryString()</code>方法时被转换为int类型，即变成32位</strong>。对于上个例子的正数也一样被转换为int，只不过因为是正数，所以高位的0可以被省略，因而看起来是正常显示；<strong>但对于负数，高位的1不可以省略，所以以32位形式显示</strong>。</p>
+<p>&emsp;  </p>
+<p>针对负数的byte，可以截取结果的后8位，如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    <span class="keyword">byte</span> a = -<span class="number">2</span>;</span><br><span class="line">    String aBinary = Integer.toBinaryString(a);</span><br><span class="line">    aBinary = aBinary.substring(aBinary.length()-<span class="number">8</span>);</span><br><span class="line">    System.out.println(<span class="string">&quot;原二进制数：&quot;</span> + Integer.toBinaryString(a));</span><br><span class="line">    System.out.println(<span class="string">&quot;截取后的二进制数：&quot;</span> + aBinary);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">输出：</span></span><br><span class="line"><span class="comment">原二进制数：11111111111111111111111111111110</span></span><br><span class="line"><span class="comment">截取后的二进制数：11111110</span></span><br><span class="line"><span class="comment">*/</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;  </p>
+<p>一个<code>Integer.toBinaryString()</code>处理byte值（对于正数，进行左补0；对于负数，截取后8位）的示例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        <span class="keyword">byte</span> a = <span class="number">2</span>;</span><br><span class="line">        <span class="keyword">byte</span> b = -<span class="number">2</span>;</span><br><span class="line">        String aBinary = getBinaryByteStr(Integer.toBinaryString(a));</span><br><span class="line">        String bBinary = getBinaryByteStr(Integer.toBinaryString(b));</span><br><span class="line">        System.out.println(aBinary);</span><br><span class="line">        System.out.println(bBinary);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> String <span class="title">getBinaryIntWithZero</span><span class="params">(String binary)</span></span>&#123;</span><br><span class="line">        <span class="keyword">int</span> zeroCount = <span class="number">8</span> - binary.length();</span><br><span class="line">        String zeros = <span class="string">&quot;&quot;</span>;</span><br><span class="line">        <span class="keyword">if</span>(zeroCount &gt; <span class="number">0</span>)&#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; zeroCount; i++) &#123;</span><br><span class="line">                zeros += <span class="number">0</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> zeros + binary;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 获取8位二进制形式</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">getBinaryByteStr</span><span class="params">(String b)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(b.length()&gt;<span class="number">8</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> b.substring(b.length()-<span class="number">8</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> getBinaryIntWithZero(b);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2020/11/01/Java/%E5%9F%BA%E7%A1%80/Java%20IO%E6%80%BB%E7%BB%93/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1539,7 +1641,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">32</span>
+          <span class="site-state-item-count">33</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
