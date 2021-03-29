@@ -159,6 +159,124 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/03/29/Java/%E5%85%B6%E4%BB%96/Comparable%E5%92%8CComparator%E7%94%A8%E6%B3%95%E5%B0%8F%E7%BB%93/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="bxxiao">
+      <meta itemprop="description" content="nothing">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bxxiao">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/03/29/Java/%E5%85%B6%E4%BB%96/Comparable%E5%92%8CComparator%E7%94%A8%E6%B3%95%E5%B0%8F%E7%BB%93/" class="post-title-link" itemprop="url">Comparable和Comparator用法小结</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-03-29 11:01:14 / 修改时间：11:00:58" itemprop="dateCreated datePublished" datetime="2021-03-29T11:01:14+08:00">2021-03-29</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java/%E5%85%B6%E4%BB%96/" itemprop="url" rel="index"><span itemprop="name">其他</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>Comparable 接口和 Comparator 接口都是用来比较两个对象。一个类实现 Comparable 表示该类的对象之间可以比较；Comparator 则表示一个比较器，传入两个对象，返回比较结果。</p>
+<p>它们的代码定义：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Comparable</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compareTo</span><span class="params">(T o)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@FunctionalInterface</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Comparator</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">compare</span><span class="params">(T o1, T o2)</span></span>;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>数组工具类和集合工具类中提供的 sort 排序方法就要求被排序的类实现 Comparable 接口或需要传入一个 Comparator 对象。</p>
+<h2 id="比较规则"><a href="#比较规则" class="headerlink" title="比较规则"></a>比较规则</h2><p><code>compareTo</code> 或 <code>compare</code> 都是返回一个 int 类型值。</p>
+<p>对于 <code>o1.compareTo(o2)</code> 或 <code>compare(o1, o2)</code> ，返回不同 int 值时的意义：</p>
+<ul>
+<li>返回 0 ，表示两个值相等。</li>
+<li><strong style="color:red">返回 负数，表示 o1 会排在 o2 前面。即若是返回负数，o1、o2 位置不变</strong>。</li>
+<li><strong style="color:red">返回 正数，表示 o1 会排在 o2 后面。即若是返回整数，o1、o2 位置交换</strong>。</li>
+</ul>
+<p>根据这 3 个点，在定义比较规则时，从 “<strong>返回负数表示两个值位置不变</strong>” 这个点入手：</p>
+<ul>
+<li>若是要按某个值升序排序，即返回负数的情况（o1，o2 位置不变）是 o1&lt;o2 ，则应该 <code>return o1-o2</code> 。这样当返回负数时，o1、o2 是升序的，位置不用变；返回正数，表示 o1 大于 o2，此时是降序的，应该交换位置。</li>
+<li>而若是降序，返回负数的情况应是 o1&gt;o2 ，则应该 <code>return o2-o1</code> 。同理。</li>
+</ul>
+<p>示例：</p>
+<p>定义类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span> <span class="keyword">implements</span> <span class="title">Comparable</span>&lt;<span class="title">A</span>&gt;</span>&#123;</span><br><span class="line">    String name;</span><br><span class="line">    Integer num;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">A</span><span class="params">(String name, Integer num)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">        <span class="keyword">this</span>.num = num;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 排序时按 num 值递增进行</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compareTo</span><span class="params">(A o)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 递增（升序），对应上面所说的 return o1-o2</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.num - o.num;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> <span class="string">&quot;A&#123;&quot;</span> + <span class="string">&quot;name=&#x27;&quot;</span> + name + <span class="string">&#x27;\&#x27;&#x27;</span> + <span class="string">&#x27;&#125;&#x27;</span>; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>将 A 的多个对象加入 List ，用 sort 方法进行排序：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    A a1 = <span class="keyword">new</span> A(<span class="string">&quot;a1&quot;</span>, <span class="number">1</span>);</span><br><span class="line">    A a2 = <span class="keyword">new</span> A(<span class="string">&quot;a2&quot;</span>, <span class="number">3</span>);</span><br><span class="line">    A a3 = <span class="keyword">new</span> A(<span class="string">&quot;a3&quot;</span>, <span class="number">2</span>);</span><br><span class="line"></span><br><span class="line">    List&lt;A&gt; list = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">    list.add(a1);</span><br><span class="line">    list.add(a2);</span><br><span class="line">    list.add(a3);</span><br><span class="line">    System.out.println(list);</span><br><span class="line">    Collections.sort(list);</span><br><span class="line">    System.out.println(list);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输出：</span><br><span class="line"><span class="keyword">before</span> sort: [A&#123;<span class="type">name</span>=<span class="string">&#x27;a1&#x27;</span>&#125;, A&#123;<span class="type">name</span>=<span class="string">&#x27;a2&#x27;</span>&#125;, A&#123;<span class="type">name</span>=<span class="string">&#x27;a3&#x27;</span>&#125;]</span><br><span class="line"><span class="keyword">after</span> sort: [A&#123;<span class="type">name</span>=<span class="string">&#x27;a1&#x27;</span>&#125;, A&#123;<span class="type">name</span>=<span class="string">&#x27;a3&#x27;</span>&#125;, A&#123;<span class="type">name</span>=<span class="string">&#x27;a2&#x27;</span>&#125;]</span><br></pre></td></tr></table></figure>
+
+
+
+<p>再看一个复杂一点的例子，对一个 nx2 的数组按<strong>第一个值相等升序排序，若第一个值相等，第二个值倒序排序</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span>[][] array = <span class="keyword">new</span> <span class="keyword">int</span>[][]&#123;</span><br><span class="line">            &#123;<span class="number">5</span>,<span class="number">4</span>&#125;,</span><br><span class="line">            &#123;<span class="number">6</span>,<span class="number">4</span>&#125;,</span><br><span class="line">            &#123;<span class="number">6</span>,<span class="number">7</span>&#125;,</span><br><span class="line">            &#123;<span class="number">2</span>,<span class="number">3</span>&#125;</span><br><span class="line">    &#125;;</span><br><span class="line">    System.out.println(<span class="string">&quot;before sort: &quot;</span>);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span>[] ints : array) &#123;</span><br><span class="line">        System.out.println(Arrays.toString(ints));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// （这里使用 Lambda 表达式， o1、o2 是一个一维数组）</span></span><br><span class="line">    <span class="comment">// 第一个值相等时，第二个值倒序排序；否则第一个值升序排序</span></span><br><span class="line">    Arrays.sort(array, (o1, o2)-&gt; o1[<span class="number">0</span>] == o2[<span class="number">0</span>] ? o2[<span class="number">1</span>] - o1[<span class="number">1</span>] : o1[<span class="number">0</span>] - o2[<span class="number">0</span>]);</span><br><span class="line"></span><br><span class="line">    System.out.println(<span class="string">&quot;\nafter sort: &quot;</span>);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span>[] ints : array) &#123;</span><br><span class="line">        System.out.println(Arrays.toString(ints));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">before sort:</span> </span><br><span class="line">[<span class="number">5</span>, <span class="number">4</span>]</span><br><span class="line">[<span class="number">6</span>, <span class="number">4</span>]</span><br><span class="line">[<span class="number">6</span>, <span class="number">7</span>]</span><br><span class="line">[<span class="number">2</span>, <span class="number">3</span>]</span><br><span class="line"></span><br><span class="line"><span class="attr">after sort:</span> </span><br><span class="line">[<span class="number">2</span>, <span class="number">3</span>]</span><br><span class="line">[<span class="number">5</span>, <span class="number">4</span>]</span><br><span class="line">[<span class="number">6</span>, <span class="number">7</span>]     </span><br><span class="line">[<span class="number">6</span>, <span class="number">4</span>]</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/03/23/Java/%E9%9B%86%E5%90%88%E6%BA%90%E7%A0%81/HashSet%E5%92%8CLinkedHashSet-JDK1.8/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1562,128 +1680,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/03/16/Java/%E5%9F%BA%E7%A1%80/equals%E5%92%8ChashCode/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="bxxiao">
-      <meta itemprop="description" content="nothing">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="bxxiao">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/03/16/Java/%E5%9F%BA%E7%A1%80/equals%E5%92%8ChashCode/" class="post-title-link" itemprop="url">总结 equals 和 hashCode</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-03-16 11:26:05" itemprop="dateCreated datePublished" datetime="2021-03-16T11:26:05+08:00">2021-03-16</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-03-20 20:06:15" itemprop="dateModified" datetime="2021-03-20T20:06:15+08:00">2021-03-20</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
-                </span>
-                  ，
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Java/%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index"><span itemprop="name">基础</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>这篇文章主要是总结自： <a target="_blank" rel="noopener" href="https://www.cnblogs.com/skywang12345/p/3324958.html">Java hashCode() 和 equals()的若干问题解答</a>  </p>
-<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p><code>hashCode()</code> 的作用是<strong>获取哈希码</strong>，也称为散列码；它实际上是返回一个 int 整数。这个<strong>哈希码的作用</strong>是确定该对象在哈希表中的索引位置。</p>
-<blockquote>
-<p><code>hashCode()</code> 的默认行为是对堆上的对象产生独特值。如果没有重写 <code>hashCode()</code> ，则一个 class 的两个对象无论如何都不会相等（即使这两个对象指向相同的数据）</p>
-</blockquote>
-<p>&emsp;&emsp;</p>
-<p><strong>该方法主要是为了支持如 HashSet 、 HashMap 等基于哈希表实现的集合</strong>。</p>
-<p> 也就是说：<strong>hashCode() 在散列表中才有用，在其它情况下没用。</strong>在散列表中 hashCode() 的作用是获取对象的散列码，进而确定该对象在散列表中的位置。</p>
-<p>讨论 equals() 和 hashCode() 的关系应该分两种情况进行：</p>
-<h2 id="不会创建“类对应的散列表”"><a href="#不会创建“类对应的散列表”" class="headerlink" title="不会创建“类对应的散列表”"></a>不会创建“类对应的散列表”</h2><p><strong>第一种是不会在 HashSet, Hashtable, HashMap 等基于哈希表实现的数据结构中用到该类</strong>，<strong style="color:red">这种情况下 equals() 和 hashCode() 没有关系，如果要比较对象，只需使用 equals() 来进行比较，而并不需要用到 hashCode() </strong>，**所以重写 equals() 时不需要重写 hashCode()**。</p>
-<p>比如只是要比较两个 Person 对象的 name 是否相同，但没有要将其放到 HashSet 等集合，只需重写 equals() 即可，如：</p>
-<p>（来自参考链接）</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">equals</span><span class="params">(Object obj)</span></span>&#123;  </span><br><span class="line">    <span class="keyword">if</span>(obj == <span class="keyword">null</span>)&#123;  </span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;  </span><br><span class="line">    &#125;  </span><br><span class="line"></span><br><span class="line">    <span class="comment">//如果是同一个对象返回true，反之返回false  </span></span><br><span class="line">    <span class="keyword">if</span>(<span class="keyword">this</span> == obj)&#123;  </span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;  </span><br><span class="line">    &#125;  </span><br><span class="line"></span><br><span class="line">    <span class="comment">//判断是否类型相同  </span></span><br><span class="line">    <span class="keyword">if</span>(<span class="keyword">this</span>.getClass() != obj.getClass())&#123;  </span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;  </span><br><span class="line">    &#125;  </span><br><span class="line"></span><br><span class="line">    Person person = (Person)obj;  </span><br><span class="line">    <span class="keyword">return</span> name.equals(person.name);  </span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;</p>
-<h2 id="会创建“类对应的散列表”"><a href="#会创建“类对应的散列表”" class="headerlink" title="会创建“类对应的散列表”"></a>会创建“类对应的散列表”</h2><p><strong>第二种情况则是会在 HashSet, Hashtable, HashMap 等基于哈希表实现的数据结构中用到该类</strong>。</p>
-<p>这时需要注意两者的关系：</p>
-<ul>
-<li><p><strong>若是两个对象使用 equals() 比较返回 true，那么使用 hashCode() 应该返回相同的哈希值。否则会出现 “ 两个对象是相同的(equals 返回 true)，但却可以放进同一个哈希表 ”  的情况</strong>。</p>
-<blockquote>
-<p>hashCode() 的 javaDoc ：If two objects are equal according to the equals(Object) method, then calling the hashCode method on each of the two objects must produce the same integer result.</p>
-</blockquote>
-</li>
-<li><p><strong style="color:red">但如果使用 equals() 比较返回 false ，并不要求 hashCode() 返回不同的值</strong>。因为在哈希表中，即使两个哈希值相同（两个 key 相同），它们的值不一定相同（value 不一定相同），这种情况即哈希碰撞。</p>
-<blockquote>
-<p>hashCode() 的 javaDoc ：It is not required that if two objects are unequal according to the equals(Object) method, then calling the hashCode method on each of the two objects must produce distinct integer results</p>
-</blockquote>
-<p>一个要注意的点是：<strong>在 HashSet 、 HashMap 等基于哈希表的集合中，若是两个对象使用 equals() 比较返回 false，但 hashCode() 返回相同的值（即产生哈希碰撞时），还是会将两个对象都放进集合（这时会使用哈希碰撞解决方法，如拉链法，红黑树等）</strong>。</p>
-</li>
-</ul>
-<p>&emsp;&emsp;</p>
-<p><strong>所以若是要在哈希表实现的数据结构中使用到某个类，则需要重写这个类的 equals() 和 hashCode() ，并保证它们满足上述关系</strong>。</p>
-<p>示例：（来自参考链接）</p>
-<p>定义 Person 类：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> age;</span><br><span class="line">    String name;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Person</span><span class="params">(String name, <span class="keyword">int</span> age)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">        <span class="keyword">this</span>.age = age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> name + <span class="string">&quot; - &quot;</span> +age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">hashCode</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="comment">// 两个对象的 name 的大写相同且年龄相同时，返回相同的哈希值</span></span><br><span class="line">        <span class="keyword">int</span> nameHash =  name.toUpperCase().hashCode();</span><br><span class="line">        <span class="keyword">return</span> nameHash ^ age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">equals</span><span class="params">(Object obj)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(obj == <span class="keyword">null</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//如果是同一个对象返回true，反之返回false</span></span><br><span class="line">        <span class="keyword">if</span>(<span class="keyword">this</span> == obj)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//判断是否类型相同</span></span><br><span class="line">        <span class="keyword">if</span>(<span class="keyword">this</span>.getClass() != obj.getClass())&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// name 相同（区分大小写）且年龄相同返回 true </span></span><br><span class="line">        Person person = (Person)obj;</span><br><span class="line">        <span class="keyword">return</span> name.equals(person.name) &amp;&amp; age==person.age;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>测试：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 新建Person对象，</span></span><br><span class="line">    Person p1 = <span class="keyword">new</span> Person(<span class="string">&quot;eee&quot;</span>, <span class="number">100</span>);</span><br><span class="line">    Person p2 = <span class="keyword">new</span> Person(<span class="string">&quot;eee&quot;</span>, <span class="number">100</span>);</span><br><span class="line">    Person p3 = <span class="keyword">new</span> Person(<span class="string">&quot;aaa&quot;</span>, <span class="number">200</span>);</span><br><span class="line">    Person p4 = <span class="keyword">new</span> Person(<span class="string">&quot;EEE&quot;</span>, <span class="number">100</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 新建HashSet对象</span></span><br><span class="line">    HashSet set = <span class="keyword">new</span> HashSet();</span><br><span class="line">    set.add(p1);</span><br><span class="line">    set.add(p2);</span><br><span class="line">    set.add(p3);</span><br><span class="line">    set.add(p4);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 比较p1 和 p2， 并打印它们的hashCode()</span></span><br><span class="line">    System.out.printf(<span class="string">&quot;p1.equals(p2) : %s; p1(%d) p2(%d)\n&quot;</span>, </span><br><span class="line">                      p1.equals(p2), p1.hashCode(), p2.hashCode());</span><br><span class="line">    <span class="comment">// 比较p1 和 p4， 并打印它们的hashCode()</span></span><br><span class="line">    System.out.printf(<span class="string">&quot;p1.equals(p4) : %s; p1(%d) p4(%d)\n&quot;</span>, </span><br><span class="line">                      p1.equals(p4), p1.hashCode(), p4.hashCode());</span><br><span class="line">    <span class="comment">// p1.equals(p2) : true; p1(68545) p2(68545)</span></span><br><span class="line">	<span class="comment">// p1.equals(p4) : false; p1(68545) p4(68545)</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 打印set，可以看到 p1 p4 equals返回 false，但 hashcode 相同，所以都被放进集合</span></span><br><span class="line">    System.out.printf(<span class="string">&quot;set:%s\n&quot;</span>, set);</span><br><span class="line">    <span class="comment">// set:[eee - 100, EEE - 100, aaa - 200]</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>如果不重写 hashCode() ，那么 p1、p2 都可以被放进 set 。</p>
-<p>&emsp;&emsp;</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><blockquote>
-<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/skywang12345/p/3324958.html">Java hashCode() 和 equals()的若干问题解答</a> </p>
-<p><a target="_blank" rel="noopener" href="https://snailclimb.gitee.io/javaguide/#/docs/java/basis/Java%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86?id=_129-hashcode%e4%b8%8e-equals">hashCode() 与 equals()</a> </p>
-</blockquote>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1753,20 +1749,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">33</span>
+          <span class="site-state-item-count">34</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-count">11</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-count">10</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
