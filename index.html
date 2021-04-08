@@ -159,6 +159,240 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/04/08/Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/synchronized%20%E4%BC%98%E5%8C%96/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="bxxiao">
+      <meta itemprop="description" content="nothing">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bxxiao">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/04/08/Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/synchronized%20%E4%BC%98%E5%8C%96/" class="post-title-link" itemprop="url">synchronized 优化</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-04-08 14:15:43 / 修改时间：14:16:21" itemprop="dateCreated datePublished" datetime="2021-04-08T14:15:43+08:00">2021-04-08</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">多线程</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="对象头的Mark-Word"><a href="#对象头的Mark-Word" class="headerlink" title="对象头的Mark Word"></a>对象头的Mark Word</h2><p>HotSpot 虚拟机对象的对象头包含两部分。</p>
+<p><strong>第一部分是用于存储对象自身的运行时数据</strong>， 如哈希码(HashCode) 、GC分代年龄、锁状态标志、线程持有的锁、偏向线程ID、偏向时间戳等，这部分数据的长度在32位和64位的虚拟机（<strong>未开启压缩指针</strong>）中分别为32个比特和64个比特， 官方称它为“<strong>Mark Word</strong>”；</p>
+<p><strong>第二部分是类型指针</strong>，指向当前对象所属类的元数据。</p>
+<p>如果是数组对象的话, 对象头还有一部分是存储数组的长度。</p>
+<p>对象需要存储的运行时数据很多，考虑到虚拟机的空间效率， <strong>Mark Word被设计成一个有着动态定义的数据结构，以便根据对象的状态复用自己的存储空间</strong>。</p>
+<p>不同状态的数据结构如下：</p>
+<p>32位JVM的Mark Word不同状态下的结构：</p>
+<p><img src="https://gitee.com/bxgitee/noteImage/raw/master/image/image-20210215171435678.png" alt="image-20210215171435678"></p>
+<p>64位：</p>
+<p><img src="https://gitee.com/bxgitee/noteImage/raw/master/image/image-20210215171452314.png" alt="image-20210215171452314"></p>
+<p>当对象状态为偏向锁时，<code>Mark Word</code> 存储的是偏向的线程 ID ；</p>
+<p>当状态为轻量级锁时，<code>Mark Word</code> 存储的是指向线程栈中 <code>Lock Record</code> 的指针；</p>
+<p>当状态为重量级锁时，<code>Mark Word</code> 为指向堆中的 monitor 对象的指针。</p>
+<h2 id="锁优化概述"><a href="#锁优化概述" class="headerlink" title="锁优化概述"></a>锁优化概述</h2><p>Java 早期版本中，<code>synchronized</code> 属于 <strong>重量级锁</strong>，效率低下。<strong>因为监视器锁（monitor）是依赖于底层的操作系统的 <code>Mutex Lock</code> 来实现的，Java 的线程是映射到操作系统的原生线程之上的。如果要挂起或者唤醒一个线程，都需要操作系统帮忙完成，而操作系统实现线程之间的切换时需要从用户态转换到内核态，这个状态之间的转换需要较长的处理器时间，时间成本相对较高</strong>。</p>
+<p>Java 6 为了减少获得锁和释放锁带来的性能消耗，<strong>引入了“偏向锁”和“轻量级锁“</strong>。在Java 6 以前，所有的锁都是”重量级“锁。在 Java 6 及其以后，一<strong>个对象其实有四种锁状态，它们级别由低到高依次是</strong>：</p>
+<ol>
+<li>无锁状态。无锁就是没有对资源进行锁定，任何线程都可以尝试去修改它。</li>
+<li>偏向锁状态</li>
+<li>轻量级锁状态</li>
+<li>重量级锁状态</li>
+</ol>
+<blockquote>
+<p>一些文章说是锁可以升级, 但不能降级。在 <a target="_blank" rel="noopener" href="http://concurrent.redspider.group/article/02/9.html#922-%E5%81%8F%E5%90%91%E9%94%81">synchronized与锁</a> 中的观点是锁可以降级（Hotspot 支持锁降级）。</p>
+</blockquote>
+<p><strong>几种锁会随着竞争情况逐渐升级</strong>。</p>
+<blockquote>
+<p><strong>以下被 synchronized 上锁的对象称为 lockObj</strong> ，其关联的 monitor 对象则直接称为 monitor</p>
+</blockquote>
+<h2 id="偏向锁"><a href="#偏向锁" class="headerlink" title="偏向锁"></a>偏向锁</h2><p>大多数情况下<strong>锁不仅不存在多线程竞争，而且总是由同一线程多次获得</strong>，于是引入了偏向锁，<strong>即偏向锁适合一个线程的情况？</strong>。</p>
+<p>总的来说，偏向锁会偏向第一个访问锁的线程，当线程访问同步代码时，若发现 lockObj 的 Mark Word 中的线程 ID 是自己的，则直接执行同步代码，也就是说，<strong style="color:red">偏向锁在资源无竞争情况下消除了同步语句，省略了 CAS 操作直接执行同步代码，提高了程序的运行性能</strong>。</p>
+<h3 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h3><p>当线程第一次访问一个同步代码块时，会尝试将自己的线程 ID 设置在 lockObj 的 Mark Word 中和栈帧中的锁记录里，当再次访问该同步块时，会坚持 lockObj 的  Mark Word 中放的是不是自己的线程 ID 。</p>
+<p><strong>如果是，则表示获取到了锁，直接进入同步代码块，无需进行其他操作</strong>。</p>
+<p><strong>如果不是，会撤销偏向锁，升级为轻量级锁</strong>。</p>
+<blockquote>
+<p>而根据参考链接，以及网上大部分博客，都是写的这个时候会尝试使用 CAS 来替换 Mark Word 里面的线程 ID 为新线程的 ID，分两种情况：</p>
+<ul>
+<li>CAS 操作成功，表示另一个线程已经执行完并退出同步块。锁不会升级，仍然为偏向锁，只不过偏向了新的线程。</li>
+<li>CAS 操作失败，表示之前的线程仍然存在，<strong>暂停之前的线程，设置偏向锁标识为0，并设置锁标志位为00，升级为轻量级锁，随后两个线程按照轻量级锁的方式进行竞争</strong>。</li>
+</ul>
+</blockquote>
+<p>而通过实际例子进行验证，应该是第一种情况，即若是线程 id 不是当前线程的，升级为轻量级锁。</p>
+<p>验证示例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">test4</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Dog dog = <span class="keyword">new</span> Dog();</span><br><span class="line">    <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">        log.debug(ClassLayout.parseInstance(dog).toPrintable());</span><br><span class="line">        <span class="keyword">synchronized</span> (dog) &#123;</span><br><span class="line">            log.debug(ClassLayout.parseInstance(dog).toPrintable());</span><br><span class="line">        &#125;</span><br><span class="line">        log.debug(ClassLayout.parseInstance(dog).toPrintable());</span><br><span class="line">    &#125;, <span class="string">&quot;t1&quot;</span>).start();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Thread.sleep(<span class="number">2000</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        log.debug(ClassLayout.parseInstance(dog).toPrintable());</span><br><span class="line">        <span class="keyword">synchronized</span> (dog) &#123;</span><br><span class="line">            log.debug(ClassLayout.parseInstance(dog).toPrintable());</span><br><span class="line">        &#125;</span><br><span class="line">        log.debug(ClassLayout.parseInstance(dog).toPrintable());</span><br><span class="line">    &#125;, <span class="string">&quot;t2&quot;</span>).start();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>输出：(只保留部分对象头）</p>
+<figure class="highlight angelscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">13</span>:<span class="number">28</span>:<span class="number">36.480</span> c.TestBiased [t1] - lock.Dog object <span class="built_in">int</span>ernals:</span><br><span class="line"><span class="comment">// 00000101 表示为偏向锁</span></span><br><span class="line"><span class="number">05</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> (<span class="number">00000101</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span>)</span><br><span class="line"></span><br><span class="line"><span class="number">13</span>:<span class="number">28</span>:<span class="number">36.483</span> c.TestBiased [t1] - lock.Dog object <span class="built_in">int</span>ernals:</span><br><span class="line"><span class="number">05</span> <span class="number">88</span> <span class="number">7</span>d <span class="number">1</span>b (<span class="number">00000101</span> <span class="number">10001000</span> <span class="number">01111101</span> <span class="number">00011011</span>)</span><br><span class="line"></span><br><span class="line"><span class="number">13</span>:<span class="number">28</span>:<span class="number">36.483</span> c.TestBiased [t2] - lock.Dog object <span class="built_in">int</span>ernals:</span><br><span class="line"><span class="number">05</span> <span class="number">88</span> <span class="number">7</span>d <span class="number">1</span>b (<span class="number">00000101</span> <span class="number">10001000</span> <span class="number">01111101</span> <span class="number">00011011</span>)</span><br><span class="line">Space losses: <span class="number">0</span> bytes <span class="built_in">int</span>ernal + <span class="number">4</span> bytes <span class="keyword">external</span> = <span class="number">4</span> bytes total</span><br><span class="line"></span><br><span class="line"><span class="number">13</span>:<span class="number">28</span>:<span class="number">36.493</span> c.TestBiased [t1] - lock.Dog object <span class="built_in">int</span>ernals:</span><br><span class="line"><span class="number">05</span> <span class="number">88</span> <span class="number">7</span>d <span class="number">1</span>b (<span class="number">00000101</span> <span class="number">10001000</span> <span class="number">01111101</span> <span class="number">00011011</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// t2发现dog的对象头保留了其他线程的id，撤销偏向锁，升级为轻量级锁</span></span><br><span class="line"><span class="number">13</span>:<span class="number">28</span>:<span class="number">36.494</span> c.TestBiased [t2] - lock.Dog object <span class="built_in">int</span>ernals:</span><br><span class="line"><span class="number">60</span> ef ec <span class="number">1</span>b (<span class="number">01100000</span> <span class="number">11101111</span> <span class="number">11101100</span> <span class="number">00011011</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 释放轻量级锁，变为无锁状态</span></span><br><span class="line"><span class="number">13</span>:<span class="number">28</span>:<span class="number">36.494</span> c.TestBiased [t2] - lock.Dog object <span class="built_in">int</span>ernals:</span><br><span class="line"><span class="number">01</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> (<span class="number">00000001</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span>)</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h3 id="撤销偏向锁"><a href="#撤销偏向锁" class="headerlink" title="撤销偏向锁"></a>撤销偏向锁</h3><p>偏向锁使用了一种<strong>等到竞争出现才释放锁的机制</strong>，所以当其他线程尝试竞争偏向锁时， 持有偏向锁的线程才会释放锁。</p>
+<p><strong>偏向锁升级为轻量级锁所需的开销是比较大的</strong>，大概的过程如下：</p>
+<blockquote>
+<ol>
+<li>在一个安全点（在这个时间点上没有字节码正在执行）停止拥有锁的线程。</li>
+<li>遍历线程栈，如果存在锁记录的话，需要修复锁记录和Mark Word，使其变成无锁状态。</li>
+<li>唤醒被停止的线程，将当前锁升级成轻量级锁。</li>
+</ol>
+</blockquote>
+<p>所以，如果应用程序里所有的锁通常处于竞争状态，那么偏向锁就会是一种累赘</p>
+<p>，这时<strong>可以设置 JVM 参数关闭偏向锁</strong>：<code>-XX:UseBiasedLocking=false</code> 。</p>
+<p>另外要注意的是：若是调用了 Object 类的 <code>wait()</code>/<code>notify()</code> 方法，会直接升级为重量级锁。</p>
+<h3 id="偏向锁的延迟特性"><a href="#偏向锁的延迟特性" class="headerlink" title="偏向锁的延迟特性"></a>偏向锁的延迟特性</h3><p>**jdk6默认开启偏向锁，但默认情况下是延时开启的，也就是说，<font color="red">程序刚启动创建的对象是不会开启偏向锁的，几秒后后创建的对象才会开启偏向锁的</font>**。</p>
+<p>验证示例：（使用 jol 工具包打印对象头，使用 logback 打印日志信息，基于 jdk8，64 位 JVM，<strong>注意打印的字节是小端序</strong>）</p>
+<p>创建一个Dog类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Dog</span> </span>&#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>test1：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">test1</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Dog dog = <span class="keyword">new</span> Dog();</span><br><span class="line">    log.debug(ClassLayout.parseInstance(dog).toPrintable());</span><br><span class="line">    <span class="keyword">synchronized</span> (dog)&#123;</span><br><span class="line">        log.debug(ClassLayout.parseInstance(dog).toPrintable());</span><br><span class="line">    &#125;</span><br><span class="line">    log.debug(ClassLayout.parseInstance(dog).toPrintable());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>输出：</p>
+<img src="https://gitee.com/bxgitee/noteImage/raw/master/image/image-20210216133250351.png" alt="image-20210216133250351" style="zoom:80%;" />
+
+<ul>
+<li>对象刚创建时是normal状态（001）</li>
+<li>由于对象是程序刚启动时就创建，所以进入临界区时是轻量级锁状态（LightWeight locked，00），不是偏向锁状态。</li>
+<li>解锁后回复到normal状态。</li>
+</ul>
+<hr>
+<p>test2：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">test2</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Dog dog = <span class="keyword">new</span> Dog();</span><br><span class="line">    log.debug(ClassLayout.parseInstance(dog).toPrintable());</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        Thread.sleep(<span class="number">5000</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">synchronized</span> (dog)&#123;</span><br><span class="line">        log.debug(ClassLayout.parseInstance(dog).toPrintable());</span><br><span class="line">    &#125;</span><br><span class="line">    log.debug(ClassLayout.parseInstance(dog).toPrintable());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对象是刚启动时创建的，即使延迟5s后进入synchronized也是使用轻量级锁。输出结果与1同。</p>
+<hr>
+<p>test3：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">test3</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        Thread.sleep(<span class="number">5000</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    Dog dog = <span class="keyword">new</span> Dog();</span><br><span class="line">    log.debug(ClassLayout.parseInstance(dog).toPrintable());</span><br><span class="line">    <span class="keyword">synchronized</span> (dog)&#123;</span><br><span class="line">        log.debug(ClassLayout.parseInstance(dog).toPrintable());</span><br><span class="line">    &#125;</span><br><span class="line">    log.debug(ClassLayout.parseInstance(dog).toPrintable());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>输出：</p>
+<p><img src="https://gitee.com/bxgitee/noteImage/raw/master/image/image-20210216133827656.png" alt="image-20210216133827656"></p>
+<ul>
+<li>延迟5s后再创建dog对象，其初始时是Biased状态（101），只是没有记录线程id等信息。</li>
+<li>进入synchronized后，记录线程id等信息。</li>
+<li>退出synchronized后mark word仍不变。</li>
+</ul>
+<h3 id="批量重偏向"><a href="#批量重偏向" class="headerlink" title="批量重偏向"></a>批量重偏向</h3><p>如果对象虽然被多个线程访问，但没有竞争，这时偏向了线程 T1 的对象仍有机会重新偏向 T2，重偏向会重置对象 的 Thread ID<br>当撤销偏向锁阈值到达 20 次（默认次数）时（<strong>即第20次开始</strong>），<strong>jvm会在给<font color="red">之后的对象</font>加锁时重新使用偏向锁，而不是使用轻量级锁</strong>。</p>
+<p>示例见 <code>lock.TestBiased#test6</code> </p>
+<p>在t2的前19次（0-18），给对象加锁时都将偏向锁改为轻量级锁（<strong>即其他线程访问撤销偏向锁的情况</strong>），<strong>在第20次（19）及其之后的加锁中进行了重偏向（注意是加锁一个重偏向一个）</strong>，将Mark Word的线程id改为t2线程。</p>
+<p>重偏向的阈值是20次，<strong>而当到达40次时（即重偏向操作进行了20次），<font color="red">当前类的所有对象</font>都会变为不可偏向</strong>。</p>
+<p>demo见<code>lock.TestBiased.test7</code>。</p>
+<p>在t2的19-38进行了重偏向，在t3的第1次（0）已不可偏向，又使用了轻量级锁。t3之后创建的dog对象不可偏向，而cat对象可以。</p>
+<blockquote>
+<p><strong><font color="red">上述的撤销偏向锁，重偏向、批量撤销偏向锁都是只针对一个类而言</font></strong>。</p>
+</blockquote>
+<hr>
+<blockquote>
+<p>锁消除</p>
+<p>JIT编译器会对一些synchronized块进行优化，若加锁的对象不可能被共享（比如对局部变量加锁），那么JIT会将synchronized去掉，省去不必要的开销。</p>
+</blockquote>
+<h2 id="轻量级锁"><a href="#轻量级锁" class="headerlink" title="轻量级锁"></a>轻量级锁</h2><p><strong>多个线程在不同时段获取同一把锁，即不存在锁竞争的情况，也就没有线程阻塞</strong>。针对这种情况，JVM 采用轻量级锁来避免线程的阻塞与唤醒。</p>
+<h3 id="加锁"><a href="#加锁" class="headerlink" title="加锁"></a>加锁</h3><p>JVM 会为每个线程<strong>在当前线程的栈帧中创建用于存储锁记录（Lock Record）的空间</strong>，称为Displaced Mark Word。（当一个线程对一个锁多次重入时，会对应有多个锁记录）</p>
+<p>如果一个线程发现 lockObj 处于轻量级锁状态，则<strong>会先把锁（lockObj）的 Mark Word 复制到锁记录，然后尝试用 CAS 操作将 Mark Word 替换为锁记录地址</strong>，如果成功，表示获取到锁；如果失败，表示已有其他线程占有轻量级锁，<strong>当前线程用自旋尝试获取锁</strong>。</p>
+<p>若是自旋失败，<strong>则会升级为重量级锁，这时当前线程会将 lockObj 的 Mark Word 标志位置为 <code>10</code>，并设置 monitor 对象的地址，然后线程进入 monitor 的 EntryList 进行阻塞，等待竞争锁</strong>。</p>
+<p><strong>关于自旋</strong>：</p>
+<p>自旋是线程占用 CPU 并不断尝试获取锁，一般使用循环。<strong>若是持锁线程在自旋结束前释放了锁，那么当前线程就可以成功获取到锁，避免升级为重量级锁，减少开销</strong>。JVM 采用了适应性自旋——<strong>线程如果自旋成功了，则下次自旋的次数会更多，如果自旋失败了，则自旋的次数就会减少</strong>。</p>
+<ul>
+<li>自旋会占用 CPU 时间，单核 CPU 自旋就是浪费（即暂停持锁线程让当前线程自旋，显然必定是自旋失败的），多核 CPU 自旋才能发挥优势。 </li>
+<li><strong>在 Java 6 之后自旋锁是自适应的</strong>，比如对象刚刚的一次自旋操作成功过，那么认为这次自旋成功的可能性会 高，就多自旋几次；反之，就少自旋甚至不自旋。 </li>
+<li>Java 7 之后不能控制是否开启自旋功能（默认开启）</li>
+</ul>
+<h3 id="释放锁"><a href="#释放锁" class="headerlink" title="释放锁"></a>释放锁</h3><p>释放锁时，当前线程会将用 CAS 操作将锁记录中的内容换回 lockObj 的 Mark Word 中，若没有竞争，该过程会成功；<strong>若有其他线程自旋失败将锁升级为重量级锁，则操作失败，此时会释放锁并唤醒在 monitor 的 EntryList 中阻塞的线程</strong>。</p>
+<p>一张图说明加锁和释放锁的过程：（来自参考链接）</p>
+<p><img src="http://concurrent.redspider.group/article/02/imgs/%E8%BD%BB%E9%87%8F%E7%BA%A7%E9%94%81%E6%B5%81%E7%A8%8B%E5%9B%BE.png"></p>
+<h2 id="重量级锁"><a href="#重量级锁" class="headerlink" title="重量级锁"></a>重量级锁</h2><p>重量级锁也就是 monitor 锁，不再赘述。</p>
+<h2 id="总结锁的升级流程"><a href="#总结锁的升级流程" class="headerlink" title="总结锁的升级流程"></a>总结锁的升级流程</h2><p>（来自参考链接）</p>
+<p>每一个线程在准备获取共享资源时： 第一步，检查 MarkWord 里面是不是放的自己的 ThreadId ,如果是，表示当前线程是处于 “偏向锁” 。</p>
+<p>第二步，如果 Mark Word 不是自己的 ThreadId ，锁升级，这时候，用 CAS 来执行切换，新的线程根据 Mark Word 里面现有的 ThreadId，通知之前线程暂停，之前线程将 Mark Word 的内容置为空。</p>
+<p>第三步，两个线程都把锁对象的HashCode复制到自己新建的用于存储锁的记录空间，接着开始通过CAS操作， 把锁对象的MarKword的内容修改为自己新建的记录空间的地址的方式竞争MarkWord。</p>
+<p>第四步，第三步中成功执行CAS的获得资源，失败的则进入自旋 。</p>
+<p>第五步，自旋的线程在自旋过程中，成功获得资源(即之前获的资源的线程执行完成并释放了共享资源)，则整个状态依然处于 轻量级锁的状态，如果自旋失败 。</p>
+<p>第六步，进入重量级锁的状态，这个时候，自旋的线程进行阻塞，等待之前线程执行完成并唤醒自己。</p>
+<h2 id="各种锁的优缺点对比"><a href="#各种锁的优缺点对比" class="headerlink" title="各种锁的优缺点对比"></a>各种锁的优缺点对比</h2><p>来自《Java并发编程的艺术》：</p>
+<table>
+<thead>
+<tr>
+<th>锁</th>
+<th>优点</th>
+<th>缺点</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>偏向锁</td>
+<td><strong>加锁和解锁不需要额外的消耗</strong>，和执行非同步方法比仅存在纳秒级的差距。</td>
+<td><strong>如果线程间存在锁竞争，会带来额外的锁撤销的消耗</strong>。</td>
+<td><strong>适用于只有一个线程访问同步块场景</strong>。</td>
+</tr>
+<tr>
+<td>轻量级锁</td>
+<td><strong>竞争的线程不会阻塞</strong>，提高了程序的响应速度。</td>
+<td><strong>如果始终得不到锁竞争的线程使用自旋会消耗CPU</strong>。</td>
+<td><strong>追求响应时间。同步块执行速度非常快</strong>。</td>
+</tr>
+<tr>
+<td>重量级锁</td>
+<td>线程竞争不使用自旋，不会消耗CPU。</td>
+<td><strong>线程阻塞，响应时间缓慢</strong>。</td>
+<td><strong>追求吞吐量。同步块执行时间较长</strong>。</td>
+</tr>
+</tbody></table>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><blockquote>
+<p> <a target="_blank" rel="noopener" href="http://concurrent.redspider.group/article/02/9.html#922-%E5%81%8F%E5%90%91%E9%94%81">synchronized与锁</a> </p>
+</blockquote>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/03/29/Java/%E5%85%B6%E4%BB%96/Comparable%E5%92%8CComparator%E7%94%A8%E6%B3%95%E5%B0%8F%E7%BB%93/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -184,7 +418,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2021-03-29 11:01:14 / 修改时间：11:04:15" itemprop="dateCreated datePublished" datetime="2021-03-29T11:01:14+08:00">2021-03-29</time>
+              <time title="创建时间：2021-03-29 11:01:14 / 修改时间：11:09:59" itemprop="dateCreated datePublished" datetime="2021-03-29T11:01:14+08:00">2021-03-29</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -223,7 +457,7 @@
 <ul>
 <li>返回 0 ，表示两个值相等。</li>
 <li><strong style="color:red">返回 负数，表示 o1 会排在 o2 前面。即若是返回负数，o1、o2 位置不变</strong>。</li>
-<li><strong style="color:red">返回 正数，表示 o1 会排在 o2 后面。即若是返回整数，o1、o2 位置交换</strong>。</li>
+<li><strong style="color:red">返回 正数，表示 o1 会排在 o2 后面。即若是返回正数，o1、o2 位置交换</strong>。</li>
 </ul>
 <p>根据这 3 个点，在定义比较规则时，从 “<strong>返回负数表示两个值位置不变</strong>” 这个点入手：</p>
 <ul>
@@ -1490,196 +1724,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/03/16/Java/%E5%9F%BA%E7%A1%80/%E5%8C%85%E8%A3%85%E7%B1%BB%E6%80%BB%E7%BB%93/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="bxxiao">
-      <meta itemprop="description" content="nothing">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="bxxiao">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/03/16/Java/%E5%9F%BA%E7%A1%80/%E5%8C%85%E8%A3%85%E7%B1%BB%E6%80%BB%E7%BB%93/" class="post-title-link" itemprop="url">包装类总结</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-03-16 16:37:06" itemprop="dateCreated datePublished" datetime="2021-03-16T16:37:06+08:00">2021-03-16</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-03-20 14:05:44" itemprop="dateModified" datetime="2021-03-20T14:05:44+08:00">2021-03-20</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
-                </span>
-                  ，
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Java/%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index"><span itemprop="name">基础</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="基本数据类型"><a href="#基本数据类型" class="headerlink" title="基本数据类型"></a>基本数据类型</h2><p>Java<strong>中</strong>有 8 种基本数据类型，分别为：</p>
-<ul>
-<li>6 种数字类型 ：byte、short、int、long、float、double</li>
-<li>1 种字符类型：char</li>
-<li>1 种布尔型：boolean。</li>
-</ul>
-<p>它们占的字节大小：</p>
-<table>
-<thead>
-<tr>
-<th>基本类型</th>
-<th>字节</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>int</td>
-<td>4</td>
-</tr>
-<tr>
-<td>short</td>
-<td>2</td>
-</tr>
-<tr>
-<td>long</td>
-<td>8</td>
-</tr>
-<tr>
-<td>byte</td>
-<td>1</td>
-</tr>
-<tr>
-<td>char</td>
-<td>2</td>
-</tr>
-<tr>
-<td>float</td>
-<td>4</td>
-</tr>
-<tr>
-<td>double</td>
-<td>8</td>
-</tr>
-<tr>
-<td>boolean</td>
-<td></td>
-</tr>
-</tbody></table>
-<p><strong>对于 boolean，官方文档未明确定义，它依赖于 JVM 厂商的具体实现。逻辑上理解是占用 1 位，但是实际中会考虑计算机高效存储因素</strong>。</p>
-<p>&emsp;&emsp;</p>
-<h2 id="包装类"><a href="#包装类" class="headerlink" title="包装类"></a>包装类</h2><p>八种基本类型都有对应的包装类分别为：<strong>Byte、Short、Integer、Long、Float、Double、Character、Boolean</strong>。</p>
-<h3 id="为什么要有包装类"><a href="#为什么要有包装类" class="headerlink" title="为什么要有包装类"></a>为什么要有包装类</h3><p>Java 是号称面向对象的语言，所有的类型都是引用类型。但是基本类型如 int 等不是引用类型，也不是继承自 Object，<strong>所以 Java 需要一个这样的包装类来使其具有对象的特性： 比如可以赋值为 null；且Java 集合中也只能放入包装类型，而不支持基本类型；可以创建一些特定的方法等</strong>。</p>
-<p>&emsp;&emsp;</p>
-<h3 id="自动装箱-自动拆箱及其原理"><a href="#自动装箱-自动拆箱及其原理" class="headerlink" title="自动装箱/自动拆箱及其原理"></a>自动装箱/自动拆箱及其原理</h3><ul>
-<li><strong>装箱</strong>：将基本类型用它们对应的引用类型包装起来（转换为对应的包装类）；</li>
-<li><strong>拆箱</strong>：将包装类型转换为基本数据类型；</li>
-</ul>
-<p>自动装箱/自动拆箱是如何实现的？</p>
-<p>编写代码：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        Integer a = <span class="number">2</span>;<span class="comment">// 装箱</span></span><br><span class="line">        <span class="keyword">int</span> b = a;<span class="comment">// 拆箱</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>执行 <code>javap -verbose</code> 指令，查看 main 方法的反编译字节码：</p>
-<figure class="highlight angelscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> static <span class="built_in">void</span> main(java.lang.String[]);</span><br><span class="line">   descriptor: ([Ljava/lang/String;)V</span><br><span class="line">   flags: ACC_PUBLIC, ACC_STATIC</span><br><span class="line">   Code:</span><br><span class="line">     stack=<span class="number">1</span>, locals=<span class="number">3</span>, args_size=<span class="number">1</span></span><br><span class="line">        <span class="number">0</span>: iconst_2</span><br><span class="line">        <span class="number">1</span>: invokestatic  #<span class="number">2</span>   <span class="comment">// Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;</span></span><br><span class="line">        <span class="number">4</span>: astore_1</span><br><span class="line">        <span class="number">5</span>: aload_1</span><br><span class="line">        <span class="number">6</span>: invokevirtual #<span class="number">3</span>   <span class="comment">// Method java/lang/Integer.intValue:()I</span></span><br><span class="line">        <span class="number">9</span>: istore_2</span><br><span class="line">       <span class="number">10</span>: <span class="keyword">return</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><strong style="color:red">可以看到，自动装箱实际上是调用对应包装类的 <code>static valueOf()</code> 方法；而对于自动拆箱，调用的是包装类对象的 <code>xxxValue()</code> ，其中，xxx代表对应的基本数据类型</strong>。 </p>
-<p>&emsp;&emsp;</p>
-<p>Integer 中的这两个方法：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> value;</span><br><span class="line"><span class="comment">//...</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">intValue</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> value;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Integer <span class="title">valueOf</span><span class="params">(<span class="keyword">int</span> i)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (i &gt;= IntegerCache.low &amp;&amp; i &lt;= IntegerCache.high)</span><br><span class="line">        <span class="keyword">return</span> IntegerCache.cache[i + (-IntegerCache.low)];</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> Integer(i);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;</p>
-<h3 id="缓存"><a href="#缓存" class="headerlink" title="缓存"></a>缓存</h3><p><strong>Java 基本类型的包装类的大部分都实现了常量池技术，即 Byte,Short,Integer,Long,Character,Boolean 中，<font color="red">前面 4 种包装类默认创建了数值 [-128，127] 的相应类型的缓存数据，Character 创建了数值在 [0,127] 范围的缓存数据，Boolean 直接返回 True Or False</font>。如果超出对应范围仍然会去创建新的对象</strong>。 </p>
-<p><strong style="color:red">对以上包装类调用 <code>valueOf()</code> 方法会首先尝试从 cache 中获取值，若不能命中，则使用 new 创建对象</strong> 。</p>
-<p>如上面所示 Integer 的 <code>valueOf()</code> 方法中的：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (i &gt;= IntegerCache.low &amp;&amp; i &lt;= IntegerCache.high)</span><br><span class="line">        <span class="keyword">return</span> IntegerCache.cache[i + (-IntegerCache.low)];</span><br></pre></td></tr></table></figure>
-
-<p>其中 cache 的定义为：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> Integer cache[];</span><br></pre></td></tr></table></figure>
-
-<p>其在 static 静态块中被初始化（摘取部分代码）：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cache = <span class="keyword">new</span> Integer[(high - low) + <span class="number">1</span>];</span><br><span class="line"><span class="keyword">int</span> j = low;<span class="comment">// low 为 -128</span></span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> k = <span class="number">0</span>; k &lt; cache.length; k++)</span><br><span class="line">    cache[k] = <span class="keyword">new</span> Integer(j++);</span><br></pre></td></tr></table></figure>
-
-<p>对于 Byte,Short,Long,Character 类似。</p>
-<p><strong>对于 Double、Float 的 <code>valueOf()</code> 则是直接使用 new 创建对象返回</strong>。</p>
-<p>&emsp;&emsp;</p>
-<p>一个例子:</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">Integer i1 = <span class="number">40</span>;</span><br><span class="line">Integer i2 = <span class="number">40</span>;</span><br><span class="line">Integer i3 = <span class="number">0</span>;</span><br><span class="line">Integer i4 = <span class="keyword">new</span> Integer(<span class="number">40</span>);</span><br><span class="line">Integer i5 = <span class="keyword">new</span> Integer(<span class="number">40</span>);</span><br><span class="line">Integer i6 = <span class="keyword">new</span> Integer(<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">System.out.println(<span class="string">&quot;i1=i2   &quot;</span> + (i1 == i2)); <span class="comment">//true</span></span><br><span class="line">System.out.println(<span class="string">&quot;i1=i2+i3   &quot;</span> + (i1 == i2 + i3)); <span class="comment">//true</span></span><br><span class="line">System.out.println(<span class="string">&quot;i1=i4   &quot;</span> + (i1 == i4)); <span class="comment">//false</span></span><br><span class="line">System.out.println(<span class="string">&quot;i4=i5   &quot;</span> + (i4 == i5)); <span class="comment">//false</span></span><br><span class="line">System.out.println(<span class="string">&quot;i4=i5+i6   &quot;</span> + (i4 == i5 + i6)); <span class="comment">//true   </span></span><br><span class="line">System.out.println(<span class="string">&quot;40=i5+i6   &quot;</span> + (<span class="number">40</span> == i5 + i6)); <span class="comment">//true</span></span><br><span class="line"></span><br><span class="line">Double d1 = <span class="number">1.2</span>;</span><br><span class="line">Double d2 = <span class="number">1.2</span>;</span><br><span class="line">System.out.println(d1 == d2);<span class="comment">// false</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;</p>
-<p><strong style="color:red">使用 <code>==</code> 比较时要注意的点</strong>：</p>
-<ul>
-<li><strong>当 “==”运算符的两个操作数都是包装器类型的引用，则是比较指向的是否是同一个对象</strong>；</li>
-<li>如果其中有一个操作数是表达式（<strong>即包含算术运算</strong>）或有一边是基本类型，则比较的是数值（<strong>即会触发自动拆箱的过程</strong>）。<strong>例如对于 i4 == i5 + i6，首先 i5 和 i6 进行自动拆箱操作，进行数值相加，即 i4 == 40，再将 i4 拆箱，即 <code>40==40</code> </strong>。</li>
-</ul>
-<p>&emsp;&emsp;</p>
-<h3 id="equals-方法"><a href="#equals-方法" class="headerlink" title="equals() 方法"></a>equals() 方法</h3><p>所有包装类（<strong>注意是所有</strong>）的 <code>equals()</code> 方法在进行比较时，<strong>都是先判断参数值是不是当前包装类类型</strong>，</p>
-<ul>
-<li><strong>若不是直接返回 false</strong>。</li>
-<li><strong>若是，则比较两者中封装的 value 成员变量值是否相等</strong>。</li>
-</ul>
-<p>例如对于 Integer：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">equals</span><span class="params">(Object obj)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (obj <span class="keyword">instanceof</span> Integer) &#123;</span><br><span class="line">        <span class="keyword">return</span> value == ((Integer)obj).intValue();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;</p>
-<p>示例：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    Long g = <span class="number">3L</span>;</span><br><span class="line">    Integer i = <span class="number">3</span>;</span><br><span class="line"></span><br><span class="line">    System.out.println(g.equals(i));<span class="comment">// false ，g 和 i 的类型不同</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><strong style="color:red">若是 equlas 传入的参数是基本类型，则会转换为对应的包装类</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    Long g = <span class="number">3L</span>;</span><br><span class="line">    Integer a = <span class="number">1</span>;</span><br><span class="line">    Integer b = <span class="number">2</span>;</span><br><span class="line"></span><br><span class="line">    System.out.println(g.equals(a+b));<span class="comment">// false</span></span><br><span class="line">    System.out.println(g.equals(<span class="number">3</span>));<span class="comment">// false</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><blockquote>
-<p><a target="_blank" rel="noopener" href="https://snailclimb.gitee.io/javaguide/#/docs/java/basis/Java%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86?id=_13-%e5%9f%ba%e6%9c%ac%e6%95%b0%e6%8d%ae%e7%b1%bb%e5%9e%8b">javaGuide</a> </p>
-<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/dolphin0520/p/3780005.html">深入剖析Java中的装箱和拆箱</a> </p>
-</blockquote>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1749,7 +1793,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">34</span>
+          <span class="site-state-item-count">35</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
