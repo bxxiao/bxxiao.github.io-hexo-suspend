@@ -159,6 +159,189 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/03/20/MySQL/%E4%BA%8B%E5%8A%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="bxxiao">
+      <meta itemprop="description" content="nothing">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bxxiao">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/03/20/MySQL/%E4%BA%8B%E5%8A%A1/" class="post-title-link" itemprop="url">事务</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-03-20 20:55:23 / 修改时间：20:59:41" itemprop="dateCreated datePublished" datetime="2021-03-20T20:55:23+08:00">2021-03-20</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/MySQL/" itemprop="url" rel="index"><span itemprop="name">MySQL</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>（以下部分内容摘抄自<a href="https://snailclimb.gitee.io/javaguide/#/docs/database/MySQL" target="_blank">javaGuide博客文档</a>）</p>
+<h3 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h3><p>​        <strong>事务是逻辑上的一组操作，即一个或多个SQL语句，要么都执行，要么都不执行</strong>。<strong>如果单元中某条SQL语句一旦执行失败或产生错误，整个单元将会回滚</strong>。所有受到影响的数据将返回到事物开始以前的状态；如果单元中的所有SQL语句均执行成功， 则事物被顺利执行。</p>
+<p>​        事务最经典也经常被拿出来说例子就是转账了。假如小明要给小红转账1000元，这个转账会涉及到两个关键操作就是：将小明的余额减少1000元，将小红的余额增加1000元。万一在这两个操作之间突然出现错误比如银行系统崩溃，导致小明余额减少而小红的余额没有增加，这样就不对了。事务就是保证这两个关键操作要么都成功，要么都要失败。</p>
+<h3 id="事物的四大特性-ACID"><a href="#事物的四大特性-ACID" class="headerlink" title="事物的四大特性(ACID)"></a>事物的四大特性(ACID)</h3><p><img src="https://gitee.com/bxgitee/noteImage/raw/master/image/20200716162156.png"></p>
+<ol>
+<li><p><strong>原子性（Atomicity）：</strong> 事务是最小的执行单位，不允许分割。事务的原子性确保动作要么全部完成，要么完全不起作用；</p>
+</li>
+<li><p><strong>一致性（Consistency）：</strong> 执行事务前后，数据保持一致，多个事务对同一个数据读取的结果是相同的；</p>
+<ul>
+<li><p><strong>ACID里的AID都是数据库的特征,也就是依赖数据库的具体实现.而唯独这个C,实际上它依赖于应用层,也就是依赖于开发者.这里的一致性是指<font color="red">系统从一个正确的状态,迁移到另一个正确的状态</font>.什么叫正确的状态呢?就是当前的状态满足预定的约束就叫做正确的状态.而事务具备ACID里C的特性是说通过事务的AID来保证我们的一致性</strong>。</p>
+<p>（来自<a target="_blank" rel="noopener" href="https://www.zhihu.com/question/31346392/answer/362597203">https://www.zhihu.com/question/31346392/answer/362597203</a> 作者：孟波）</p>
+</li>
+</ul>
+</li>
+<li><p><strong>隔离性（Isolation）：</strong> 并发访问数据库时，<strong>一个用户的事务不被其他事务所干扰</strong>，各并发事务之间是独立的；</p>
+</li>
+<li><p><strong>持久性（Durability）：</strong> 一个事务被提交之后。它对数据库中数据的改变是持久的，即使数据库发生故障也不应该对其有任何影响。</p>
+</li>
+</ol>
+<h3 id="事务的创建"><a href="#事务的创建" class="headerlink" title="事务的创建"></a>事务的创建</h3><p>​        事务可分为隐式事务和显式事务。隐式事务如DML语言（insert、update、delete），每一个语句都是一个事务；而显式事务通过sql语句开启事务跟关闭事务，一个事务可有多条语句。</p>
+<p>​        <strong>msyql默认关闭事务，通过<code>SHOW VARIABLES LIKE &#39;%autocommit%&#39;;</code>命令可看到``autocommit=ON`，即自动提交默认开启。创建事务前需关闭自动提交</strong>。<strong><span style="color:red;">事务中不能包括DDL语句</span></strong>。</p>
+<p>显示事务的创建：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--1.开启事务</span></span><br><span class="line"><span class="keyword">SET</span> autocommit=<span class="number">0</span>;</span><br><span class="line"><span class="keyword">START</span> TRASACTION; <span class="comment">#可选</span></span><br><span class="line"><span class="comment">--编写事务语句</span></span><br><span class="line">语句1</span><br><span class="line">语句2</span><br><span class="line">...</span><br><span class="line"><span class="comment">--结束事务</span></span><br><span class="line"><span class="keyword">COMMIT</span>;</span><br><span class="line"><span class="comment">#或者</span></span><br><span class="line"><span class="keyword">ROLLBACK</span>;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>一个转账的例子：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#先建表</span></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="keyword">account</span>(</span><br><span class="line">	username <span class="built_in">VARCHAR</span>(<span class="number">10</span>),</span><br><span class="line">	money <span class="keyword">DOUBLE</span></span><br><span class="line">);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="keyword">account</span> <span class="keyword">VALUES</span>(<span class="string">&#x27;zhangsan&#x27;</span>, <span class="number">1000</span>),(<span class="string">&#x27;xiaoming&#x27;</span>, <span class="number">1000</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">#转账例子</span></span><br><span class="line"><span class="comment">#开启事务（关闭事务自动提交）</span></span><br><span class="line"><span class="keyword">SET</span> autocommit=<span class="number">0</span>;</span><br><span class="line"><span class="keyword">START</span> <span class="keyword">TRANSACTION</span>;</span><br><span class="line"><span class="comment">#事务语句</span></span><br><span class="line"><span class="keyword">UPDATE</span> <span class="keyword">account</span> <span class="keyword">SET</span> money=<span class="number">500</span> <span class="keyword">WHERE</span> username=<span class="string">&#x27;zhangsan&#x27;</span>;</span><br><span class="line"><span class="keyword">UPDATE</span> <span class="keyword">account</span> <span class="keyword">SET</span> money=<span class="number">1500</span> <span class="keyword">WHERE</span> username=<span class="string">&#x27;xiaoming&#x27;</span>;</span><br><span class="line"><span class="comment">#提交事务</span></span><br><span class="line"><span class="keyword">COMMIT</span>;</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="回滚点SAVEPOINT"><a href="#回滚点SAVEPOINT" class="headerlink" title="回滚点SAVEPOINT"></a>回滚点SAVEPOINT</h4><p>​        回滚点跟<code>ROLLBACK</code>搭配使用，其作用是设置一个保存点，当执行<code>ROLLBACK</code>时回滚到保存点。</p>
+<p>eg：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SET</span> autocommit=<span class="number">0</span>;</span><br><span class="line"><span class="keyword">START</span> <span class="keyword">TRANSACTION</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">DELETE</span> <span class="keyword">FROM</span> <span class="keyword">account</span> <span class="keyword">WHERE</span> <span class="keyword">id</span>=<span class="number">2</span>;</span><br><span class="line"><span class="keyword">SAVEPOINT</span> a;</span><br><span class="line"><span class="keyword">DELETE</span> <span class="keyword">FROM</span> <span class="keyword">account</span> <span class="keyword">WHERE</span> <span class="keyword">id</span>=<span class="number">3</span>;</span><br><span class="line"><span class="keyword">ROLLBACK</span> <span class="keyword">TO</span> a;</span><br></pre></td></tr></table></figure>
+
+<p>执行以上语句后查询account表，可发现只删除了id为2的记录。</p>
+<h3 id="事务并发问题"><a href="#事务并发问题" class="headerlink" title="事务并发问题"></a>事务并发问题</h3><p>​        在典型的应用程序中，多个事务并发运行，经常会操作相同的数据来完成各自的任务（<strong>多个用户对同一数据进行操作</strong>）。并发虽然是必须的，但可能会导致以下的问题。</p>
+<ul>
+<li><p><strong>脏读（Dirty read）:</strong> <strong>当一个事务正在访问数据并且对数据进行了修改，而这种修改还没有提交到数据库中，这时另外一个事务也访问了这个数据，然后使用了这个数据。因为这个数据是还没有提交的数据，那么另外一个事务读到的这个数据是“脏数据”，依据“脏数据”所做的操作可能是不正确的</strong>，比如可能出现错误而回滚事务，导致修改后的数据没有存入数据库。</p>
+</li>
+<li><p><strong>丢失修改（Lost to modify）:</strong> <strong>指在一个事务读取一个数据时，另外一个事务也访问了该数据，那么在第一个事务中修改了这个数据后，第二个事务也修改了这个数据。这样第一个事务内的修改结果就被丢失，因此称为丢失修改</strong>。 例如：</p>
+<ul>
+<li><p>事务1读取某表中的数据A=20，事务2也读取A=20，事务1修改A=A-1，事务2也修改A=A-1，最终结果A=19，事务1的修改被丢失。（<strong>即结果应该是A=18，但因为事务2的修改覆盖了事务1的修改，使事务1丢失</strong>）</p>
+</li>
+<li><p>考虑飞机订票系统中的一个活动序列: </p>
+<ol>
+<li>甲售票点（甲事务）读出某航班的机票余额A,设A=16. </li>
+<li>乙售票点（乙事务）读出同一航班的机票余额A,也为16. </li>
+<li>甲售票点卖出一张机票,修改余额A←A-1.所以A为15,把A写回数据库. </li>
+<li>乙售票点也卖出一张机票,修改余额A←A-1.所以A为15,把A写回数据库. </li>
+</ol>
+<p><strong><span style="color:red">结果明明卖出两张机票，数据库中机票余额只减少1</span></strong>。 </p>
+</li>
+</ul>
+</li>
+<li><p><strong>不可重复读（Unrepeatableread）:</strong> <strong>指在一个事务内多次读同一数据。在这个事务还没有结束时，另一个事务也访问该数据。那么，在第一个事务中的两次读数据之间，由于第二个事务的修改导致第一个事务两次读取的结果可能不一样。这就发生了在一个事务内两次读到的数据是不一样的情况，因此称为不可重复读</strong>。（事务1读数据的过程中，事务2把数据给改了，导致事务1两次读的数据不同）</p>
+</li>
+<li><p><strong>幻读（Phantom read）:</strong> 幻读与不可重复读类似。它发生在一个事务（T1）读取了几行数据，接着另一个并发事务（T2）插入了一些数据时。在随后的查询中，<strong>第一个事务（T1）就会发现多了一些原本不存在的记录，就好像发生了幻觉一样，所以称为幻读</strong>。（<strong>在同一事务下，连续执行两次同样的SQL语句第二次的SQL语句可能返回之前不存在的行</strong>）</p>
+</li>
+</ul>
+<p><strong><span style="color:red">不可重复读和幻读区别</span></strong>： </p>
+<p><strong>不可重复读的重点是数据的值被修改，比如多次读取一条记录发现其中某些列的值被修改</strong>，幻读的重点在于<strong>新增或者删除比如多次读取一条记录发现记录增多或减少了</strong>。</p>
+<h3 id="MySQL的事务隔离级别"><a href="#MySQL的事务隔离级别" class="headerlink" title="MySQL的事务隔离级别"></a>MySQL的事务隔离级别</h3><p><strong><span style="color:red">SQL 标准定义了四个隔离级别：</span></strong> </p>
+<ul>
+<li><strong>READ-UNCOMMITTED(读取未提交)：</strong> 最低的隔离级别，允许读取尚未提交的数据变更，<strong><span style="color:red">可能会导致脏读、幻读或不可重复读</span></strong>。</li>
+<li><strong>READ-COMMITTED(读取已提交)：</strong> 允许读取并发事务已经提交的数据，<strong><span style="color:red">可以阻止脏读，但是幻读或不可重复读仍有可能发生</span></strong>。</li>
+<li><strong>REPEATABLE-READ(可重复读)：</strong> <strong>对同一字段的多次读取结果都是一致的</strong>，除非数据是被本身事务自己所修改，<span style="color:red"><strong>可以阻止脏读和不可重复读，但幻读仍有可能发生</strong></span>。</li>
+<li><strong>SERIALIZABLE(可串行化)：</strong> <strong>最高的隔离级别，完全服从ACID的隔离级别</strong>。所有的事务依次逐个执行，这样事务之间就完全不可能产生干扰，也就是说，<strong>该级别可以防止脏读、不可重复读以及幻读</strong>。但效率极低。该标准类似于线程锁。</li>
+</ul>
+<p>可总结为下表（<strong>打勾表示可能发生</strong>）</p>
+<table>
+<thead>
+<tr>
+<th>隔离级别</th>
+<th>脏读</th>
+<th>不可重复读</th>
+<th>幻影读</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>READ-UNCOMMITTED</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+</tr>
+<tr>
+<td>READ-COMMITTED</td>
+<td>×</td>
+<td>√</td>
+<td>√</td>
+</tr>
+<tr>
+<td>REPEATABLE-READ</td>
+<td>×</td>
+<td>×</td>
+<td>√</td>
+</tr>
+<tr>
+<td>SERIALIZABLE</td>
+<td>×</td>
+<td>×</td>
+<td>×</td>
+</tr>
+</tbody></table>
+<p>MySQL <strong>InnoDB 存储引擎</strong>的默认支持的隔离级别是 <strong>REPEATABLE-READ（可重读）</strong>。可以<strong>通过<code>SELECT @@tx_isolation;</code>命令</strong>来查看</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; SELECT @@tx_isolation;</span><br><span class="line">+<span class="comment">-----------------+</span></span><br><span class="line">| @@tx_isolation  |</span><br><span class="line">+<span class="comment">-----------------+</span></span><br><span class="line">| REPEATABLE-READ |</span><br><span class="line">+<span class="comment">-----------------+</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>​        <strong><span style="color:red">这里需要注意的是</span></strong>：与 SQL 标准不同的地方在于 InnoDB 存储引擎在 <strong>REPEATABLE-READ（可重读）</strong> 事务隔离级别下使用的是<strong>Next-Key Lock 锁算法</strong>，因此<strong><span style="color:red">可以避免幻读的产生</span></strong>，这与其他数据库系统(如 SQL Server) 是不同的。所以说<strong><span style="color:red">InnoDB 存储引擎的默认支持的隔离级别已经可以完全保证事务的隔离性要求，即达到了 SQL标准的 SERIALIZABLE(可串行化) 隔离级别</span></strong>。因为隔离级别越低，事务请求的锁越少，所以大部分数据库系统的隔离级别都是 <strong>READ-COMMITTED(读取提交内容)</strong> ，<strong>但是InnoDB 存储引擎默认使用 REPEAaTABLE-READ（可重读），<span style="color:red"> 并不会有任何性能损失</span></strong>。</p>
+<p>InnoDB 存储引擎在 <strong>分布式事务</strong> 的情况下一般会用到 <strong>SERIALIZABLE(可串行化)</strong> 隔离级别。</p>
+<p>设置事务隔离级别：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SET</span> <span class="keyword">SESSION</span>/<span class="keyword">GLOBAL</span> <span class="keyword">TRANSACTION</span> <span class="keyword">ISOLATION</span> <span class="keyword">LEVEL</span> </span><br><span class="line"><span class="keyword">read</span> uncommitted | <span class="keyword">read</span> committed | repeatable <span class="keyword">read</span>(默认) | <span class="keyword">serializable</span>;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="锁机制与InnoDB锁算法（to-be-continue）"><a href="#锁机制与InnoDB锁算法（to-be-continue）" class="headerlink" title="锁机制与InnoDB锁算法（to be continue）"></a>锁机制与InnoDB锁算法（to be continue）</h3>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/03/20/Java/%E9%9B%86%E5%90%88%E6%BA%90%E7%A0%81/HashMap%20-%20JDK1.8/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1870,776 +2053,6 @@ method_info    methods;【methods_count】</code></pre>
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/25/IDEA%E5%BF%AB%E6%8D%B7%E9%94%AE%E5%A4%A7%E5%85%A8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="bxxiao">
-      <meta itemprop="description" content="nothing">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="bxxiao">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/02/25/IDEA%E5%BF%AB%E6%8D%B7%E9%94%AE%E5%A4%A7%E5%85%A8/" class="post-title-link" itemprop="url">IDEA快捷键大全</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2021-02-25 00:26:06 / 修改时间：00:28:01" itemprop="dateCreated datePublished" datetime="2021-02-25T00:26:06+08:00">2021-02-25</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/IDEA/" itemprop="url" rel="index"><span itemprop="name">IDEA</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <blockquote>
-<p>以下绝大部分copy自：<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_38963960/article/details/89552704">https://blog.csdn.net/qq_38963960/article/details/89552704</a></p>
-</blockquote>
-<h2 id="Ctrl"><a href="#Ctrl" class="headerlink" title="Ctrl"></a>Ctrl</h2><table>
-<thead>
-<tr>
-<th align="left">快捷键</th>
-<th align="left">介绍</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left"><strong><span style="color:red;">Ctrl + F</span></strong></td>
-<td align="left">在当前文件进行文本查找 <code>（必备）</code></td>
-</tr>
-<tr>
-<td align="left">Ctrl + R</td>
-<td align="left">在当前文件进行文本替换 <code>（必备）</code></td>
-</tr>
-<tr>
-<td align="left">Ctrl + Z</td>
-<td align="left">撤销 <code>（必备）</code></td>
-</tr>
-<tr>
-<td align="left">Ctrl + Y</td>
-<td align="left">删除光标所在行 或 删除选中的行 <code>（必备）</code></td>
-</tr>
-<tr>
-<td align="left">Ctrl + X</td>
-<td align="left">剪切光标所在行 或 剪切选择内容</td>
-</tr>
-<tr>
-<td align="left">Ctrl + C</td>
-<td align="left">复制光标所在行 或 复制选择内容</td>
-</tr>
-<tr>
-<td align="left">Ctrl + D</td>
-<td align="left">复制光标所在行 或 复制选择内容，并把复制内容插入光标位置下面 <code>（必备）</code></td>
-</tr>
-<tr>
-<td align="left">Ctrl + W</td>
-<td align="left">递进式选择代码块。可选中光标所在的单词或段落，连续按会在原有选中的基础上再扩展选中范围 <code>（必备）</code></td>
-</tr>
-<tr>
-<td align="left">Ctrl + E</td>
-<td align="left">显示最近打开的文件记录列表</td>
-</tr>
-<tr>
-<td align="left">Ctrl + N</td>
-<td align="left">根据输入的 <strong>类名</strong> 查找类文件</td>
-</tr>
-<tr>
-<td align="left">Ctrl + G</td>
-<td align="left">在当前文件跳转到指定行处</td>
-</tr>
-<tr>
-<td align="left">Ctrl + J</td>
-<td align="left">插入自定义动态代码模板</td>
-</tr>
-<tr>
-<td align="left">Ctrl + P</td>
-<td align="left">方法参数提示显示</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Q</td>
-<td align="left">光标所在的变量 / 类名 / 方法名等上面（也可以在提示补充的时候按），显示文档内容</td>
-</tr>
-<tr>
-<td align="left">Ctrl + U</td>
-<td align="left">前往当前光标所在的方法的父类的方法 / 接口定义</td>
-</tr>
-<tr>
-<td align="left">Ctrl + B</td>
-<td align="left">进入光标所在的方法/变量的接口或是定义出，等效于 <code>Ctrl + 左键单击</code></td>
-</tr>
-<tr>
-<td align="left">Ctrl + K</td>
-<td align="left">版本控制提交项目，需要此项目有加入到版本控制才可用</td>
-</tr>
-<tr>
-<td align="left">Ctrl + T</td>
-<td align="left">版本控制更新项目，需要此项目有加入到版本控制才可用</td>
-</tr>
-<tr>
-<td align="left"><strong>Ctrl + H</strong></td>
-<td align="left"><strong>显示当前类的层次结构</strong></td>
-</tr>
-<tr>
-<td align="left">Ctrl + O</td>
-<td align="left">选择可重写的方法</td>
-</tr>
-<tr>
-<td align="left">Ctrl + I</td>
-<td align="left">选择可继承的方法</td>
-</tr>
-<tr>
-<td align="left">Ctrl + +</td>
-<td align="left">展开代码</td>
-</tr>
-<tr>
-<td align="left">Ctrl + -</td>
-<td align="left">折叠代码</td>
-</tr>
-<tr>
-<td align="left">Ctrl + /</td>
-<td align="left">注释光标所在行代码，会根据当前不同文件类型使用不同的注释符号 <code>（必备）</code></td>
-</tr>
-<tr>
-<td align="left">Ctrl + [</td>
-<td align="left">移动光标到当前所在代码的花括号开始位置</td>
-</tr>
-<tr>
-<td align="left">Ctrl + ]</td>
-<td align="left">移动光标到当前所在代码的花括号结束位置</td>
-</tr>
-<tr>
-<td align="left">Ctrl + F1</td>
-<td align="left">在光标所在的错误代码出显示错误信息</td>
-</tr>
-<tr>
-<td align="left">Ctrl + F3</td>
-<td align="left">调转到所选中的词的下一个引用位置</td>
-</tr>
-<tr>
-<td align="left">Ctrl + F4</td>
-<td align="left">关闭当前编辑文件</td>
-</tr>
-<tr>
-<td align="left">Ctrl + F8</td>
-<td align="left">在 Debug 模式下，设置光标当前行为断点，如果当前已经是断点则去掉断点</td>
-</tr>
-<tr>
-<td align="left">Ctrl + F9</td>
-<td align="left">执行 Make Project 操作</td>
-</tr>
-<tr>
-<td align="left">Ctrl + F11</td>
-<td align="left">选中文件 / 文件夹，使用助记符设定 / 取消书签</td>
-</tr>
-<tr>
-<td align="left">Ctrl + F12</td>
-<td align="left">弹出当前文件结构层，可以在弹出的层上直接输入，进行筛选</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Tab</td>
-<td align="left">编辑窗口切换，如果在切换的过程又加按上delete，则是关闭对应选中的窗口</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Enter</td>
-<td align="left">智能分隔行</td>
-</tr>
-<tr>
-<td align="left">Ctrl + End</td>
-<td align="left">跳到文件尾</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Home</td>
-<td align="left">跳到文件头</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Space</td>
-<td align="left">基础代码补全，默认在 Windows 系统上被输入法占用，需要进行修改，建议修改为 <code>Ctrl + 逗号</code> <code>（必备）</code></td>
-</tr>
-<tr>
-<td align="left">Ctrl + Delete</td>
-<td align="left">删除光标后面的单词或是中文句</td>
-</tr>
-<tr>
-<td align="left">Ctrl + BackSpace</td>
-<td align="left">删除光标前面的单词或是中文句</td>
-</tr>
-<tr>
-<td align="left">Ctrl + 1,2,3…9</td>
-<td align="left">定位到对应数值的书签位置</td>
-</tr>
-<tr>
-<td align="left">Ctrl + 左键单击</td>
-<td align="left">在打开的文件标题上，弹出该文件路径</td>
-</tr>
-<tr>
-<td align="left">Ctrl + 光标定位</td>
-<td align="left">按 Ctrl 不要松开，会显示光标所在的类信息摘要</td>
-</tr>
-<tr>
-<td align="left">Ctrl + 左方向键</td>
-<td align="left">光标跳转到当前单词 / 中文句的左侧开头位置</td>
-</tr>
-<tr>
-<td align="left">Ctrl + 右方向键</td>
-<td align="left">光标跳转到当前单词 / 中文句的右侧开头位置</td>
-</tr>
-<tr>
-<td align="left">Ctrl + 前方向键</td>
-<td align="left">等效于鼠标滚轮向前效果</td>
-</tr>
-<tr>
-<td align="left">Ctrl + 后方向键</td>
-<td align="left">等效于鼠标滚轮向后效果</td>
-</tr>
-</tbody></table>
-<h2 id="Alt"><a href="#Alt" class="headerlink" title="Alt"></a>Alt</h2><table>
-<thead>
-<tr>
-<th align="left">快捷键</th>
-<th align="left">介绍</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">Alt + `</td>
-<td align="left">显示版本控制常用操作菜单弹出层</td>
-</tr>
-<tr>
-<td align="left">Alt + Q</td>
-<td align="left">弹出一个提示，显示当前类的声明 / 上下文信息</td>
-</tr>
-<tr>
-<td align="left">Alt + F1</td>
-<td align="left">显示当前文件选择目标弹出层，弹出层中有很多目标可以进行选择</td>
-</tr>
-<tr>
-<td align="left">Alt + F2</td>
-<td align="left">对于前面页面，显示各类浏览器打开目标选择弹出层</td>
-</tr>
-<tr>
-<td align="left">Alt + F3</td>
-<td align="left">选中文本，逐个往下查找相同文本，并高亮显示</td>
-</tr>
-<tr>
-<td align="left">Alt + F7</td>
-<td align="left">查找光标所在的方法 / 变量 / 类被调用的地方</td>
-</tr>
-<tr>
-<td align="left">Alt + F8</td>
-<td align="left">在 Debug 的状态下，选中对象，弹出可输入计算表达式调试框，查看该输入内容的调试结果</td>
-</tr>
-<tr>
-<td align="left">Alt + Home</td>
-<td align="left">定位 / 显示到当前文件的 <code>Navigation Bar</code></td>
-</tr>
-<tr>
-<td align="left">Alt + Enter</td>
-<td align="left">IntelliJ IDEA 根据光标所在问题，提供快速修复选择，光标放在的位置不同提示的结果也不同 <code>（必备）</code></td>
-</tr>
-<tr>
-<td align="left">Alt + Insert</td>
-<td align="left">代码自动生成，如生成对象的 set / get 方法，构造函数，toString() 等</td>
-</tr>
-<tr>
-<td align="left">Alt + 左方向键</td>
-<td align="left">按左方向切换当前已打开的文件视图</td>
-</tr>
-<tr>
-<td align="left">Alt + 右方向键</td>
-<td align="left">按右方向切换当前已打开的文件视图</td>
-</tr>
-<tr>
-<td align="left">Alt + 前方向键</td>
-<td align="left">当前光标跳转到当前文件的前一个方法名位置</td>
-</tr>
-<tr>
-<td align="left">Alt + 后方向键</td>
-<td align="left">当前光标跳转到当前文件的后一个方法名位置</td>
-</tr>
-<tr>
-<td align="left">Alt + 1,2,3…9</td>
-<td align="left">显示对应数值的选项卡，其中 1 是 Project 用得最多</td>
-</tr>
-</tbody></table>
-<h2 id="Shift"><a href="#Shift" class="headerlink" title="Shift"></a>Shift</h2><table>
-<thead>
-<tr>
-<th align="left">快捷键</th>
-<th align="left">介绍</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">Shift + F1</td>
-<td align="left">如果有外部文档可以连接外部文档</td>
-</tr>
-<tr>
-<td align="left">Shift + F2</td>
-<td align="left">跳转到上一个高亮错误 或 警告位置</td>
-</tr>
-<tr>
-<td align="left">Shift + F3</td>
-<td align="left">在查找模式下，查找匹配上一个</td>
-</tr>
-<tr>
-<td align="left">Shift + F4</td>
-<td align="left">对当前打开的文件，使用新Windows窗口打开，旧窗口保留</td>
-</tr>
-<tr>
-<td align="left">Shift + F6</td>
-<td align="left">对文件 / 文件夹 重命名</td>
-</tr>
-<tr>
-<td align="left">Shift + F7</td>
-<td align="left">在 Debug 模式下，智能步入。断点所在行上有多个方法调用，会弹出进入哪个方法</td>
-</tr>
-<tr>
-<td align="left">Shift + F8</td>
-<td align="left">在 Debug 模式下，跳出，表现出来的效果跟 <code>F9</code> 一样</td>
-</tr>
-<tr>
-<td align="left">Shift + F9</td>
-<td align="left">等效于点击工具栏的 <code>Debug</code> 按钮</td>
-</tr>
-<tr>
-<td align="left">Shift + F10</td>
-<td align="left">等效于点击工具栏的 <code>Run</code> 按钮</td>
-</tr>
-<tr>
-<td align="left">Shift + F11</td>
-<td align="left">弹出书签显示层</td>
-</tr>
-<tr>
-<td align="left">Shift + Tab</td>
-<td align="left">取消缩进</td>
-</tr>
-<tr>
-<td align="left">Shift + ESC</td>
-<td align="left">隐藏当前 或 最后一个激活的工具窗口</td>
-</tr>
-<tr>
-<td align="left">Shift + End</td>
-<td align="left">选中光标到当前行尾位置</td>
-</tr>
-<tr>
-<td align="left">Shift + Home</td>
-<td align="left">选中光标到当前行头位置</td>
-</tr>
-<tr>
-<td align="left">Shift + Enter</td>
-<td align="left">在当前行的下一行另起新行</td>
-</tr>
-<tr>
-<td align="left">Shift+Alt+Enter</td>
-<td align="left">在当前行的上一行另起新行</td>
-</tr>
-<tr>
-<td align="left">Shift + 左键单击</td>
-<td align="left">在打开的文件名上按此快捷键，可以关闭当前打开文件</td>
-</tr>
-<tr>
-<td align="left">Shift + 滚轮前后滚动</td>
-<td align="left">当前文件的横向滚动轴滚动</td>
-</tr>
-</tbody></table>
-<h2 id="Ctrl-Alt"><a href="#Ctrl-Alt" class="headerlink" title="Ctrl + Alt"></a>Ctrl + Alt</h2><table>
-<thead>
-<tr>
-<th align="left">快捷键</th>
-<th align="left">介绍</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left"><strong><span style="color:red;">Ctrl + Alt + L</span></strong></td>
-<td align="left">格式化代码，可以对当前文件和整个包目录使用 <code>（必备）</code></td>
-</tr>
-<tr>
-<td align="left">Ctrl + Alt + O</td>
-<td align="left">优化导入的类，可以对当前文件和整个包目录使用 <code>（必备）</code></td>
-</tr>
-<tr>
-<td align="left">Ctrl + Alt + I</td>
-<td align="left">光标所在行 或 选中部分进行自动代码缩进，有点类似格式化</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Alt + T</td>
-<td align="left">对选中的代码弹出环绕选项弹出层</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Alt + J</td>
-<td align="left">弹出模板选择窗口，讲选定的代码加入动态模板中</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Alt + H</td>
-<td align="left">调用层次</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Alt + B</td>
-<td align="left">在某个调用的方法名上使用会跳到具体的实现处，可以跳过接口</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Alt + V</td>
-<td align="left">快速引进变量</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Alt + Y</td>
-<td align="left">同步、刷新</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Alt + S</td>
-<td align="left">打开 IntelliJ IDEA 系统设置</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Alt + F7</td>
-<td align="left">显示使用的地方。寻找被该类或是变量被调用的地方，用弹出框的方式找出来</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Alt + F11</td>
-<td align="left">切换全屏模式</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Alt + Enter</td>
-<td align="left">光标所在行上空出一行，光标定位到新行</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Alt + Home</td>
-<td align="left">弹出跟当前文件有关联的文件弹出层</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Alt + Space</td>
-<td align="left">类名自动完成</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Alt + 左方向键</td>
-<td align="left">退回到上一个操作的地方 <code>（必备）**（注意与其他软件快捷键冲突）**</code></td>
-</tr>
-<tr>
-<td align="left">Ctrl + Alt + 右方向键</td>
-<td align="left">前进到上一个操作的地方 <code>（必备）**（注意与其他软件快捷键冲突）**</code></td>
-</tr>
-<tr>
-<td align="left">Ctrl + Alt + 前方向键</td>
-<td align="left">在查找模式下，跳到上个查找的文件</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Alt + 后方向键</td>
-<td align="left">在查找模式下，跳到下个查找的文件</td>
-</tr>
-</tbody></table>
-<h2 id="Ctrl-Shift"><a href="#Ctrl-Shift" class="headerlink" title="Ctrl + Shift"></a>Ctrl + Shift</h2><table>
-<thead>
-<tr>
-<th align="left">快捷键</th>
-<th align="left">介绍</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">Ctrl + Shift + F</td>
-<td align="left">根据输入内容查找整个项目 或 指定目录内文件 <code>（必备）</code></td>
-</tr>
-<tr>
-<td align="left">Ctrl + Shift + R</td>
-<td align="left">根据输入内容替换对应内容，范围为整个项目 或 指定目录内文件 <code>（必备）</code></td>
-</tr>
-<tr>
-<td align="left">Ctrl + Shift + J</td>
-<td align="left">自动将下一行合并到当前行末尾 <code>（必备）</code></td>
-</tr>
-<tr>
-<td align="left">Ctrl + Shift + Z</td>
-<td align="left">取消撤销 <code>（必备）</code></td>
-</tr>
-<tr>
-<td align="left">Ctrl + Shift + W</td>
-<td align="left">递进式取消选择代码块。可选中光标所在的单词或段落，连续按会在原有选中的基础上再扩展取消选中范围 <code>（必备）</code></td>
-</tr>
-<tr>
-<td align="left">Ctrl + Shift + N</td>
-<td align="left">通过文件名定位 / 打开文件 / 目录，打开目录需要在输入的内容后面多加一个正斜杠 <code>（必备）</code></td>
-</tr>
-<tr>
-<td align="left">Ctrl + Shift + U</td>
-<td align="left">对选中的代码进行大 / 小写轮流转换 <code>（必备）</code></td>
-</tr>
-<tr>
-<td align="left">Ctrl + Shift + T</td>
-<td align="left">对当前类生成单元测试类，如果已经存在的单元测试类则可以进行选择</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Shift + C</td>
-<td align="left">复制当前文件磁盘路径到剪贴板</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Shift + V</td>
-<td align="left">弹出缓存的最近拷贝的内容管理器弹出层</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Shift + E</td>
-<td align="left">显示最近修改的文件列表的弹出层</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Shift + H</td>
-<td align="left">显示方法层次结构</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Shift + B</td>
-<td align="left">跳转到类型声明处</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Shift + I</td>
-<td align="left">快速查看光标所在的方法 或 类的定义</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Shift + A</td>
-<td align="left">查找动作 / 设置</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Shift + /</td>
-<td align="left">代码块注释 <code>（必备）</code></td>
-</tr>
-<tr>
-<td align="left">Ctrl + Shift + [</td>
-<td align="left">选中从光标所在位置到它的顶部中括号位置</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Shift + ]</td>
-<td align="left">选中从光标所在位置到它的底部中括号位置</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Shift + +</td>
-<td align="left">展开所有代码</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Shift + -</td>
-<td align="left">折叠所有代码</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Shift + F7</td>
-<td align="left">高亮显示所有该选中文本，按Esc高亮消失</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Shift + F8</td>
-<td align="left">在 Debug 模式下，指定断点进入条件</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Shift + F9</td>
-<td align="left">编译选中的文件 / 包 / Module</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Shift + F12</td>
-<td align="left">编辑器最大化</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Shift + Space</td>
-<td align="left">智能代码提示</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Shift + Enter</td>
-<td align="left">自动结束代码，行末自动添加分号 <code>（必备）</code></td>
-</tr>
-<tr>
-<td align="left">Ctrl + Shift + Backspace</td>
-<td align="left">退回到上次修改的地方</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Shift + 1,2,3…9</td>
-<td align="left">快速添加指定数值的书签</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Shift + 左方向键</td>
-<td align="left">在代码文件上，光标跳转到当前单词 / 中文句的左侧开头位置，同时选中该单词 / 中文句</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Shift + 右方向键</td>
-<td align="left">在代码文件上，光标跳转到当前单词 / 中文句的右侧开头位置，同时选中该单词 / 中文句</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Shift + 左方向键</td>
-<td align="left">在光标焦点是在工具选项卡上，缩小选项卡区域</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Shift + 右方向键</td>
-<td align="left">在光标焦点是在工具选项卡上，扩大选项卡区域</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Shift + 前方向键</td>
-<td align="left">光标放在方法名上，将方法移动到上一个方法前面，调整方法排序</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Shift + 后方向键</td>
-<td align="left">光标放在方法名上，将方法移动到下一个方法前面，调整方法排序</td>
-</tr>
-</tbody></table>
-<h2 id="Alt-Shift"><a href="#Alt-Shift" class="headerlink" title="Alt + Shift"></a>Alt + Shift</h2><table>
-<thead>
-<tr>
-<th align="left">快捷键</th>
-<th align="left">介绍</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">Alt + Shift + N</td>
-<td align="left">选择 / 添加 task</td>
-</tr>
-<tr>
-<td align="left">Alt + Shift + F</td>
-<td align="left">显示添加到收藏夹弹出层</td>
-</tr>
-<tr>
-<td align="left">Alt + Shift + C</td>
-<td align="left">查看最近操作项目的变化情况列表</td>
-</tr>
-<tr>
-<td align="left">Alt + Shift + F</td>
-<td align="left">添加到收藏夹</td>
-</tr>
-<tr>
-<td align="left">Alt + Shift + I</td>
-<td align="left">查看项目当前文件</td>
-</tr>
-<tr>
-<td align="left">Alt + Shift + F7</td>
-<td align="left">在 Debug 模式下，下一步，进入当前方法体内，如果方法体还有方法，则会进入该内嵌的方法中，依此循环进入</td>
-</tr>
-<tr>
-<td align="left">Alt + Shift + F9</td>
-<td align="left">弹出 <code>Debug</code> 的可选择菜单</td>
-</tr>
-<tr>
-<td align="left">Alt + Shift + F10</td>
-<td align="left">弹出 <code>Run</code> 的可选择菜单</td>
-</tr>
-<tr>
-<td align="left">Alt + Shift + 左键双击</td>
-<td align="left">选择被双击的单词 / 中文句，按住不放，可以同时选择其他单词 / 中文句</td>
-</tr>
-<tr>
-<td align="left">Alt + Shift + 前方向键</td>
-<td align="left">移动光标所在行向上移动</td>
-</tr>
-<tr>
-<td align="left">Alt + Shift + 后方向键</td>
-<td align="left">移动光标所在行向下移动</td>
-</tr>
-</tbody></table>
-<h2 id="Ctrl-Shift-Alt"><a href="#Ctrl-Shift-Alt" class="headerlink" title="Ctrl + Shift + Alt"></a>Ctrl + Shift + Alt</h2><table>
-<thead>
-<tr>
-<th align="left">快捷键</th>
-<th align="left">介绍</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">Ctrl + Shift + Alt + V</td>
-<td align="left">无格式黏贴</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Shift + Alt + N</td>
-<td align="left">前往指定的变量 / 方法</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Shift + Alt + S</td>
-<td align="left">打开当前项目设置</td>
-</tr>
-<tr>
-<td align="left">Ctrl + Shift + Alt + C</td>
-<td align="left">复制参考信息</td>
-</tr>
-</tbody></table>
-<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><table>
-<thead>
-<tr>
-<th align="left">快捷键</th>
-<th align="left">介绍</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">F2</td>
-<td align="left">跳转到下一个高亮错误 或 警告位置 <code>（必备）</code></td>
-</tr>
-<tr>
-<td align="left">F3</td>
-<td align="left">在查找模式下，定位到下一个匹配处</td>
-</tr>
-<tr>
-<td align="left">F4</td>
-<td align="left">编辑源</td>
-</tr>
-<tr>
-<td align="left">F7</td>
-<td align="left">在 Debug 模式下，进入下一步，如果当前行断点是一个方法，则进入当前方法体内，如果该方法体还有方法，则不会进入该内嵌的方法中</td>
-</tr>
-<tr>
-<td align="left">F8</td>
-<td align="left">在 Debug 模式下，进入下一步，如果当前行断点是一个方法，则不进入当前方法体内</td>
-</tr>
-<tr>
-<td align="left">F9</td>
-<td align="left">在 Debug 模式下，恢复程序运行，但是如果该断点下面代码还有断点则停在下一个断点上</td>
-</tr>
-<tr>
-<td align="left">F11</td>
-<td align="left">添加书签</td>
-</tr>
-<tr>
-<td align="left">F12</td>
-<td align="left">回到前一个工具窗口</td>
-</tr>
-<tr>
-<td align="left">Tab</td>
-<td align="left">缩进</td>
-</tr>
-<tr>
-<td align="left">ESC</td>
-<td align="left">从工具窗口进入代码文件窗口</td>
-</tr>
-<tr>
-<td align="left">连按两次Shift</td>
-<td align="left">弹出 <code>Search Everywhere</code> 弹出层</td>
-</tr>
-</tbody></table>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -2709,7 +2122,7 @@ method_info    methods;【methods_count】</code></pre>
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">35</span>
+          <span class="site-state-item-count">36</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
